@@ -1,0 +1,1 @@
+Version 1.0.8 - Added custom interval option. Users can now enter any interval from 1-1440 minutes.
