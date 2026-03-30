@@ -170,7 +170,10 @@
     <string name="interval_dialog_confirm">Start Learning</string>
     <string name="interval_dialog_cancel">Cancel</string>
     <string name="interval_minutes">%1$d minutes</string>
-    
+    <string name="interval_custom">Custom interval</string>
+    <string name="interval_custom_hint">Enter minutes</string>
+    <string name="interval_invalid">Please enter a valid number (1-1440)</string>
+
     <!-- Flashcard Management Screen -->
     <string name="flashcard_management_loading">Loading flashcards...</string>
     <string name="flashcard_management_empty_title">No flashcards yet</string>

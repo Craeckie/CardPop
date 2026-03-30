@@ -170,7 +170,10 @@
     <string name="interval_dialog_confirm">Lernen starten</string>
     <string name="interval_dialog_cancel">Abbrechen</string>
     <string name="interval_minutes">%1$d Minuten</string>
-    
+    <string name="interval_custom">Benutzerdefiniertes Intervall</string>
+    <string name="interval_custom_hint">Minuten eingeben</string>
+    <string name="interval_invalid">Bitte gültige Zahl eingeben (1-1440)</string>
+
     <!-- Flashcard Management Screen - encouraging German -->
     <string name="flashcard_management_loading">Lernkarten werden geladen...</string>
     <string name="flashcard_management_empty_title">Noch keine Lernkarten</string>

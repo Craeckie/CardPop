@@ -24,6 +24,7 @@ import com.floflacards.app.data.model.FlashcardTheme
 import com.floflacards.app.data.model.Language
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import com.floflacards.app.util.IntervalConstants
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -69,11 +70,10 @@ class SettingsRepository @Inject constructor(
         private const val KEY_BATTERY_OPTIMIZATION_SKIPPED = "battery_optimization_skipped"
         private const val KEY_BATTERY_OPTIMIZATION_EVER_DISABLED = "battery_optimization_ever_disabled"
         private const val KEY_APP_LOCALE = "app_locale"
-        private const val DEFAULT_INTERVAL_MINUTES = 5
     }
-    
+
     fun getIntervalMinutes(): Int {
-        return prefs.getInt(KEY_INTERVAL_MINUTES, DEFAULT_INTERVAL_MINUTES)
+        return prefs.getInt(KEY_INTERVAL_MINUTES, IntervalConstants.DEFAULT_INTERVAL_MINUTES)
     }
     
     fun setIntervalMinutes(minutes: Int) {

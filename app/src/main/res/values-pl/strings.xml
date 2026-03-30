@@ -170,7 +170,10 @@
     <string name="interval_dialog_confirm">Rozpocznij naukę</string>
     <string name="interval_dialog_cancel">Anuluj</string>
     <string name="interval_minutes">%1$d minut</string>
-    
+    <string name="interval_custom">Niestandardowy interwał</string>
+    <string name="interval_custom_hint">Wprowadź minuty</string>
+    <string name="interval_invalid">Wprowadź prawidłową liczbę (1-1440)</string>
+
     <!-- Flashcard Management Screen - encouraging Polish -->
     <string name="flashcard_management_loading">Ładowanie fiszek...</string>
     <string name="flashcard_management_empty_title">Jeszcze nie ma fiszek</string>

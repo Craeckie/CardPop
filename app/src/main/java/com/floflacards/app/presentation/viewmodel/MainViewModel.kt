@@ -26,6 +26,7 @@ import com.floflacards.app.domain.usecase.SimpleStatistics
 import com.floflacards.app.service.LearningServiceManager
 import com.floflacards.app.data.repository.SettingsRepository
 import com.floflacards.app.util.PermissionHelper
+import com.floflacards.app.util.IntervalConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,9 +56,7 @@ class MainViewModel @Inject constructor(
     
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
-    
-    private val availableIntervals = listOf(1, 5, 10, 15, 30) // minutes
-    
+
     init {
         initializeApp()
         observeServiceState()
@@ -197,12 +196,12 @@ class MainViewModel @Inject constructor(
     }
     
     fun updateInterval(intervalMinutes: Int) {
-        if (intervalMinutes in availableIntervals) {
+        if (IntervalConstants.isValidInterval(intervalMinutes)) {
             settingsManager.setIntervalMinutes(intervalMinutes)
         }
     }
-    
-    fun getAvailableIntervals(): List<Int> = availableIntervals
+
+    fun getAvailableIntervals(): List<Int> = IntervalConstants.PREDEFINED_INTERVALS
     
     private fun loadStatistics() {
         viewModelScope.launch {

@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+.qwen
+.idea/vcs.xml
