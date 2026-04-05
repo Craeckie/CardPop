@@ -54,6 +54,10 @@ interface CategoryDao {
     
     @Query("SELECT * FROM categories WHERE name = :name LIMIT 1")
     suspend fun getCategoryByName(name: String): CategoryEntity?
+
+    // CSV import — resolve category name to ID (case-insensitive)
+    @Query("SELECT id FROM categories WHERE LOWER(name) = LOWER(:name) LIMIT 1")
+    suspend fun getCategoryIdByName(name: String): Long?
     
     @Query("DELETE FROM categories")
     suspend fun deleteAllCategories()

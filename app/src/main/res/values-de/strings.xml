@@ -367,4 +367,57 @@
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
     <string name="search_no_results_description">Versuche einen anderen Suchbegriff oder lösche die Suche, um alle Elemente zu sehen</string>
     <string name="search_clear">Suche löschen</string>
+
+    <!-- CSV Import/Export - German -->
+    <string name="csv_import_title">Aus CSV importieren</string>
+    <string name="csv_import_back">Zurück</string>
+    <string name="csv_import_select_file">CSV-Datei auswählen</string>
+    <string name="csv_import_file_description">Wähle eine CSV-Datei zum Importieren. Die Datei sollte mindestens zwei Spalten haben: Frage und Antwort.</string>
+    <string name="csv_import_pick_file_button">CSV-Datei wählen</string>
+    <string name="csv_import_preview_title">Vorschau</string>
+    <string name="csv_import_valid_cards">Gültige Lernkarten: %1$d</string>
+    <string name="csv_import_parse_errors">Parse-Fehler: %1$d</string>
+    <string name="csv_import_no_valid_cards">Keine gültigen Lernkarten in dieser Datei gefunden.</string>
+    <string name="csv_import_skip_duplicates">Duplikate überspringen</string>
+    <string name="csv_import_skip_duplicates_description">Lernkarten überspringen, die bereits existieren (gleiche Frage und Antwort)</string>
+    <string name="csv_import_import_button">%1$d Lernkarten importieren</string>
+    <string name="csv_import_importing">Importieren…</string>
+    <string name="csv_import_success">%1$d Lernkarten erfolgreich importiert</string>
+    <string name="csv_import_skipped">%1$d Duplikate übersprungen</string>
+    <string name="csv_import_done">Import abgeschlossen</string>
+    <string name="csv_import_done_button">Fertig</string>
+    <string name="csv_import_error_title">Import-Fehler</string>
+    <string name="csv_import_error_close">Schließen</string>
+    <string name="csv_import_parsing_errors_detail">%1$d Zeilen hatten Fehler und wurden übersprungen</string>
+    <string name="csv_import_supported_formats">Unterstützt: CSV, TSV mit Kopfzeilen wie Frage/Antwort, Vorderseite/Rückseite, Begriff/Definition</string>
+    <string name="csv_import_parsing_file">CSV-Datei wird analysiert…</string>
+    <string name="csv_import_into_category">Importieren in Kategorie:</string>
+    <string name="csv_import_preview_label">Vorschau (erste %1$d von %2$d):</string>
+    <string name="csv_import_question_header">Frage</string>
+    <string name="csv_import_answer_header">Antwort</string>
+    <string name="csv_import_and_more">…und %1$d weitere</string>
+    <string name="csv_import_pick_another">Andere Datei wählen</string>
+    <string name="csv_import_select_category">Kategorie auswählen</string>
+
+    <!-- CSV Export - German -->
+    <string name="csv_export_title">Als CSV exportieren</string>
+    <string name="csv_export_description">Alle Lernkarten aus \"%1$s\" als CSV-Datei exportieren.</string>
+    <string name="csv_export_flashcard_count">%1$d Lernkarten werden exportiert</string>
+    <string name="csv_export_button">Exportieren</string>
+    <string name="csv_export_exporting">Exportieren…</string>
+    <string name="csv_export_success">%1$d Lernkarten erfolgreich exportiert</string>
+    <string name="csv_export_error">Export fehlgeschlagen: %1$s</string>
+    <string name="csv_export_save_file">CSV-Datei speichern</string>
+    <string name="csv_export_filename_hint">Dateiname</string>
+    <string name="csv_export_default_filename">%1$s_lernkarten</string>
+    <string name="csv_export_note">Hinweis: Bilder sind im CSV-Export nicht enthalten. Nutze die JSON-Sicherung für ein vollständiges Backup mit Bildern.</string>
+    <string name="csv_export_preparing">Export wird vorbereitet…</string>
+    <string name="csv_export_select_location">Wähle einen Speicherort für die CSV-Datei</string>
+    <string name="csv_export_all_categories">Alle Kategorien exportieren</string>
+    <string name="csv_export_bulk_preparing">Massenexport wird vorbereitet…</string>
+    <string name="csv_export_bulk_subtitle">Alle Kategorien kombiniert</string>
+
+    <!-- Category context menu - German -->
+    <string name="category_export_csv">Als CSV exportieren</string>
+    <string name="category_import_csv">Aus CSV importieren</string>
 </resources>

@@ -373,4 +373,57 @@
     <string name="search_no_results">No results found</string>
     <string name="search_no_results_description">Try a different search term or clear the search to see all items</string>
     <string name="search_clear">Clear Search</string>
+
+    <!-- CSV Import -->
+    <string name="csv_import_title">Import from CSV</string>
+    <string name="csv_import_back">Back</string>
+    <string name="csv_import_select_file">Select CSV File</string>
+    <string name="csv_import_file_description">Choose a CSV file to import. The file should have at least two columns: question and answer.</string>
+    <string name="csv_import_pick_file_button">Pick CSV File</string>
+    <string name="csv_import_preview_title">Preview</string>
+    <string name="csv_import_valid_cards">Valid flashcards: %1$d</string>
+    <string name="csv_import_parse_errors">Parse errors: %1$d</string>
+    <string name="csv_import_no_valid_cards">No valid flashcards found in this file.</string>
+    <string name="csv_import_skip_duplicates">Skip duplicates</string>
+    <string name="csv_import_skip_duplicates_description">Skip flashcards that already exist (same question and answer)</string>
+    <string name="csv_import_import_button">Import %1$d Flashcards</string>
+    <string name="csv_import_importing">Importing…</string>
+    <string name="csv_import_success">Successfully imported %1$d flashcards</string>
+    <string name="csv_import_skipped">Skipped %1$d duplicates</string>
+    <string name="csv_import_done">Import Complete</string>
+    <string name="csv_import_done_button">Done</string>
+    <string name="csv_import_error_title">Import Error</string>
+    <string name="csv_import_error_close">Close</string>
+    <string name="csv_import_parsing_errors_detail">%1$d rows had errors and were skipped</string>
+    <string name="csv_import_supported_formats">Supported: CSV, TSV with headers like question/answer, front/back, term/definition</string>
+    <string name="csv_import_parsing_file">Parsing CSV file…</string>
+    <string name="csv_import_into_category">Import into category:</string>
+    <string name="csv_import_preview_label">Preview (first %1$d of %2$d):</string>
+    <string name="csv_import_question_header">Question</string>
+    <string name="csv_import_answer_header">Answer</string>
+    <string name="csv_import_and_more">…and %1$d more</string>
+    <string name="csv_import_pick_another">Pick a different file</string>
+    <string name="csv_import_select_category">Select category</string>
+
+    <!-- CSV Export -->
+    <string name="csv_export_title">Export as CSV</string>
+    <string name="csv_export_description">Export all flashcards from "%1$s" as a CSV file.</string>
+    <string name="csv_export_flashcard_count">%1$d flashcards will be exported</string>
+    <string name="csv_export_button">Export</string>
+    <string name="csv_export_exporting">Exporting…</string>
+    <string name="csv_export_success">Successfully exported %1$d flashcards</string>
+    <string name="csv_export_error">Export failed: %1$s</string>
+    <string name="csv_export_save_file">Save CSV File</string>
+    <string name="csv_export_filename_hint">Filename</string>
+    <string name="csv_export_default_filename">%1$s_flashcards</string>
+    <string name="csv_export_note">Note: Images are not included in CSV export. Use the JSON backup feature for full backup with images.</string>
+    <string name="csv_export_preparing">Preparing export…</string>
+    <string name="csv_export_select_location">Select a location to save the CSV file</string>
+    <string name="csv_export_all_categories">Export All Categories</string>
+    <string name="csv_export_bulk_preparing">Preparing bulk export…</string>
+    <string name="csv_export_bulk_subtitle">All categories combined</string>
+
+    <!-- Category context menu -->
+    <string name="category_export_csv">Export as CSV</string>
+    <string name="category_import_csv">Import from CSV</string>
 </resources>

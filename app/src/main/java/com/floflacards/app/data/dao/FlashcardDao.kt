@@ -26,6 +26,9 @@ interface FlashcardDao {
     
     @Query("SELECT * FROM flashcards WHERE categoryId = :categoryId ORDER BY createdAt ASC")
     fun getFlashcardsByCategory(categoryId: Long): Flow<List<FlashcardEntity>>
+
+    @Query("SELECT * FROM flashcards WHERE categoryId = :categoryId ORDER BY createdAt ASC")
+    suspend fun getFlashcardsByCategorySync(categoryId: Long): List<FlashcardEntity>
     
     @Query("""
         SELECT f.* FROM flashcards f 
@@ -172,4 +175,20 @@ interface FlashcardDao {
     
     @Query("SELECT COUNT(*) FROM flashcards WHERE categoryId = :categoryId AND isEnabled = 1")
     suspend fun getEnabledFlashcardCountByCategory(categoryId: Long): Int
+
+    // CSV import — batch insert for performance
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFlashcardsBatch(flashcards: List<FlashcardEntity>): List<Long>
+
+    // CSV import — duplicate detection across all categories
+    @Query("SELECT question, answer FROM flashcards")
+    suspend fun getExistingQuestionAnswerPairsAllCategories(): List<QuestionAnswerPair>
+
+    /**
+     * Simple data class for duplicate detection.
+     */
+    data class QuestionAnswerPair(
+        val question: String,
+        val answer: String
+    )
 }

@@ -40,6 +40,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -72,6 +73,7 @@ import com.floflacards.app.presentation.component.SearchBar
 import com.floflacards.app.presentation.component.getContentAlpha
 import com.floflacards.app.presentation.component.getCardContainerColor
 import com.floflacards.app.presentation.component.getCardBorder
+import com.floflacards.app.presentation.component.csv.CsvExportSelectionDialog
 import com.floflacards.app.util.DateUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,11 +81,15 @@ import com.floflacards.app.util.DateUtils
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToFlashcards: (Long, String) -> Unit,
+    onNavigateToCsvImport: () -> Unit = {},
+    onNavigateToCsvExportAll: () -> Unit = {},
+    onNavigateToCsvExport: (Long, String) -> Unit = { _, _ -> },
     categoryViewModel: CategoryViewModel = hiltViewModel()
 ) {
     val categoryUiState by categoryViewModel.uiState.collectAsState()
     var showAddCategoryDialog by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf<CategoryEntity?>(null) }
+    var showCsvExportDialog by remember { mutableStateOf(false) }
     
     // Get filtered categories based on search query
     val filteredCategories = categoryViewModel.getFilteredCategories()
@@ -132,6 +138,44 @@ fun SettingsScreen(
                 placeholder = stringResource(R.string.search_categories),
                 visible = categoryUiState.categories.isNotEmpty() && !categoryUiState.isLoading
             )
+
+            // CSV Import/Export buttons
+            AnimatedVisibility(
+                visible = categoryUiState.categories.isNotEmpty() && !categoryUiState.isLoading,
+                enter = fadeIn(animationSpec = tween(300)),
+                exit = fadeOut(animationSpec = tween(300))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { onNavigateToCsvImport() },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = "\uD83D\uDCE5 " + stringResource(R.string.csv_import_title),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = { showCsvExportDialog = true },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = "\uD83D\uDCE4 " + stringResource(R.string.csv_export_title),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
             
             // Content
             AnimatedVisibility(
@@ -247,6 +291,22 @@ fun SettingsScreen(
             flashcardCount = categoryUiState.categoryFlashcardCount,
             onConfirm = { categoryViewModel.confirmDeleteCategory() },
             onDismiss = { categoryViewModel.cancelDeleteCategory() }
+        )
+    }
+
+    // CSV Export Selection Dialog
+    if (showCsvExportDialog) {
+        CsvExportSelectionDialog(
+            categories = categoryUiState.categories,
+            onExportCategory = { categoryId, categoryName ->
+                showCsvExportDialog = false
+                onNavigateToCsvExport(categoryId, categoryName)
+            },
+            onExportAll = {
+                showCsvExportDialog = false
+                onNavigateToCsvExportAll()
+            },
+            onDismiss = { showCsvExportDialog = false }
         )
     }
 }

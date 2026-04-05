@@ -29,6 +29,10 @@ import com.floflacards.app.presentation.screen.AppSettingsScreen
 import com.floflacards.app.presentation.screen.StatisticsScreen
 import com.floflacards.app.presentation.screen.FlashcardManagementScreen
 import com.floflacards.app.presentation.screen.AddEditFlashcardScreen
+import com.floflacards.app.presentation.screen.CsvImportScreen
+import com.floflacards.app.presentation.screen.CsvExportRoute
+import com.floflacards.app.presentation.screen.CsvBulkExportRoute
+import com.floflacards.app.presentation.component.csv.CsvExportSelectionDialog
 import com.floflacards.app.data.entity.CategoryEntity
 import com.floflacards.app.data.entity.FlashcardEntity
 
@@ -59,6 +63,15 @@ fun AppNavigation(
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToFlashcards = { categoryId, categoryName ->
                     navController.navigate("flashcards/$categoryId/$categoryName")
+                },
+                onNavigateToCsvImport = {
+                    navController.navigate("csv-import")
+                },
+                onNavigateToCsvExportAll = {
+                    navController.navigate("csv-export-all")
+                },
+                onNavigateToCsvExport = { categoryId, categoryName ->
+                    navController.navigate("csv-export/$categoryId/$categoryName")
                 }
             )
         }
@@ -102,6 +115,33 @@ FlashcardManagementScreen(
             AddEditFlashcardScreen(
                 categoryId = categoryId,
                 flashcardToEdit = null,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // CSV Import/Export routes
+        composable("csv-import") {
+            CsvImportScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(
+            "csv-export/{categoryId}/{categoryName}",
+            arguments = listOf(
+                navArgument("categoryId") { type = NavType.LongType },
+                navArgument("categoryName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: 0L
+            val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
+            CsvExportRoute(
+                categoryId = categoryId,
+                categoryName = categoryName,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("csv-export-all") {
+            CsvBulkExportRoute(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
