@@ -1,0 +1,1 @@
+Version 1.0.10 - Fixed save button unreachable when importing CSV files with many flashcards
