@@ -286,144 +286,158 @@ private fun PreviewStep(
     onPickAnotherFile: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Summary card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        // Scrollable content area
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = stringResource(R.string.csv_import_preview_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+            Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(12.dp))
+            // Summary card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.csv_import_preview_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = stringResource(R.string.csv_import_valid_cards, validCards.size), style = MaterialTheme.typography.bodyMedium)
-                    }
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                    if (errorCount > 0) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = stringResource(R.string.csv_import_parse_errors, errorCount), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+                            Text(text = stringResource(R.string.csv_import_valid_cards, validCards.size), style = MaterialTheme.typography.bodyMedium)
+                        }
+
+                        if (errorCount > 0) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(text = stringResource(R.string.csv_import_parse_errors, errorCount), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+                            }
                         }
                     }
                 }
             }
-        }
 
-        // Category selector
-        Spacer(modifier = Modifier.height(16.dp))
+            // Category selector
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = stringResource(R.string.csv_import_into_category),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Medium
-        )
+            Text(
+                text = stringResource(R.string.csv_import_into_category),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Medium
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // Category chips for selection
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            categories.forEach { category ->
-                FilterChip(
-                    selected = category.id == selectedCategoryId,
-                    onClick = { onCategoryChanged(category.id) },
-                    label = { Text(category.name, maxLines = 1) },
-                    leadingIcon = if (category.id == selectedCategoryId) {
-                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
-                    } else null
-                )
-            }
-        }
-
-        // Preview table
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = stringResource(R.string.csv_import_preview_label, minOf(validCards.size, 10), validCards.size),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Medium
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(text = stringResource(R.string.csv_import_question_header), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(text = stringResource(R.string.csv_import_answer_header), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-
-        androidx.compose.material3.HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
-        validCards.take(10).forEach { card ->
+            // Category chips for selection
             Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(text = card.question, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(text = card.answer, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                categories.forEach { category ->
+                    FilterChip(
+                        selected = category.id == selectedCategoryId,
+                        onClick = { onCategoryChanged(category.id) },
+                        label = { Text(category.name, maxLines = 1) },
+                        leadingIcon = if (category.id == selectedCategoryId) {
+                            { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                        } else null
+                    )
+                }
             }
-            androidx.compose.material3.HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
+
+            // Preview table
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = stringResource(R.string.csv_import_preview_label, minOf(validCards.size, 10), validCards.size),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Medium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(text = stringResource(R.string.csv_import_question_header), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(text = stringResource(R.string.csv_import_answer_header), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+
+            androidx.compose.material3.HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+            validCards.take(10).forEach { card ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(text = card.question, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(text = card.answer, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
+                androidx.compose.material3.HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
+            }
+
+            if (validCards.size > 10) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = stringResource(R.string.csv_import_and_more, validCards.size - 10), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Options
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Switch(checked = skipDuplicates, onCheckedChange = onSkipDuplicatesChanged)
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(text = stringResource(R.string.csv_import_skip_duplicates), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                    Text(text = stringResource(R.string.csv_import_skip_duplicates_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
-        if (validCards.size > 10) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = stringResource(R.string.csv_import_and_more, validCards.size - 10), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Options
-        Row(
+        // Sticky bottom bar with action buttons
+        Surface(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            tonalElevation = 3.dp,
+            color = MaterialTheme.colorScheme.surface
         ) {
-            Switch(checked = skipDuplicates, onCheckedChange = onSkipDuplicatesChanged)
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(text = stringResource(R.string.csv_import_skip_duplicates), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                Text(text = stringResource(R.string.csv_import_skip_duplicates_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Column(modifier = Modifier.padding(16.dp)) {
+                // Import button
+                Button(
+                    onClick = onImport,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.Done, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.csv_import_import_button, validCards.size))
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                TextButton(onClick = onPickAnotherFile, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.csv_import_pick_another))
+                }
             }
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Import button
-        Button(
-            onClick = onImport,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Icon(Icons.Default.Done, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(stringResource(R.string.csv_import_import_button, validCards.size))
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        TextButton(onClick = onPickAnotherFile, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.csv_import_pick_another))
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
