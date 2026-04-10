@@ -32,6 +32,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -43,6 +44,10 @@ import com.floflacards.app.data.csv.CsvFlashcard
 import com.floflacards.app.presentation.component.UnifiedDialog
 import com.floflacards.app.presentation.component.EmptyStateCard
 import com.floflacards.app.presentation.component.ContentCard
+import com.floflacards.app.presentation.component.getCardContainerColor
+import com.floflacards.app.presentation.component.getCardBorder
+import com.floflacards.app.presentation.component.getHeaderContainerColor
+import com.floflacards.app.presentation.component.getHeaderContentColor
 import com.floflacards.app.presentation.viewmodel.CategoryViewModel
 import com.floflacards.app.presentation.viewmodel.CsvImportViewModel
 import com.floflacards.app.presentation.viewmodel.CsvImportUiState
@@ -107,7 +112,6 @@ fun CsvImportScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
         ) {
             when (uiState.step) {
                 ImportStep.IDLE -> {
@@ -115,7 +119,8 @@ fun CsvImportScreen(
                         onPickFile = {
                             filePickerLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/*"))
                         },
-                        fileName = selectedFileName ?: uiState.fileName
+                        fileName = selectedFileName ?: uiState.fileName,
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
                 ImportStep.PARSING -> LoadingStep()
@@ -136,7 +141,8 @@ fun CsvImportScreen(
                                 },
                                 onPickAnotherFile = {
                                     filePickerLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/*"))
-                                }
+                                },
+                                modifier = Modifier.padding(horizontal = 16.dp)
                             )
                         }
                     }
@@ -145,10 +151,11 @@ fun CsvImportScreen(
                     NoValidCardsStep(
                         onPickAnotherFile = {
                             filePickerLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/*"))
-                        }
+                        },
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
-                ImportStep.IMPORTING -> ImportingStep()
+                ImportStep.IMPORTING -> LoadingStep()
                 ImportStep.IMPORT_COMPLETE -> {
                     uiState.importResult?.let { result ->
                         ImportCompleteStep(
@@ -156,7 +163,8 @@ fun CsvImportScreen(
                             onDone = {
                                 viewModel.reset()
                                 onNavigateBack()
-                            }
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
                 }
@@ -174,10 +182,11 @@ fun CsvImportScreen(
 @Composable
 private fun FileSelectionStep(
     onPickFile: () -> Unit,
-    fileName: String?
+    fileName: String?,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -226,10 +235,16 @@ private fun FileSelectionStep(
             fileName?.let { name ->
                 Spacer(modifier = Modifier.height(16.dp))
 
-                ContentCard(
-                    isEnabled = true,
-                    primaryContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.fillMaxWidth()
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(2.dp, RoundedCornerShape(16.dp)),
+                    colors = CardDefaults.cardColors(
+                        containerColor = getCardContainerColor(isEnabled = true)
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    border = getCardBorder(isEnabled = true),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Row(
                         modifier = Modifier.padding(16.dp),
@@ -283,12 +298,13 @@ private fun PreviewStep(
     categories: List<com.floflacards.app.data.entity.CategoryEntity>,
     onCategoryChanged: (Long) -> Unit,
     onImport: () -> Unit,
-    onPickAnotherFile: () -> Unit
+    onPickAnotherFile: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Scrollable content area
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -296,15 +312,22 @@ private fun PreviewStep(
 
             // Summary card
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(4.dp, RoundedCornerShape(16.dp)),
+                colors = CardDefaults.cardColors(
+                    containerColor = getHeaderContainerColor()
+                ),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                border = getCardBorder(isEnabled = true),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(20.dp)) {
                     Text(
                         text = stringResource(R.string.csv_import_preview_title),
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = getHeaderContentColor()
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -369,25 +392,35 @@ private fun PreviewStep(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Table header
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(text = stringResource(R.string.csv_import_question_header), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(text = stringResource(R.string.csv_import_answer_header), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
-            androidx.compose.material3.HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            validCards.take(10).forEach { card ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+            // Preview rows using ContentCard for consistent styling
+            validCards.take(10).forEachIndexed { index, card ->
+                ContentCard(
+                    isEnabled = true,
+                    primaryContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = card.question, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    Text(text = card.answer, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(text = card.question, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text(text = card.answer, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    }
                 }
-                androidx.compose.material3.HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
+                if (index < 9) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
             }
 
             if (validCards.size > 10) {
@@ -416,8 +449,7 @@ private fun PreviewStep(
         // Sticky bottom bar with action buttons
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            tonalElevation = 3.dp,
-            color = MaterialTheme.colorScheme.surface
+            color = MaterialTheme.colorScheme.background
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 // Import button
@@ -442,14 +474,14 @@ private fun PreviewStep(
 }
 
 @Composable
-private fun NoValidCardsStep(onPickAnotherFile: () -> Unit) {
+private fun NoValidCardsStep(onPickAnotherFile: () -> Unit, modifier: Modifier = Modifier) {
     EmptyStateCard(
         title = stringResource(R.string.csv_import_no_valid_cards),
         description = stringResource(R.string.csv_import_supported_formats),
         buttonText = "Pick Another File",
         onButtonClick = onPickAnotherFile,
         icon = Icons.Default.Warning,
-        modifier = Modifier.padding(16.dp)
+        modifier = modifier.then(Modifier.padding(16.dp))
     )
 }
 
@@ -474,7 +506,8 @@ private fun ImportingStep() {
 @Composable
 private fun ImportCompleteStep(
     result: com.floflacards.app.data.csv.CsvImportResult,
-    onDone: () -> Unit
+    onDone: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = Modifier
@@ -496,11 +529,17 @@ private fun ImportCompleteStep(
         Spacer(modifier = Modifier.height(16.dp))
 
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier
+                .fillMaxWidth()
+                .shadow(4.dp, RoundedCornerShape(16.dp)),
+            colors = CardDefaults.cardColors(
+                containerColor = getHeaderContainerColor()
+            ),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            border = getCardBorder(isEnabled = true),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(20.dp)) {
                 Text(text = stringResource(R.string.csv_import_success, result.successCount), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
 
                 if (result.skippedCount > 0) {
