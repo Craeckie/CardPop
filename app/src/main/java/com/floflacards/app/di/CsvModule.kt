@@ -17,6 +17,7 @@
 
 package com.floflacards.app.di
 
+import com.floflacards.app.data.anki.AnkiParser
 import com.floflacards.app.data.csv.CsvExporter
 import com.floflacards.app.data.csv.CsvParser
 import com.floflacards.app.data.dao.CategoryDao
@@ -36,6 +37,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object CsvModule {
+
+    @Provides
+    @Singleton
+    fun provideAnkiParser(): AnkiParser {
+        return AnkiParser()
+    }
 
     @Provides
     @Singleton

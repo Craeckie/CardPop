@@ -17,17 +17,21 @@
 
 package com.floflacards.app.presentation.viewmodel
 
+import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.floflacards.app.data.anki.AnkiParser
 import com.floflacards.app.data.csv.CsvImportResult
 import com.floflacards.app.data.csv.CsvParseResult
 import com.floflacards.app.domain.usecase.csv.ImportCsvUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -39,7 +43,9 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class CsvImportViewModel @Inject constructor(
-    private val importCsvUseCase: ImportCsvUseCase
+    private val importCsvUseCase: ImportCsvUseCase,
+    private val ankiParser: AnkiParser,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CsvImportUiState())
@@ -74,8 +80,9 @@ class CsvImportViewModel @Inject constructor(
     }
 
     /**
-     * Parses the CSV file for preview.
-     * Shows valid cards and errors before committing to import.
+     * Parses the file for preview.
+     * Detects file type by extension: .apkg files are parsed as Anki decks,
+     * all other files are parsed as CSV.
      * Caches the result for later use in [executeImport].
      */
     fun parseForPreview(contentResolver: android.content.ContentResolver) {
@@ -83,6 +90,8 @@ class CsvImportViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(error = "No file selected")
             return
         }
+
+        val isAnkiFile = pendingFileName?.lowercase()?.endsWith(".apkg") == true
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
@@ -92,7 +101,13 @@ class CsvImportViewModel @Inject constructor(
 
             try {
                 contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val result = importCsvUseCase.parseForPreview(inputStream)
+                    val result = if (isAnkiFile) {
+                        withContext(Dispatchers.IO) {
+                            ankiParser.parse(inputStream, application.cacheDir)
+                        }
+                    } else {
+                        importCsvUseCase.parseForPreview(inputStream)
+                    }
                     cachedParseResult = result
 
                     _uiState.value = _uiState.value.copy(
@@ -117,9 +132,10 @@ class CsvImportViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
+                val fileType = if (isAnkiFile) "Anki deck" else "CSV"
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Failed to parse CSV: ${e.message}",
+                    error = "Failed to parse $fileType: ${e.message}",
                     step = ImportStep.ERROR
                 )
             }

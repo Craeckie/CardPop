@@ -92,6 +92,10 @@ dependencies {
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.7.0")
     
+    // Zstandard decompression for newer Anki .apkg files
+    implementation("com.github.luben:zstd-jni:1.5.6-4@aar")
+    testImplementation("com.github.luben:zstd-jni:1.5.6-4")
+
     // DocumentFile for SAF (Storage Access Framework)
     implementation("androidx.documentfile:documentfile:1.0.1")
     
@@ -105,6 +109,8 @@ dependencies {
     
     // Testing
     testImplementation(libs.junit)
+    testImplementation("org.robolectric:robolectric:4.14.1")
+    testImplementation("androidx.test:core:1.6.1")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform("androidx.compose:compose-bom:2025.07.00"))

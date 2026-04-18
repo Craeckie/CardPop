@@ -117,7 +117,7 @@ fun CsvImportScreen(
                 ImportStep.IDLE -> {
                     FileSelectionStep(
                         onPickFile = {
-                            filePickerLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/*"))
+                            filePickerLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/*", "application/octet-stream", "application/zip"))
                         },
                         fileName = selectedFileName ?: uiState.fileName,
                         modifier = Modifier.padding(horizontal = 16.dp)
@@ -140,7 +140,7 @@ fun CsvImportScreen(
                                     viewModel.executeImport(selectedCatId, skipDuplicates)
                                 },
                                 onPickAnotherFile = {
-                                    filePickerLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/*"))
+                                    filePickerLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/*", "application/octet-stream", "application/zip"))
                                 },
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
@@ -150,7 +150,7 @@ fun CsvImportScreen(
                 ImportStep.NO_VALID_CARDS -> {
                     NoValidCardsStep(
                         onPickAnotherFile = {
-                            filePickerLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/*"))
+                            filePickerLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/*", "application/octet-stream", "application/zip"))
                         },
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
