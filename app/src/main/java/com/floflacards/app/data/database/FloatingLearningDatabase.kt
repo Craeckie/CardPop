@@ -28,8 +28,8 @@ import com.floflacards.app.data.entity.FlashcardEntity
 
 @Database(
     entities = [CategoryEntity::class, FlashcardEntity::class],
-    version = 7,
-    exportSchema = false
+    version = 8,
+    exportSchema = true
 )
 abstract class FloatingLearningDatabase : RoomDatabase() {
     
@@ -113,6 +113,62 @@ abstract class FloatingLearningDatabase : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE flashcards ADD COLUMN questionImagePath TEXT DEFAULT NULL")
                 database.execSQL("ALTER TABLE flashcards ADD COLUMN answerImagePath TEXT DEFAULT NULL")
+            }
+        }
+
+        // Migration from SM-2 to FSRS-6. Drops easinessFactor + reviewCount,
+        // renames cooldownUntil -> dueAt, adds easyCount + 7 FSRS state columns.
+        // SQLite has no DROP COLUMN before 3.35, so the table is recreated.
+        // Existing cards become FSRS-New (all FSRS state zeroed); review counters
+        // (correctCount, incorrectCount, hardCount, lastReviewedAt) are preserved.
+        // See FSRS_IMPLEMENTATION_PLAN.md "Decision: do not try to convert SM-2
+        // state to FSRS state" for the rationale.
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE flashcards_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        categoryId INTEGER NOT NULL,
+                        question TEXT NOT NULL,
+                        answer TEXT NOT NULL,
+                        questionImagePath TEXT,
+                        answerImagePath TEXT,
+                        isEnabled INTEGER NOT NULL,
+                        correctCount INTEGER NOT NULL,
+                        incorrectCount INTEGER NOT NULL,
+                        hardCount INTEGER NOT NULL,
+                        easyCount INTEGER NOT NULL DEFAULT 0,
+                        stability REAL NOT NULL DEFAULT 0.0,
+                        difficulty REAL NOT NULL DEFAULT 0.0,
+                        scheduledDays INTEGER NOT NULL DEFAULT 0,
+                        reps INTEGER NOT NULL DEFAULT 0,
+                        lapses INTEGER NOT NULL DEFAULT 0,
+                        state INTEGER NOT NULL DEFAULT 0,
+                        lastReviewedAt INTEGER NOT NULL,
+                        dueAt INTEGER NOT NULL DEFAULT 0,
+                        createdAt INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL,
+                        FOREIGN KEY(categoryId) REFERENCES categories(id) ON DELETE CASCADE
+                    )
+                """)
+                database.execSQL("""
+                    INSERT INTO flashcards_new (
+                        id, categoryId, question, answer, questionImagePath, answerImagePath,
+                        isEnabled, correctCount, incorrectCount, hardCount, easyCount,
+                        stability, difficulty, scheduledDays, reps, lapses, state,
+                        lastReviewedAt, dueAt, createdAt, updatedAt
+                    )
+                    SELECT
+                        id, categoryId, question, answer, questionImagePath, answerImagePath,
+                        isEnabled, correctCount, incorrectCount, hardCount, 0,
+                        0.0, 0.0, 0, 0, 0, 0,
+                        lastReviewedAt, 0, createdAt, updatedAt
+                    FROM flashcards
+                """)
+                database.execSQL("DROP TABLE flashcards")
+                database.execSQL("ALTER TABLE flashcards_new RENAME TO flashcards")
+                database.execSQL("CREATE INDEX index_flashcards_categoryId ON flashcards(categoryId)")
+                database.execSQL("CREATE INDEX index_flashcards_dueAt ON flashcards(dueAt)")
             }
         }
         

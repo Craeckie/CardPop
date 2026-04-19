@@ -19,6 +19,17 @@ android {
         versionName = "1.0.11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.schemaLocation"] = "$projectDir/schemas"
+            }
+        }
+    }
+
+    // Make exported Room schemas available to MigrationTestHelper at runtime.
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
     }
 
     buildTypes {
@@ -72,6 +83,7 @@ dependencies {
     implementation("androidx.room:room-runtime:2.7.2")
     implementation("androidx.room:room-ktx:2.7.2")
     kapt("androidx.room:room-compiler:2.7.2")
+    androidTestImplementation("androidx.room:room-testing:2.7.2")
     
     // Hilt Dependency Injection
     implementation("com.google.dagger:hilt-android:2.57")

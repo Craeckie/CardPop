@@ -32,7 +32,10 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["categoryId"])]
+    indices = [
+        Index(value = ["categoryId"]),
+        Index(value = ["dueAt"])
+    ]
 )
 data class FlashcardEntity(
     @PrimaryKey(autoGenerate = true)
@@ -43,14 +46,24 @@ data class FlashcardEntity(
     val questionImagePath: String? = null,
     val answerImagePath: String? = null,
     val isEnabled: Boolean = true,
+
+    // Per-rating counters (display-only stats)
     val correctCount: Int = 0,
     val incorrectCount: Int = 0,
-    val hardCount: Int = 0, // Number of times "Hard" button was pressed
-    // SM-2 Algorithm fields
-    val easinessFactor: Float = 2.5f, // SM-2 easiness factor (1.3 - 2.5)
-    val reviewCount: Int = 0, // Number of successful reviews
+    val hardCount: Int = 0,
+    val easyCount: Int = 0,
+
+    // FSRS state. Zero values represent a brand-new card.
+    val stability: Double = 0.0,
+    val difficulty: Double = 0.0,
+    val scheduledDays: Int = 0,
+    val reps: Int = 0,
+    val lapses: Int = 0,
+    // FsrsCardState.value: 0=New, 1=Learning, 2=Review, 3=Relearning
+    val state: Int = 0,
     val lastReviewedAt: Long = 0,
-    val cooldownUntil: Long = 0, // Timestamp when card becomes available again
+    val dueAt: Long = 0,
+
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )

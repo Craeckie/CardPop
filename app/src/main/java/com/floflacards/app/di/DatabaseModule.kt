@@ -50,7 +50,8 @@ object DatabaseModule {
             FloatingLearningDatabase.MIGRATION_3_4,
             FloatingLearningDatabase.MIGRATION_4_5,
             FloatingLearningDatabase.MIGRATION_5_6,
-            FloatingLearningDatabase.MIGRATION_6_7
+            FloatingLearningDatabase.MIGRATION_6_7,
+            FloatingLearningDatabase.MIGRATION_7_8
         )
         .build()
     }
