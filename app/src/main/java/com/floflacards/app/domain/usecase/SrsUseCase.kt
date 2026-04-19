@@ -90,6 +90,7 @@ class SrsUseCase @Inject constructor(
             FlashcardRating.WRONG -> 0   // Complete failure
             FlashcardRating.HARD -> 3    // Correct with difficulty
             FlashcardRating.GOOD -> 5    // Perfect response
+            FlashcardRating.EASY -> 5    // Stub: SM-2 caps quality at 5; FSRS rewrite (Step 4) will distinguish Good vs Easy properly
             FlashcardRating.CLOSED -> 2  // Skip - treat as barely correct
         }
     }

@@ -50,8 +50,9 @@ data class Sm2Config(
  */
 enum class FlashcardRating(val displayName: String) {
     WRONG("Wrong"),
-    HARD("Hard"), 
+    HARD("Hard"),
     GOOD("Good"),
+    EASY("Easy"),    // FSRS fourth rating; not yet wired into UI/SrsUseCase
     CLOSED("Closed") // When user closes without rating
 }
 
