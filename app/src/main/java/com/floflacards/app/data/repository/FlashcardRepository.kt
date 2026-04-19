@@ -71,22 +71,19 @@ class FlashcardRepository @Inject constructor(
     
     suspend fun getFlashcardById(id: Long): FlashcardEntity? = flashcardDao.getFlashcardById(id)
     
-    suspend fun getNextFlashcardForReview(): FlashcardEntity? = flashcardDao.getNextFlashcardForReview()
-    
+    suspend fun getNextDueFlashcard(): FlashcardEntity? = flashcardDao.getNextDueFlashcard()
+
     /**
      * Gets the next available flashcard with guaranteed result.
      * Returns empty state flashcard when no cards are available instead of null.
      * This ensures the timer service never gets stuck and provides clear user feedback.
      */
     suspend fun getNextAvailableFlashcard(): FlashcardEntity {
-        // Try to get a regular flashcard first
         val regularFlashcard = flashcardDao.getNextAvailableFlashcard()
-        
-        // If no regular cards available, return empty state flashcard
         return regularFlashcard ?: com.floflacards.app.domain.util.EmptyStateFlashcard.create()
     }
-    
-    suspend fun getCardWithShortestCooldown(): FlashcardEntity? = flashcardDao.getCardWithShortestCooldown()
+
+    suspend fun getNearestDueFlashcard(): FlashcardEntity? = flashcardDao.getNearestDueFlashcard()
     
     suspend fun getActiveFlashcardCount(): Int = flashcardDao.getActiveFlashcardCount()
     
