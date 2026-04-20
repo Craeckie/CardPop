@@ -146,7 +146,7 @@ class StatisticsViewModel @Inject constructor(
                                     (weightedScore / totalAttempts.toFloat()) * 100f
                                 } else 0f
                                 
-                                val isMastered = flashcard.easinessFactor >= 2.5f && flashcard.reviewCount >= 3
+                                val isMastered = flashcard.stability >= 21.0 && flashcard.reps >= 3
                                 
                                 FlashcardStats(
                                     id = flashcard.id,
@@ -155,10 +155,10 @@ class StatisticsViewModel @Inject constructor(
                                     correctCount = flashcard.correctCount,
                                     incorrectCount = flashcard.incorrectCount,
                                     hardCount = flashcard.hardCount,
-                                    difficultyScore = flashcard.easinessFactor,
+                                    difficultyScore = flashcard.difficulty.toFloat(),
                                     successRate = successRate,
                                     lastSeenTimestamp = flashcard.lastReviewedAt,
-                                    reviewCount = flashcard.reviewCount,
+                                    reviewCount = flashcard.reps,
                                     isEnabled = flashcard.isEnabled,
                                     isMastered = isMastered
                                 )

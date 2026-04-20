@@ -45,7 +45,7 @@ class StatisticsUseCase @Inject constructor(
             val enabledFlashcards = repository.getAllFlashcards()
             
             val totalCards = enabledFlashcards.size
-            val studiedCards = enabledFlashcards.count { it.reviewCount > 0 }
+            val studiedCards = enabledFlashcards.count { it.reps > 0 }
             
             val totalCorrect = enabledFlashcards.sumOf { it.correctCount }
             val totalIncorrect = enabledFlashcards.sumOf { it.incorrectCount }
