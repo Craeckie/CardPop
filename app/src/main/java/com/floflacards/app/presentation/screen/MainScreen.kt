@@ -278,7 +278,7 @@ fun MainScreen(
                 } else {
                     // Permission granted - check if first-time demo should be shown
                     viewModel.updateInterval(interval) // Save interval first
-                    
+
                     if (viewModel.shouldShowFirstDemo()) {
                         // Show demo flashcard instead of starting timer
                         OverlayService.startWithDemoFlashcard(context)
@@ -286,6 +286,16 @@ fun MainScreen(
                         // Start regular learning session
                         viewModel.startLearningWithInterval(interval)
                     }
+                }
+            },
+            onShowNow = {
+                showIntervalSelectionDialog = false
+                permissionState.refreshPermissionState()
+                if (!permissionState.hasOverlayPermission) {
+                    viewModel.setPendingShowNow()
+                    permissionState.setShowOverlayPermissionDialog(true)
+                } else {
+                    viewModel.showSingleFlashcardNow()
                 }
             },
             onDismiss = { showIntervalSelectionDialog = false }

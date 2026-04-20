@@ -176,6 +176,7 @@
     <string name="interval_dialog_description">Choose how often flashcards appear:</string>
     <string name="interval_dialog_confirm">Start Learning</string>
     <string name="interval_dialog_cancel">Cancel</string>
+    <string name="interval_now_once">Now (once)</string>
     <string name="interval_minutes">%1$d minutes</string>
     <string name="interval_custom">Custom interval</string>
     <string name="interval_custom_hint">Enter minutes</string>

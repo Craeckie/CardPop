@@ -169,6 +169,7 @@
     <string name="interval_dialog_description">Wie oft sollen Lernkarten erscheinen:</string>
     <string name="interval_dialog_confirm">Lernen starten</string>
     <string name="interval_dialog_cancel">Abbrechen</string>
+    <string name="interval_now_once">Jetzt (einmalig)</string>
     <string name="interval_minutes">%1$d Minuten</string>
     <string name="interval_custom">Benutzerdefiniertes Intervall</string>
     <string name="interval_custom_hint">Minuten eingeben</string>

@@ -17,6 +17,7 @@
 
 package com.floflacards.app.presentation.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.floflacards.app.data.repository.FlashcardRepository
@@ -24,10 +25,12 @@ import com.floflacards.app.domain.usecase.OnboardingUseCase
 import com.floflacards.app.domain.usecase.StatisticsUseCase
 import com.floflacards.app.domain.usecase.SimpleStatistics
 import com.floflacards.app.service.LearningServiceManager
+import com.floflacards.app.service.OverlayService
 import com.floflacards.app.data.repository.SettingsRepository
 import com.floflacards.app.util.PermissionHelper
 import com.floflacards.app.util.IntervalConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,11 +44,13 @@ data class MainUiState(
     val selectedInterval: Int = 5, // minutes
     val isLoading: Boolean = false,
     val statistics: SimpleStatistics? = null,
-    val pendingInterval: Int? = null // For storing interval when waiting for permission
+    val pendingInterval: Int? = null, // For storing interval when waiting for permission
+    val pendingShowNow: Boolean = false // Show a single flashcard once after permission is granted
 )
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val repository: FlashcardRepository,
     private val onboardingUseCase: OnboardingUseCase,
     private val statisticsUseCase: StatisticsUseCase,
@@ -140,10 +145,35 @@ class MainViewModel @Inject constructor(
      * Follows DRY principle by reusing existing start logic.
      */
     fun startPendingLearning() {
-        val pendingInterval = _uiState.value.pendingInterval
-        if (pendingInterval != null) {
-            _uiState.value = _uiState.value.copy(pendingInterval = null)
-            startLearningWithInterval(pendingInterval)
+        val state = _uiState.value
+        when {
+            state.pendingShowNow -> {
+                _uiState.value = state.copy(pendingShowNow = false)
+                showSingleFlashcardNow()
+            }
+            state.pendingInterval != null -> {
+                _uiState.value = state.copy(pendingInterval = null)
+                startLearningWithInterval(state.pendingInterval)
+            }
+        }
+    }
+
+    /**
+     * Marks that a single "show now" flashcard should be shown once permission is granted.
+     */
+    fun setPendingShowNow() {
+        _uiState.value = _uiState.value.copy(pendingShowNow = true, pendingInterval = null)
+    }
+
+    /**
+     * Displays the next available flashcard immediately as a one-shot overlay without
+     * starting the timer service.
+     */
+    fun showSingleFlashcardNow() {
+        viewModelScope.launch {
+            if (!permissionHelper.hasOverlayPermission()) return@launch
+            val flashcard = repository.getNextAvailableFlashcard()
+            OverlayService.startWithFlashcard(appContext, flashcard)
         }
     }
     

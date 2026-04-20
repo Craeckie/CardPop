@@ -113,8 +113,10 @@ fun UnifiedDialog(
 fun IntervalSelectionDialog(
     availableIntervals: List<Int>,
     onConfirm: (Int) -> Unit,
+    onShowNow: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    var isNowSelected by remember { mutableStateOf(true) }
     var selectedInterval by remember { mutableStateOf(availableIntervals.firstOrNull() ?: IntervalConstants.DEFAULT_INTERVAL_MINUTES) }
     var isCustomSelected by remember { mutableStateOf(false) }
     var customIntervalText by remember { mutableStateOf("") }
@@ -125,12 +127,12 @@ fun IntervalSelectionDialog(
         confirmButtonText = stringResource(R.string.interval_dialog_confirm),
         dismissButtonText = stringResource(R.string.interval_dialog_cancel),
         onConfirm = {
-            if (isCustomSelected) {
-                IntervalConstants.parseInterval(customIntervalText)
+            when {
+                isNowSelected -> onShowNow()
+                isCustomSelected -> IntervalConstants.parseInterval(customIntervalText)
                     ?.let { onConfirm(it) }
                     ?: run { hasError = true }
-            } else {
-                onConfirm(selectedInterval)
+                else -> onConfirm(selectedInterval)
             }
         },
         onDismiss = onDismiss
@@ -138,13 +140,28 @@ fun IntervalSelectionDialog(
         Text(stringResource(R.string.interval_dialog_description))
         Spacer(modifier = Modifier.height(16.dp))
 
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RadioButton(
+                selected = isNowSelected,
+                onClick = {
+                    isNowSelected = true
+                    isCustomSelected = false
+                    hasError = false
+                }
+            )
+            Text(stringResource(R.string.interval_now_once))
+        }
+
         availableIntervals.forEach { interval ->
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RadioButton(
-                    selected = selectedInterval == interval && !isCustomSelected,
+                    selected = !isNowSelected && selectedInterval == interval && !isCustomSelected,
                     onClick = {
+                        isNowSelected = false
                         selectedInterval = interval
                         isCustomSelected = false
                         hasError = false
@@ -161,6 +178,7 @@ fun IntervalSelectionDialog(
             RadioButton(
                 selected = isCustomSelected,
                 onClick = {
+                    isNowSelected = false
                     isCustomSelected = true
                     hasError = false
                 }

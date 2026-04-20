@@ -169,6 +169,7 @@
     <string name="interval_dialog_description">Jak często mają pojawiać się fiszki:</string>
     <string name="interval_dialog_confirm">Rozpocznij naukę</string>
     <string name="interval_dialog_cancel">Anuluj</string>
+    <string name="interval_now_once">Teraz (jednorazowo)</string>
     <string name="interval_minutes">%1$d minut</string>
     <string name="interval_custom">Niestandardowy interwał</string>
     <string name="interval_custom_hint">Wprowadź minuty</string>
