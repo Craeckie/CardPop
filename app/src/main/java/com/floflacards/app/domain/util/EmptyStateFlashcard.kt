@@ -45,14 +45,8 @@ object EmptyStateFlashcard {
             question = "No Cards Available", // This will be overridden by UI components
             answer = "All your flashcards are currently disabled.\n\nTo continue learning:\n• Enable some flashcards in your categories\n• Or add new flashcards to study", // This will be overridden by UI components
             isEnabled = true, // Always enabled for display
-            // Default values for other fields - not used in empty state
-            correctCount = 0,
-            incorrectCount = 0,
-            hardCount = 0,
-            easinessFactor = 2.5f,
-            reviewCount = 0,
-            lastReviewedAt = 0L,
-            cooldownUntil = 0L,
+            // Scheduling/stat fields use entity defaults (FSRS-New) — this card is
+            // purely a placeholder, so leaving them at 0/0.0 keeps it inert.
             createdAt = System.currentTimeMillis(),
             updatedAt = System.currentTimeMillis()
         )

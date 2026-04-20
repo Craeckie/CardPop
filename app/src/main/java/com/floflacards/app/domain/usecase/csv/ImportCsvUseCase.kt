@@ -273,20 +273,15 @@ class ImportCsvUseCase @Inject constructor(
     }
 
     private fun createEntity(csvCard: CsvFlashcard, categoryId: Long): FlashcardEntity {
+        // FSRS scheduling fields rely on entity defaults: state=New, stability/difficulty=0.0,
+        // dueAt=0 so the imported card is immediately reviewable.
         return FlashcardEntity(
             categoryId = categoryId,
             question = csvCard.question,
             answer = csvCard.answer,
             questionImagePath = null,
             answerImagePath = null,
-            isEnabled = true,
-            correctCount = 0,
-            incorrectCount = 0,
-            hardCount = 0,
-            easinessFactor = 2.5f,
-            reviewCount = 0,
-            lastReviewedAt = 0,
-            cooldownUntil = 0
+            isEnabled = true
         )
     }
 }

@@ -252,14 +252,7 @@ class ImportCsvUseCaseTest {
             answer = answer,
             questionImagePath = null,
             answerImagePath = null,
-            isEnabled = true,
-            correctCount = 0,
-            incorrectCount = 0,
-            hardCount = 0,
-            easinessFactor = 2.5f,
-            reviewCount = 0,
-            lastReviewedAt = 0,
-            cooldownUntil = 0
+            isEnabled = true
         )
     }
 }
