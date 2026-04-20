@@ -41,7 +41,7 @@ import com.floflacards.app.domain.model.FlashcardRating
 import kotlinx.coroutines.delay
 
 /**
- * Rating buttons: Again (❌), Hard (❓), Good (✅), Easy (✨).
+ * Rating buttons: Again (🔁), Hard (❓), Good (✅), Easy (✨).
  *
  * The overlay is user-resizable down to fairly small widths. At ≥ NARROW_THRESHOLD
  * the four buttons sit in a single row; below that they fold into a 2×2 grid so
@@ -81,7 +81,7 @@ fun FlashcardControls(
 
 @Composable
 private fun AgainButton(onRating: (FlashcardRating) -> Unit, modifier: Modifier) =
-    RatingButton(emoji = "❌", label = stringResource(R.string.rating_again),
+    RatingButton(emoji = "🔁", label = stringResource(R.string.rating_again),
         containerColor = Color(0xFFD32F2F),
         onClick = { onRating(FlashcardRating.WRONG) }, modifier = modifier)
 
