@@ -117,7 +117,20 @@
     <!-- Permissions section -->
     <string name="settings_permissions_title">Berechtigungen</string>
     <string name="settings_permissions_subtitle">App-Berechtigungen und -Optimierungen verwalten</string>
-    
+
+    <!-- Overlay behavior section -->
+    <string name="settings_overlay_behavior_title">Overlay-Verhalten</string>
+    <string name="settings_overlay_behavior_subtitle">Lege fest, wann Karten erscheinen</string>
+
+    <!-- App blocklist -->
+    <string name="settings_blocklist_title">App-Blockliste</string>
+    <string name="settings_blocklist_subtitle">Keine Karten anzeigen, solange diese Apps laufen</string>
+    <string name="settings_blocklist_search_hint">Apps suchen</string>
+    <string name="settings_blocklist_empty">Keine App passt zur Suche</string>
+    <string name="settings_blocklist_permission_title">Nutzungszugriff erforderlich</string>
+    <string name="settings_blocklist_permission_body">Gewähre Nutzungszugriff, damit die App erkennen kann, welche App im Vordergrund ist. Ohne das hat die Blockliste keine Wirkung.</string>
+    <string name="settings_blocklist_permission_grant">Erlauben</string>
+
     <!-- Support section - friendly and encouraging tone -->
     <string name="settings_support_title">Unterstützung</string>
     <string name="settings_support_subtitle">Hilf mit, diese App zu verbessern</string>

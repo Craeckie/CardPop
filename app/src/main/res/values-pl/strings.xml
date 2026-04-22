@@ -117,7 +117,20 @@
     <!-- Permissions section -->
     <string name="settings_permissions_title">Uprawnienia</string>
     <string name="settings_permissions_subtitle">Zarządzaj uprawnieniami i optymalizacją aplikacji</string>
-    
+
+    <!-- Overlay behavior section -->
+    <string name="settings_overlay_behavior_title">Zachowanie nakładki</string>
+    <string name="settings_overlay_behavior_subtitle">Określ, kiedy pojawiają się fiszki</string>
+
+    <!-- App blocklist -->
+    <string name="settings_blocklist_title">Lista blokady aplikacji</string>
+    <string name="settings_blocklist_subtitle">Nie pokazuj fiszek podczas korzystania z tych aplikacji</string>
+    <string name="settings_blocklist_search_hint">Szukaj aplikacji</string>
+    <string name="settings_blocklist_empty">Żadna aplikacja nie pasuje</string>
+    <string name="settings_blocklist_permission_title">Wymagany dostęp do użycia</string>
+    <string name="settings_blocklist_permission_body">Przyznaj dostęp do statystyk użycia, aby aplikacja mogła rozpoznać, która aplikacja jest na pierwszym planie. Bez tego lista blokady nie działa.</string>
+    <string name="settings_blocklist_permission_grant">Przyznaj</string>
+
     <!-- Support section - encouraging tone -->
     <string name="settings_support_title">Wsparcie</string>
     <string name="settings_support_subtitle">Pomóż ulepszyć tę aplikację</string>

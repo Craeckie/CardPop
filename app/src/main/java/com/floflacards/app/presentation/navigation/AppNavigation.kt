@@ -26,6 +26,7 @@ import androidx.navigation.NavType
 import com.floflacards.app.presentation.screen.MainScreen
 import com.floflacards.app.presentation.screen.SettingsScreen
 import com.floflacards.app.presentation.screen.AppSettingsScreen
+import com.floflacards.app.presentation.screen.AppBlocklistScreen
 import com.floflacards.app.presentation.screen.StatisticsScreen
 import com.floflacards.app.presentation.screen.FlashcardManagementScreen
 import com.floflacards.app.presentation.screen.AddEditFlashcardScreen
@@ -77,6 +78,12 @@ fun AppNavigation(
         }
         composable("app-settings") {
             AppSettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToBlocklist = { navController.navigate("app-blocklist") }
+            )
+        }
+        composable("app-blocklist") {
+            AppBlocklistScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }

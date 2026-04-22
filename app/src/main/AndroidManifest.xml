@@ -11,7 +11,18 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
-    
+
+    <!-- Needed to detect the currently-foregrounded app so the overlay can be skipped
+         when the user is in an app they've added to the blocklist. The user must grant
+         this manually from Settings → Special access → Usage access. -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Needed on Android 11+ so PackageManager can enumerate launchable apps for the
+         blocklist picker. Without this, queryIntentActivities returns only our own app. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
     <!-- No storage permissions needed - using SAF (Storage Access Framework) -->
 
     <!-- Allow detecting and launching Pleco for Chinese word lookup -->

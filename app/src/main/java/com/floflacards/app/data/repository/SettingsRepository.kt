@@ -63,7 +63,11 @@ class SettingsRepository @Inject constructor(
     // FSRS target retention — observed by the settings slider
     private val _targetRetention = MutableStateFlow(getTargetRetention())
     val targetRetention: StateFlow<Double> = _targetRetention.asStateFlow()
-    
+
+    // App blocklist — overlay is suppressed while any of these packages is foreground
+    private val _blocklist = MutableStateFlow(getBlocklist())
+    val blocklist: StateFlow<Set<String>> = _blocklist.asStateFlow()
+
     companion object {
         private const val KEY_INTERVAL_MINUTES = "interval_minutes"
         private const val KEY_IS_LEARNING_ACTIVE = "is_learning_active"
@@ -75,6 +79,7 @@ class SettingsRepository @Inject constructor(
         private const val KEY_BATTERY_OPTIMIZATION_EVER_DISABLED = "battery_optimization_ever_disabled"
         private const val KEY_APP_LOCALE = "app_locale"
         private const val KEY_TARGET_RETENTION = "target_retention"
+        private const val KEY_BLOCKLIST = "blocklist_packages"
         private const val DEFAULT_TARGET_RETENTION = 0.9f
         private const val MIN_TARGET_RETENTION = 0.80f
         private const val MAX_TARGET_RETENTION = 0.95f
@@ -263,5 +268,26 @@ class SettingsRepository @Inject constructor(
             LocaleListCompat.forLanguageTags(localeTag)
         }
         AppCompatDelegate.setApplicationLocales(localeList)
+    }
+
+    fun getBlocklist(): Set<String> {
+        // getStringSet returns a reference to the internal collection — copy so
+        // later mutations don't corrupt SharedPreferences state.
+        return prefs.getStringSet(KEY_BLOCKLIST, emptySet())?.toSet() ?: emptySet()
+    }
+
+    fun setBlocklist(packages: Set<String>) {
+        prefs.edit()
+            .putStringSet(KEY_BLOCKLIST, packages)
+            .apply()
+        _blocklist.value = packages
+    }
+
+    fun addToBlocklist(packageName: String) {
+        setBlocklist(getBlocklist() + packageName)
+    }
+
+    fun removeFromBlocklist(packageName: String) {
+        setBlocklist(getBlocklist() - packageName)
     }
 }

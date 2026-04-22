@@ -36,6 +36,7 @@ import com.floflacards.app.presentation.screen.MainActivity
 import com.floflacards.app.data.repository.FlashcardRepository
 import com.floflacards.app.data.repository.SettingsRepository
 import com.floflacards.app.domain.manager.ServiceStateManager
+import com.floflacards.app.util.UsageStatsHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import javax.inject.Inject
@@ -326,18 +327,50 @@ class TimerForegroundService : Service() {
         }
         
         try {
+            if (shouldSkipForBlocklist()) {
+                Log.i(TAG, "Skipping tick: foreground app is on blocklist, rescheduling in $intervalMinutes min")
+                startTimer()
+                return
+            }
+
             val nextFlashcard = flashcardRepository.getNextAvailableFlashcard()
-            
+
             // Always show flashcard - repository now guarantees a result (regular or empty state)
             Log.d(TAG, "Showing flashcard: ${nextFlashcard.id}")
             OverlayService.startWithFlashcard(this@TimerForegroundService, nextFlashcard)
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Error showing flashcard", e)
         } finally {
             // Release wake lock after processing
             releaseWakeLock()
         }
+    }
+
+    /**
+     * True when the user is inside an app they've added to the blocklist. The
+     * lookup silently returns false if usage access was never granted (or was
+     * revoked), so the feature degrades to "always show" rather than blocking
+     * the overlay entirely.
+     */
+    private fun shouldSkipForBlocklist(): Boolean {
+        val blocklist = settingsManager.getBlocklist()
+        if (blocklist.isEmpty()) {
+            Log.d(TAG, "Blocklist empty, proceeding with overlay")
+            return false
+        }
+        if (!UsageStatsHelper.hasAccess(this)) {
+            Log.w(TAG, "Blocklist has ${blocklist.size} entries but usage access is not granted; proceeding with overlay")
+            return false
+        }
+        val fg = UsageStatsHelper.currentForegroundPackage(this)
+        if (fg == null) {
+            Log.d(TAG, "Could not determine foreground app, proceeding with overlay")
+            return false
+        }
+        val blocked = fg in blocklist
+        Log.d(TAG, "Foreground app: $fg — blocked=$blocked (blocklist size=${blocklist.size})")
+        return blocked
     }
     
 

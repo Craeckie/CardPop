@@ -60,7 +60,8 @@ import com.floflacards.app.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppSettingsScreen(
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToBlocklist: () -> Unit
 ) {
     var showDonationDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -184,6 +185,21 @@ fun AppSettingsScreen(
                     TargetRetentionSettingItem(
                         retention = currentTargetRetention,
                         onRetentionChange = { viewModel.setTargetRetention(it) }
+                    )
+                }
+            }
+
+            // Overlay behavior section — currently exposes the app blocklist
+            item {
+                AppSettingsSection(
+                    title = stringResource(R.string.settings_overlay_behavior_title),
+                    subtitle = stringResource(R.string.settings_overlay_behavior_subtitle)
+                ) {
+                    SupportSettingItem(
+                        title = stringResource(R.string.settings_blocklist_title),
+                        subtitle = stringResource(R.string.settings_blocklist_subtitle),
+                        icon = Icons.Default.Warning,
+                        onClick = onNavigateToBlocklist
                     )
                 }
             }
