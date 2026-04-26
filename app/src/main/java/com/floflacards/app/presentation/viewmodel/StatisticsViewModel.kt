@@ -19,6 +19,7 @@ package com.floflacards.app.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.data.repository.FlashcardRepository
 import com.floflacards.app.domain.usecase.StatisticsUseCase
 import com.floflacards.app.domain.usecase.SimpleStreakUseCase
@@ -36,6 +37,7 @@ data class FlashcardStats(
     val correctCount: Int,
     val incorrectCount: Int,
     val hardCount: Int,
+    val easyCount: Int,
     val difficultyScore: Float,
     val successRate: Float,
     val lastSeenTimestamp: Long,
@@ -51,7 +53,7 @@ data class FlashcardStats(
             formatter.format(date)
         }
     }
-    
+
     // FSRS difficulty is on a 1..10 scale where LOW = easy and HIGH = hard,
     // the inverse of the old SM-2 easiness factor. Keep the label semantics
     // ("Easy"/"Medium"/"Hard") so the UI doesn't need to change.
@@ -60,8 +62,8 @@ data class FlashcardStats(
         difficultyScore <= 7.0f -> "Medium"
         else -> "Hard"
     }
-    
-    val totalAttempts: Int = correctCount + incorrectCount + hardCount // All attempts count for weighted success rate
+
+    val totalAttempts: Int = correctCount + incorrectCount + hardCount + easyCount
 }
 
 data class CategoryStats(
@@ -83,7 +85,12 @@ data class EnhancedOverallStats(
     val streakDays: Int,
     val highestStreak: Int,
     val masteredFlashcards: Int,
-    val totalFlashcards: Int
+    val totalFlashcards: Int,
+    val dueNowCount: Int,
+    val newCount: Int,
+    val learningCount: Int,
+    val reviewCount: Int,
+    val relearningCount: Int
 )
 
 data class ModernStatisticsUiState(
@@ -123,11 +130,21 @@ class StatisticsViewModel @Inject constructor(
                 val streakDays = currentStreakData.currentStreak
                 val highestStreak = currentStreakData.highestStreak
                 
+                // FSRS card-state breakdown — only enabled cards in enabled
+                // categories, mirroring what the overlay actually picks from.
+                val stateCounts = repository.getCardCountsByState().associate { it.state to it.count }
+                val dueNowCount = repository.getDueNowCount()
+
                 val enhancedOverallStats = EnhancedOverallStats(
                     streakDays = streakDays,
                     highestStreak = highestStreak,
                     masteredFlashcards = masteredFlashcards,
-                    totalFlashcards = totalFlashcards
+                    totalFlashcards = totalFlashcards,
+                    dueNowCount = dueNowCount,
+                    newCount = stateCounts[0] ?: 0,
+                    learningCount = stateCounts[1] ?: 0,
+                    reviewCount = stateCounts[2] ?: 0,
+                    relearningCount = stateCounts[3] ?: 0
                 )
                 
                 allCategories.collect { categories ->
@@ -139,15 +156,8 @@ class StatisticsViewModel @Inject constructor(
                             val masteredCards = categoryFlashcards.count { it.stability >= 21.0 && it.reps >= 3 }
                             
                             val flashcardStats = categoryFlashcards.map { flashcard ->
-                                // Weighted success rate: Good=1.0, Hard=0.5, Wrong=0.0
-                                val totalAttempts = flashcard.correctCount + flashcard.incorrectCount + flashcard.hardCount
-                                val successRate = if (totalAttempts > 0) {
-                                    val weightedScore = (flashcard.correctCount * 1.0f) + (flashcard.hardCount * 0.5f)
-                                    (weightedScore / totalAttempts.toFloat()) * 100f
-                                } else 0f
-                                
                                 val isMastered = flashcard.stability >= 21.0 && flashcard.reps >= 3
-                                
+
                                 FlashcardStats(
                                     id = flashcard.id,
                                     question = flashcard.question,
@@ -155,8 +165,9 @@ class StatisticsViewModel @Inject constructor(
                                     correctCount = flashcard.correctCount,
                                     incorrectCount = flashcard.incorrectCount,
                                     hardCount = flashcard.hardCount,
+                                    easyCount = flashcard.easyCount,
                                     difficultyScore = flashcard.difficulty.toFloat(),
-                                    successRate = successRate,
+                                    successRate = weightedSuccessRate(flashcard) * 100f,
                                     lastSeenTimestamp = flashcard.lastReviewedAt,
                                     reviewCount = flashcard.reps,
                                     isEnabled = flashcard.isEnabled,
@@ -167,15 +178,9 @@ class StatisticsViewModel @Inject constructor(
                                     .thenByDescending { it.reviewCount } // Most reviewed first
                                     .thenBy { if (it.lastSeenTimestamp == 0L) Long.MAX_VALUE else -it.lastSeenTimestamp } // Never seen at bottom
                             )
-                        
+
                         val averageSuccessRate = if (categoryFlashcards.isNotEmpty()) {
-                            categoryFlashcards.map { flashcard ->
-                                val totalAttempts = flashcard.correctCount + flashcard.incorrectCount + flashcard.hardCount
-                                if (totalAttempts > 0) {
-                                    val weightedScore = (flashcard.correctCount * 1.0f) + (flashcard.hardCount * 0.5f)
-                                    weightedScore / totalAttempts.toFloat()
-                                } else 0f
-                            }.average().toFloat()
+                            categoryFlashcards.map { weightedSuccessRate(it) }.average().toFloat()
                         } else 0f
                         
                         CategoryStats(
@@ -293,4 +298,17 @@ class StatisticsViewModel @Inject constructor(
             }
         }
     }
+}
+
+/**
+ * Weighted recall rate from per-rating counters: Good and Easy fully count as
+ * remembered, Hard counts as half (the user produced the answer but slowly),
+ * Wrong counts as zero. Returns a 0..1 fraction; callers multiply by 100 for a
+ * percentage.
+ */
+internal fun weightedSuccessRate(card: FlashcardEntity): Float {
+    val total = card.correctCount + card.incorrectCount + card.hardCount + card.easyCount
+    if (total == 0) return 0f
+    val weighted = card.correctCount + card.easyCount + card.hardCount * 0.5f
+    return weighted / total.toFloat()
 }

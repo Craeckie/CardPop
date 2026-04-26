@@ -98,11 +98,37 @@ interface FlashcardDao {
     }
     
     @Query("""
-        SELECT COUNT(*) FROM flashcards f 
-        INNER JOIN categories c ON f.categoryId = c.id 
+        SELECT COUNT(*) FROM flashcards f
+        INNER JOIN categories c ON f.categoryId = c.id
         WHERE f.isEnabled = 1 AND c.isEnabled = 1
     """)
     suspend fun getActiveFlashcardCount(): Int
+
+    /**
+     * FSRS card-state breakdown for the stats screen. Filtered to enabled
+     * flashcards in enabled categories so it matches the population the overlay
+     * actually picks from. State values: 0=New, 1=Learning, 2=Review, 3=Relearning.
+     */
+    @Query("""
+        SELECT f.state AS state, COUNT(*) AS count FROM flashcards f
+        INNER JOIN categories c ON f.categoryId = c.id
+        WHERE f.isEnabled = 1 AND c.isEnabled = 1
+        GROUP BY f.state
+    """)
+    suspend fun getCardCountsByState(): List<StateCount>
+
+    /**
+     * Number of enabled cards whose FSRS due time has passed — i.e. how many
+     * cards the overlay would consider "due" right now.
+     */
+    @Query("""
+        SELECT COUNT(*) FROM flashcards f
+        INNER JOIN categories c ON f.categoryId = c.id
+        WHERE f.isEnabled = 1 AND c.isEnabled = 1 AND f.dueAt <= :now
+    """)
+    suspend fun getDueNowCount(now: Long = System.currentTimeMillis()): Int
+
+    data class StateCount(val state: Int, val count: Int)
     
     @Query("SELECT COUNT(*) FROM flashcards WHERE categoryId = :categoryId")
     suspend fun getFlashcardCountByCategory(categoryId: Long): Int

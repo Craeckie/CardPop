@@ -86,6 +86,10 @@ class FlashcardRepository @Inject constructor(
     suspend fun getNearestDueFlashcard(): FlashcardEntity? = flashcardDao.getNearestDueFlashcard()
     
     suspend fun getActiveFlashcardCount(): Int = flashcardDao.getActiveFlashcardCount()
+
+    suspend fun getCardCountsByState(): List<FlashcardDao.StateCount> = flashcardDao.getCardCountsByState()
+
+    suspend fun getDueNowCount(): Int = flashcardDao.getDueNowCount()
     
     suspend fun getFlashcardCountByCategory(categoryId: Long): Int = flashcardDao.getFlashcardCountByCategory(categoryId)
     

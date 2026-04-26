@@ -30,11 +30,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import com.floflacards.app.domain.usecase.RetentionData
 import android.content.Intent
 import android.net.Uri
 import android.content.Context
@@ -73,8 +78,21 @@ fun AppSettingsScreen(
     val currentFlashcardTheme by viewModel.flashcardTheme.collectAsState()
     val currentLanguage: Language by viewModel.appLocale.collectAsState()
     val currentTargetRetention by viewModel.targetRetention.collectAsState()
+    val currentActualRetention by viewModel.actualRetention.collectAsState()
     val currentFlashcardOpacity by viewModel.flashcardOpacity.collectAsState()
     val currentSnoozeDuration by viewModel.snoozeDurationMinutes.collectAsState()
+
+    // Refresh the actual-retention readout whenever the screen comes back into
+    // the foreground — the user may have rated cards via the overlay since the
+    // VM was created.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) viewModel.refreshActualRetention()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
     
     Scaffold(
         topBar = {
@@ -203,6 +221,7 @@ fun AppSettingsScreen(
                 ) {
                     TargetRetentionSettingItem(
                         retention = currentTargetRetention,
+                        actualRetention = currentActualRetention,
                         onRetentionChange = { viewModel.setTargetRetention(it) }
                     )
                 }
@@ -788,10 +807,14 @@ private fun LanguageSettingItem(
  * Slider for FSRS target retention. Lives inside an AppSettingsSection card,
  * so this composable just supplies the label, current value, and the Slider
  * itself. Range 0.80..0.95 in 0.01 steps (15 discrete positions).
+ *
+ * Below the slider, shows the user's actual measured retention so the target
+ * has feedback. Color-coded: green if meeting the target, amber if below.
  */
 @Composable
 private fun TargetRetentionSettingItem(
     retention: Double,
+    actualRetention: RetentionData?,
     onRetentionChange: (Double) -> Unit
 ) {
     val percent = (retention * 100).toInt()
@@ -826,6 +849,61 @@ private fun TargetRetentionSettingItem(
             // 15 positions inclusive on both ends ⇒ steps = 13 (Compose counts intermediate stops only).
             steps = 13
         )
+        ActualRetentionReadout(
+            actualRetention = actualRetention,
+            target = retention
+        )
+    }
+}
+
+/**
+ * Single-line readout under the target-retention slider. Color-codes the user's
+ * actual retention against the target so the slider has feedback. Meeting or
+ * exceeding the target is green; below the target is amber. Hidden until at
+ * least one rating exists, since a 0/0 fraction is meaningless.
+ */
+@Composable
+private fun ActualRetentionReadout(
+    actualRetention: RetentionData?,
+    target: Double
+) {
+    if (actualRetention == null) return
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.settings_actual_retention_label),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        if (actualRetention.totalReviews == 0) {
+            Text(
+                text = stringResource(R.string.settings_actual_retention_empty),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        } else {
+            val actualPercent = (actualRetention.rate * 100).toInt()
+            val color = if (actualRetention.rate >= target.toFloat()) {
+                Color(0xFF388E3C) // green — meeting target
+            } else {
+                Color(0xFFF57C00) // amber — below target
+            }
+            Text(
+                text = stringResource(
+                    R.string.settings_actual_retention_value,
+                    actualPercent,
+                    actualRetention.totalReviews
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = color
+            )
+        }
     }
 }
 

@@ -18,13 +18,19 @@
 package com.floflacards.app.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.floflacards.app.data.repository.SettingsRepository
 import com.floflacards.app.data.model.AppTheme
 import com.floflacards.app.data.model.FlashcardTheme
 import com.floflacards.app.data.model.Language
+import com.floflacards.app.domain.usecase.RetentionData
+import com.floflacards.app.domain.usecase.StatisticsUseCase
 import com.floflacards.app.util.PermissionHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -38,8 +44,13 @@ import javax.inject.Inject
 @HiltViewModel
 class AppSettingsViewModel @Inject constructor(
     private val settingsManager: SettingsRepository,
-    private val permissionHelper: PermissionHelper
+    private val permissionHelper: PermissionHelper,
+    private val statisticsUseCase: StatisticsUseCase
 ) : ViewModel() {
+
+    init {
+        refreshActualRetention()
+    }
     
     /**
      * Current app theme preference as StateFlow
@@ -64,6 +75,21 @@ class AppSettingsViewModel @Inject constructor(
 
     fun setTargetRetention(value: Double) {
         settingsManager.setTargetRetention(value)
+    }
+
+    /**
+     * Aggregated retention across all of the user's reviews so far. Null until
+     * the first load completes. The settings screen calls [refreshActualRetention]
+     * on resume so the value reflects newly-rated cards without restarting the VM.
+     */
+    private val _actualRetention = MutableStateFlow<RetentionData?>(null)
+    val actualRetention: StateFlow<RetentionData?> = _actualRetention.asStateFlow()
+
+    fun refreshActualRetention() {
+        viewModelScope.launch {
+            runCatching { statisticsUseCase.getRetention() }
+                .onSuccess { _actualRetention.value = it }
+        }
     }
 
     /** Flashcard overlay opacity (0.1f..1.0f, 10% floor keeps the card visible). */

@@ -30,6 +30,20 @@ data class SimpleStatistics(
     val studiedPercentage: Int = if (totalCards > 0) (studiedCards * 100) / totalCards else 0
 }
 
+/**
+ * Aggregate retention computed from per-rating counters across all cards.
+ * Anki-style: a rating counts as "remembered" iff it was ≥ Hard (i.e., not
+ * Wrong/Again). This is the metric directly comparable to the FSRS target
+ * retention slider in app settings.
+ *
+ * `totalReviews` lets the UI suppress the readout when there isn't enough data
+ * to be meaningful (e.g., < 10 reviews).
+ */
+data class RetentionData(
+    val rate: Float,
+    val totalReviews: Int
+)
+
 // StreakCalculator object removed - replaced with SimpleStreakUseCase for better UX
 // Old complex historical calculation replaced with simple, predictable streak tracking
 
@@ -47,11 +61,15 @@ class StatisticsUseCase @Inject constructor(
             val totalCards = enabledFlashcards.size
             val studiedCards = enabledFlashcards.count { it.reps > 0 }
             
-            val totalCorrect = enabledFlashcards.sumOf { it.correctCount }
-            val totalIncorrect = enabledFlashcards.sumOf { it.incorrectCount }
-            val totalAttempts = totalCorrect + totalIncorrect
+            // Treat Good + Easy as correct; Hard counts as half-credit; Wrong is zero.
+            // Same weighting as the per-card success rate in StatisticsViewModel.
+            val totalGood = enabledFlashcards.sumOf { it.correctCount }
+            val totalEasy = enabledFlashcards.sumOf { it.easyCount }
+            val totalHard = enabledFlashcards.sumOf { it.hardCount }
+            val totalWrong = enabledFlashcards.sumOf { it.incorrectCount }
+            val totalAttempts = totalGood + totalEasy + totalHard + totalWrong
             val accuracyRate = if (totalAttempts > 0) {
-                totalCorrect.toFloat() / totalAttempts.toFloat()
+                (totalGood + totalEasy + totalHard * 0.5f) / totalAttempts.toFloat()
             } else 0f
             
             // Use new simple streak system instead of complex historical calculation
@@ -69,5 +87,14 @@ class StatisticsUseCase @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    suspend fun getRetention(): RetentionData {
+        val cards = repository.getAllFlashcardsForStatistics()
+        val remembered = cards.sumOf { it.correctCount + it.easyCount + it.hardCount }
+        val forgotten = cards.sumOf { it.incorrectCount }
+        val total = remembered + forgotten
+        val rate = if (total > 0) remembered.toFloat() / total.toFloat() else 0f
+        return RetentionData(rate = rate, totalReviews = total)
     }
 }

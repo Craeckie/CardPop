@@ -32,6 +32,7 @@ val AccentPurple = Color(0xFF9C27B0)
 val AccentTeal = Color(0xFF00BCD4)
 val AccentAmber = Color(0xFFFFC107)
 val AccentGreen = Color(0xFF4CAF50)
+val AccentBlue = Color(0xFF1976D2)
 val AccentRed = Color(0xFFF44336)
 
 // Minimalistic card colors - subtle and muted

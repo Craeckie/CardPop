@@ -287,6 +287,11 @@ class FakeFlashcardDao : FlashcardDao {
     override suspend fun getNearestDueFlashcard() = throw NotImplementedError()
     override suspend fun getNextAvailableFlashcard(now: Long) = throw NotImplementedError()
     override suspend fun getActiveFlashcardCount() = cards.size
+    override suspend fun getCardCountsByState(): List<FlashcardDao.StateCount> =
+        cards.groupingBy { it.state }.eachCount().map { (state, count) ->
+            FlashcardDao.StateCount(state = state, count = count)
+        }
+    override suspend fun getDueNowCount(now: Long) = cards.count { it.dueAt <= now }
     override suspend fun getFlashcardCountByCategory(categoryId: Long) =
         cards.count { it.categoryId == categoryId }
     override suspend fun insertFlashcard(flashcard: FlashcardEntity) = nextId++

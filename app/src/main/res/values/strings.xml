@@ -126,8 +126,11 @@
     <string name="settings_scheduling_title">Scheduling</string>
     <string name="settings_scheduling_subtitle">Tune the spaced repetition algorithm</string>
     <string name="settings_target_retention_title">Target retention</string>
-    <string name="settings_target_retention_description">How well you want to remember your cards. Higher values mean more reviews but less forgetting. Default is 90%%.</string>
+    <string name="settings_target_retention_description">How well you want to remember your cards. 90%% means about 1 in 10 cards forgotten when due. Higher = more frequent reviews.</string>
     <string name="settings_target_retention_value">%1$d%%</string>
+    <string name="settings_actual_retention_label">Your retention</string>
+    <string name="settings_actual_retention_value">%1$d%% (from %2$d reviews)</string>
+    <string name="settings_actual_retention_empty">Not enough reviews yet</string>
 
     <!-- Overlay behavior section -->
     <string name="settings_overlay_behavior_title">Overlay behavior</string>
@@ -267,6 +270,11 @@
     <string name="stats_current_streak">Current Streak</string>
     <string name="stats_highest_streak">Highest Streak</string>
     <string name="stats_total_flashcards">Mastered</string>
+    <string name="stats_due_now">%1$d due now</string>
+    <string name="stats_state_new">New</string>
+    <string name="stats_state_learning">Learning</string>
+    <string name="stats_state_review">Review</string>
+    <string name="stats_state_relearning">Relearning</string>
     <string name="stats_categories_count">Categories</string>
     <string name="stats_average_difficulty">Avg. Difficulty</string>
     <string name="stats_days_suffix">days</string>

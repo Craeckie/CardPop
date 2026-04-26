@@ -53,25 +53,45 @@ import com.floflacards.app.presentation.viewmodel.EnhancedOverallStats
 
 @Composable
 fun ModernStatsCardGrid(stats: EnhancedOverallStats) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        CurrentStreakCard(
-            streakDays = stats.streakDays,
-            modifier = Modifier.weight(1f)
-        )
-        HighestStreakCard(
-            highestStreak = stats.highestStreak,
-            modifier = Modifier.weight(1f)
-        )
-        MasteredCard(
-            mastered = stats.masteredFlashcards,
-            total = stats.totalFlashcards,
-            modifier = Modifier.weight(1f)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            CurrentStreakCard(
+                streakDays = stats.streakDays,
+                modifier = Modifier.weight(1f)
+            )
+            HighestStreakCard(
+                highestStreak = stats.highestStreak,
+                modifier = Modifier.weight(1f)
+            )
+            MasteredCard(
+                mastered = stats.masteredFlashcards,
+                total = stats.totalFlashcards,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            CardStatesCard(
+                dueNow = stats.dueNowCount,
+                newCount = stats.newCount,
+                learning = stats.learningCount,
+                review = stats.reviewCount,
+                relearning = stats.relearningCount,
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
 
@@ -280,7 +300,8 @@ fun FlashcardStatItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Compact chips
+                // Compact chips: Wrong / Hard / Good / Easy — same order as the
+                // overlay rating buttons so the colors line up with the buttons users tap.
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -298,6 +319,11 @@ fun FlashcardStatItem(
                     CompactStatChip(
                         count = flashcard.correctCount,
                         backgroundColor = AccentGreen,
+                        textColor = Color.White
+                    )
+                    CompactStatChip(
+                        count = flashcard.easyCount,
+                        backgroundColor = AccentBlue,
                         textColor = Color.White
                     )
                 }
@@ -396,6 +422,106 @@ private fun HighestStreakCard(
         },
         modifier = modifier
     )
+}
+
+/**
+ * Wider tile that shows the FSRS card-state breakdown for enabled cards.
+ * Headline: how many cards are due now (the most actionable number — what the
+ * overlay would pick from). Below: small color-coded counts per state so the
+ * user can see how their deck is shaped (still mostly New vs. mostly Review).
+ *
+ * Uses the same color language as the rating buttons / per-card chips:
+ * Relearning red, Learning amber, Review green, New gray.
+ */
+@Composable
+private fun CardStatesCard(
+    dueNow: Int,
+    newCount: Int,
+    learning: Int,
+    review: Int,
+    relearning: Int,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .wrapContentHeight()
+            .heightIn(min = 90.dp),
+        colors = CardDefaults.cardColors(containerColor = getStatisticsCardBackground()),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .background(getStatisticsCardBackground(), RoundedCornerShape(12.dp))
+                .border(1.dp, getStatisticsCardBorder(), RoundedCornerShape(12.dp))
+                .padding(horizontal = 10.dp, vertical = 10.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.stats_due_now, dueNow),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (dueNow > 0) AccentTeal else getStatisticsOnSurfaceVariant(),
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    StateCountChip(
+                        label = stringResource(R.string.stats_state_new),
+                        count = newCount,
+                        accentColor = getStatisticsOnSurfaceVariant()
+                    )
+                    StateCountChip(
+                        label = stringResource(R.string.stats_state_learning),
+                        count = learning,
+                        accentColor = AccentAmber
+                    )
+                    StateCountChip(
+                        label = stringResource(R.string.stats_state_review),
+                        count = review,
+                        accentColor = AccentGreen
+                    )
+                    StateCountChip(
+                        label = stringResource(R.string.stats_state_relearning),
+                        count = relearning,
+                        accentColor = AccentRed
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StateCountChip(
+    label: String,
+    count: Int,
+    accentColor: Color
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = count.toString(),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = accentColor
+        )
+        Text(
+            text = label,
+            fontSize = 9.sp,
+            color = getStatisticsOnSurfaceVariant(),
+            maxLines = 1
+        )
+    }
 }
 
 @Composable
