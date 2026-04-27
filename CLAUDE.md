@@ -1,78 +1,47 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Project
+FloFla Cards — offline, ad-free Android flashcard app (Kotlin, minSdk 24, targetSdk 36; F-Droid). Pops a system overlay with a flashcard at user-set intervals; tap to reveal back. User studies Chinese: front = word, back = meaning + pronunciation.
 
-## Project Overview
-
-FloFla Cards is an Android flashcard app (Kotlin, minSdk 24, targetSdk 36) that displays flashcards as system overlays on top of other apps at user-defined intervals. It is fully offline, ad-free, and distributed on F-Droid.
-I use FloFlaCards to study Chinese characters. I use FloFlaCards to passively study characters. In a defined interval it shows an overlay with a chinese word. After clicking a button, it shows the meaning and pronounciation. I want to improve the app so that it supports me in learning chinese.
-
-## Build Commands
-
+## Build
 ```bash
-# Build debug APK
-./gradlew assembleDebug
-
-# Build release APK
-./gradlew assembleRelease
-
-# Run unit tests
-./gradlew test
-
-# Run a single test class
+./gradlew assembleDebug | assembleRelease | test | lint
 ./gradlew :app:testDebugUnitTest --tests "com.floflacards.app.data.csv.CsvParserTest"
-
-# Run lint
-./gradlew lint
 ```
 
-## Architecture
+## Layers
 
-The app follows a clean architecture pattern with three layers:
+**`data/`** — `entity/` Room (`FlashcardEntity`, `CategoryEntity`); `dao/`; `repository/` (`FlashcardRepository`, `SettingsRepository` SharedPrefs, `BackupRepository` SAF JSON); `source/` (`FlashcardUiPreferences`, `StreakPreferences`, `ImageManager`, `BackupPreferences`); `csv/`; `anki/AnkiParser` (.apkg import); `model/` (`AppTheme`, `FlashcardTheme`, `Language`).
 
-**Data layer** (`data/`)
-- `entity/` — Room database entities (`FlashcardEntity`, `CategoryEntity`)
-- `dao/` — Room DAOs for database access
-- `repository/` — Repositories: `FlashcardRepository` (Room), `SettingsRepository` (SharedPreferences), `BackupRepository` (file-based JSON backup via SAF)
-- `source/` — Additional preference/manager classes (`FlashcardUiPreferences`, `StreakPreferences`, `ImageManager`, `BackupPreferences`)
-- `csv/` — CSV parsing and export logic
-- `model/` — Data-layer models (`AppTheme`, `FlashcardTheme`, `Language`)
+**`domain/`** — `fsrs/` pure FSRS v6 port (`Fsrs`, `FsrsCard`, `FsrsRating`, `FsrsCardState`, `FsrsGrade`, `FsrsParameters`); JVM-testable, no Android imports. `usecase/` (CSV i/o, backup, `SrsUseCase`, `SimpleStreakUseCase`, statistics). `model/` (`FlashcardRating`, `StreakData`). `manager/ServiceStateManager` singleton.
 
-**Domain layer** (`domain/`)
-- `fsrs/` — Pure-domain port of FSRS v6 (`Fsrs`, `FsrsCard`, `FsrsRating`, `FsrsCardState`, `FsrsGrade`, `FsrsParameters`). No Android/Room/Compose imports — JVM-unit-testable.
-- `usecase/` — Business logic: CSV import/export, backup CRUD, SRS scheduling (`SrsUseCase`, FSRS-backed), streak tracking (`SimpleStreakUseCase`), statistics
-- `model/` — Domain models (`FlashcardRating`, `StreakData`, `InteractionMode`)
-- `manager/ServiceStateManager` — Singleton tracking whether the overlay service is running
+**`presentation/`** — `screen/` (`MainActivity` hosts Compose nav; `WelcomeActivity`; per-feature route composables). `viewmodel/` one-per-screen. `component/` by feature (`flashcard/`, `main/`, `settings/`, `welcome/`, `dialog/`, `csv/`, `statistics/`, `shared/`, `text/`). `navigation/AppNavigation` single `NavHost`: `main`, `categories`, `statistics`, `app-settings`, `flashcard-management/{categoryId}`, `add-edit-flashcard`, `csv-import|export|bulk-export`. `theme/` Material3.
 
-**Presentation layer** (`presentation/`)
-- `screen/` — Full screens: `MainActivity` (main entry, hosts Compose nav), `WelcomeActivity` (onboarding), and route composables for each feature
-- `viewmodel/` — One ViewModel per screen/feature area
-- `component/` — Reusable Compose components grouped by feature (`flashcard/`, `main/`, `settings/`, `welcome/`, `dialog/`, `csv/`, `statistics/`, `shared/`, `text/`)
-- `navigation/AppNavigation` — Single `NavHost` with all routes (`main`, `categories`, `statistics`, `app-settings`, `flashcard-management/{categoryId}`, `add-edit-flashcard`, `csv-import`, `csv-export`, `csv-bulk-export`)
-- `theme/` — Material3 theme
+**`service/`** — `OverlayService` foreground service implementing `LifecycleOwner`/`ViewModelStoreOwner`/`SavedStateRegistryOwner` to host Compose in a `ComposeView` added to `WindowManager` via `OverlayManager` (`SYSTEM_ALERT_WINDOW`). `TimerForegroundService` repeating alarm. `LearningServiceManager` start/stop. `SnoozeBroadcastReceiver`. `ViewModelStoreManager`.
 
-**Service layer** (`service/`)
-- `OverlayService` — The core feature: a foreground `Service` that implements `LifecycleOwner`/`ViewModelStoreOwner`/`SavedStateRegistryOwner` so it can host Compose UI. Renders flashcard overlays using `SYSTEM_ALERT_WINDOW` permission via `OverlayManager`.
-- `TimerForegroundService` — Manages the repeating alarm/timer that triggers overlay display at the configured interval.
-- `LearningServiceManager` — Coordinates starting/stopping both services.
-- `ViewModelStoreManager` — Custom `ViewModelStore` holder for the service context.
+**`di/`** — Hilt: `DatabaseModule`, `BackupModule`, `CsvModule`.
 
-**DI** (`di/`) — Hilt modules: `DatabaseModule` (Room + DAOs), `BackupModule`, `CsvModule`.
+## Two clocks — keep decoupled
+- **FSRS (days)** — *which* card. `FlashcardEntity` has `stability/difficulty/scheduledDays/reps/lapses/state/dueAt`. `SrsUseCase` calls `Fsrs.apply()`, writes `dueAt = now + scheduledDays·86_400_000` (Review) or short-term ms (Learning/Relearning). `FlashcardDao.getNextDueFlashcard` orders by state (Relearning→Learning→Review→New), then `dueAt`, then `difficulty`.
+- **Overlay (minutes)** — *how often*. `TimerForegroundService`, FSRS-independent. Tick → `getNextAvailableFlashcard()`; if none due, falls back to closest-to-due. Interval has a "Now" option for immediate display.
 
-## Key Architectural Notes
+## Ratings & FSRS
+- `FlashcardRating { WRONG, HARD, GOOD, EASY, CLOSED }`; `WRONG` displays as "Again". Buttons in `component/flashcard/FlashcardControls.kt`; collapses to 2×2 below 240dp. `CLOSED` = no-op for FSRS.
+- **Mastered** (`StatisticsViewModel`): `stability ≥ 21d && reps ≥ 3`.
+- **FSRS difficulty is 1..10, low = easy, high = hard** (inverse of old SM-2 EF). Any difficulty→label/color mapping must respect this.
+- **SM-2 → FSRS migration**: DB v8 / backup v2. Legacy `easinessFactor`/`reviewCount`/`cooldownUntil` gone; upgrade made every card FSRS-`New` (history counters kept, scheduling zeroed). Backup v1 imports same.
 
-- The overlay is rendered by `OverlayService` using Jetpack Compose drawn into a `ComposeView` added to the `WindowManager`. The service must implement lifecycle interfaces manually since it isn't an Activity.
-- `SettingsRepository` uses `SharedPreferences` directly (not DataStore). Settings include overlay interval, flashcard size/opacity, FSRS target retention (0.80–0.95, default 0.90), selected category, and app theme/language.
+## Features
+- **APKG import** (`data/anki/AnkiParser`) alongside two-column CSV (preview before save).
+- **Pleco lookup** button on overlay (opens front term in Pleco app).
+- **Snooze** — pause overlay for N minutes; duration in `SettingsRepository`, end-time persisted, triggered by `SnoozeBroadcastReceiver`; main screen shows state.
+- **App blocklist** (`blocklist_packages`) — overlay suppressed while a listed package is foreground.
+- **Long-press overlay** — reveals answer type/meta.
+- **In-popup resize & drag**; popup opacity moved into settings. Old `OpacityControls`/`ResizeHandles`/`CompactOpacitySlider`/`FlashcardModeSelector`/`InteractionMode` removed.
+- **FSRS target retention** 0.80–0.95, default 0.90 (`SettingsRepository`).
 
-### Scheduling: FSRS vs. overlay interval (TWO different clocks — keep them decoupled)
-
-- **Scheduling clock (FSRS, in days)** decides *which* card is shown next. `FlashcardEntity` carries the FSRS state per card (`stability`, `difficulty`, `scheduledDays`, `reps`, `lapses`, `state`, `dueAt`). `SrsUseCase` calls `Fsrs.apply()` on each rating and writes the new state + `dueAt = now + scheduledDays · 86_400_000` (Review) or short-term ms (Learning/Relearning). `FlashcardDao.getNextDueFlashcard` orders by state priority (Relearning → Learning → Review → New), then `dueAt`, then `difficulty`.
-- **Overlay clock (minutes, user-configurable)** decides *how often* the overlay pops up. Driven by `TimerForegroundService`; unchanged by FSRS. On each tick, the timer asks `getNextAvailableFlashcard()` — if nothing is due it falls back to the card closest to due, so the overlay never shows nothing while cards exist.
-- **Ratings** are `FlashcardRating { WRONG, HARD, GOOD, EASY, CLOSED }` (display name "Again" for `WRONG`). `CLOSED` (overlay dismissed) is a no-op for FSRS — state is left untouched. The four rating buttons live in `presentation/component/flashcard/FlashcardControls.kt`; layout collapses to a 2×2 grid below 240dp width.
-- **"Mastered" heuristic** (`StatisticsViewModel`): `stability ≥ 21d && reps ≥ 3`. FSRS difficulty is on a 1..10 scale where **low = easy, high = hard** — the inverse of the old SM-2 easiness factor. Anything that maps difficulty to a label/color must use this orientation.
-- **Migration** from SM-2 happened at DB v8 / backup v2. Legacy `easinessFactor`/`reviewCount`/`cooldownUntil` are gone — every card was treated as FSRS-`New` on upgrade (history counters preserved, scheduling state zeroed). Backup imports detect `BackupData.version` and apply the same treatment for v1 files.
-- Backup format is JSON serialized with `kotlinx.serialization`. The backup uses Android's Storage Access Framework (SAF) for file access.
-- CSV import/export supports a two-column format (front, back). Import shows a preview before saving.
-- Streak and statistics data are stored in separate `SharedPreferences` via `StreakPreferences`.
-- Localization: English (default), Polish (`values-pl`), German (`values-de`). Language switching uses `AppCompatDelegate.setApplicationLocales`.
-- The app requires `SYSTEM_ALERT_WINDOW` (overlay) and `POST_NOTIFICATIONS` permissions; `PermissionHelper`/`PermissionLauncher` handle the runtime permission flow.
+## Misc
+- `SettingsRepository` = SharedPreferences (not DataStore). Streak/stats in separate `StreakPreferences`.
+- Backup: `kotlinx.serialization` JSON via SAF.
+- Locales: en (default), pl (`values-pl`), de (`values-de`); switch via `AppCompatDelegate.setApplicationLocales`.
+- Permissions: `SYSTEM_ALERT_WINDOW`, `POST_NOTIFICATIONS` via `PermissionHelper`/`PermissionLauncher`.
