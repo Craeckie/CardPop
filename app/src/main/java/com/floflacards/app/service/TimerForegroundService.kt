@@ -23,8 +23,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -51,6 +53,7 @@ class TimerForegroundService : Service() {
         private const val CHANNEL_NAME = "Learning Timer"
         private const val DEFAULT_INTERVAL_MINUTES = 5
         private const val ALARM_REQUEST_CODE = 1001
+        private const val POSTPONE_DELAY_MS = 60_000L
         
         // Timer alarm constant
         const val ACTION_TIMER_ALARM = "com.example.myapplication.TIMER_ALARM"
@@ -91,14 +94,22 @@ class TimerForegroundService : Service() {
     
     private lateinit var alarmManager: AlarmManager
     private var alarmPendingIntent: PendingIntent? = null
+    private lateinit var powerManager: PowerManager
     private lateinit var wakeLock: PowerManager.WakeLock
-    
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    
+
     private var isInitialized = false
     private var intervalMinutes = DEFAULT_INTERVAL_MINUTES
     private var timerStartTime = 0L
     private var countdownJob: Job? = null
+
+    // Set when the interval alarm fires while the screen is off; the next
+    // ACTION_SCREEN_ON triggers a 60s deferred display instead of showing
+    // the overlay immediately.
+    private var postponePending = false
+    private var postponeJob: Job? = null
+    private var screenOnReceiver: BroadcastReceiver? = null
     
     override fun onCreate() {
         super.onCreate()
@@ -114,14 +125,39 @@ class TimerForegroundService : Service() {
     
     private fun initializeSystemServices() {
         alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        
-        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+
+        powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
             "$packageName:FlashcardTimer"
         )
-        
+
+        registerScreenOnReceiver()
+
         Log.d(TAG, "System services initialized")
+    }
+
+    private fun registerScreenOnReceiver() {
+        if (screenOnReceiver != null) return
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action != Intent.ACTION_SCREEN_ON) return
+                onScreenTurnedOn()
+            }
+        }
+        registerReceiver(receiver, IntentFilter(Intent.ACTION_SCREEN_ON))
+        screenOnReceiver = receiver
+    }
+
+    private fun unregisterScreenOnReceiver() {
+        screenOnReceiver?.let {
+            try {
+                unregisterReceiver(it)
+            } catch (e: Exception) {
+                Log.w(TAG, "Error unregistering screen-on receiver", e)
+            }
+        }
+        screenOnReceiver = null
     }
     
 
@@ -164,6 +200,7 @@ class TimerForegroundService : Service() {
         Log.d(TAG, "Service onDestroy called")
         try {
             stopTimer()
+            unregisterScreenOnReceiver()
             releaseWakeLock()
             isInitialized = false
         } catch (e: Exception) {
@@ -211,9 +248,9 @@ class TimerForegroundService : Service() {
                     alarmPendingIntent!!
                 )
             }
-            
+
             // Start simple countdown updates
-            startCountdownUpdates()
+            startCountdownUpdates(timerStartTime, intervalMinutes * 60 * 1000L)
             
             Log.d(TAG, "Timer started for $intervalMinutes minutes")
         } catch (e: Exception) {
@@ -229,28 +266,32 @@ class TimerForegroundService : Service() {
                 pendingIntent.cancel()
                 alarmPendingIntent = null
             }
-            
+
             // Cancel countdown updates
             countdownJob?.cancel()
             countdownJob = null
-            
+
+            // Cancel any pending postponed display
+            postponeJob?.cancel()
+            postponeJob = null
+            postponePending = false
+
             Log.d(TAG, "Timer stopped")
         } catch (e: Exception) {
             Log.e(TAG, "Error stopping timer", e)
         }
     }
     
-    private fun startCountdownUpdates() {
+    private fun startCountdownUpdates(startTime: Long, durationMs: Long) {
         countdownJob?.cancel()
         countdownJob = serviceScope.launch {
             try {
-                while (isInitialized && timerStartTime > 0) {
-                    val elapsed = System.currentTimeMillis() - timerStartTime
-                    val totalDuration = intervalMinutes * 60 * 1000L
-                    val remaining = maxOf(0L, totalDuration - elapsed) / 1000L
-                    
+                while (isInitialized) {
+                    val elapsed = System.currentTimeMillis() - startTime
+                    val remaining = maxOf(0L, durationMs - elapsed) / 1000L
+
                     broadcastCountdownUpdate(remaining)
-                    
+
                     if (remaining <= 0) break
                     delay(1000L)
                 }
@@ -287,24 +328,74 @@ class TimerForegroundService : Service() {
             Log.w(TAG, "Service not initialized, ignoring alarm")
             return
         }
-        
+
+        // Stop countdown updates regardless — the interval has elapsed.
+        countdownJob?.cancel()
+        countdownJob = null
+
+        if (!powerManager.isInteractive) {
+            Log.d(TAG, "Screen is off, deferring flashcard until 60s after screen-on")
+            postponePending = true
+            // Don't restart the timer; OverlayService restarts it after the
+            // deferred display once the user interacts with the overlay.
+            return
+        }
+
         serviceScope.launch {
             try {
-                // Stop countdown updates during flashcard display
-                countdownJob?.cancel()
-                countdownJob = null
-                
                 // Acquire wake lock for flashcard display
                 if (!wakeLock.isHeld) {
                     wakeLock.acquire(30000) // 30 seconds timeout
                 }
-                
+
                 showFlashcard()
-                
+
             } catch (e: Exception) {
                 Log.e(TAG, "Error handling timer alarm", e)
             }
             // Timer will be restarted by OverlayService after user interaction
+        }
+    }
+
+    private fun onScreenTurnedOn() {
+        if (!postponePending) return
+        if (!isInitialized) return
+        if (!settingsManager.getIsLearningActive()) {
+            postponePending = false
+            return
+        }
+
+        postponePending = false
+        postponeJob?.cancel()
+        // Surface the 60s wait as a normal countdown so the main screen pill
+        // shows "Next in 0:60" instead of falling back to "Preparing…".
+        startCountdownUpdates(System.currentTimeMillis(), POSTPONE_DELAY_MS)
+        postponeJob = serviceScope.launch {
+            try {
+                delay(POSTPONE_DELAY_MS)
+
+                if (!isInitialized || !settingsManager.getIsLearningActive()) {
+                    return@launch
+                }
+
+                if (!powerManager.isInteractive) {
+                    // Screen went back off during the wait — re-arm and let
+                    // the next ACTION_SCREEN_ON trigger another 60s wait.
+                    postponePending = true
+                    countdownJob?.cancel()
+                    countdownJob = null
+                    return@launch
+                }
+
+                if (!wakeLock.isHeld) {
+                    wakeLock.acquire(30000)
+                }
+                showFlashcard()
+            } catch (e: CancellationException) {
+                Log.d(TAG, "Postponed display cancelled")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in postponed display", e)
+            }
         }
     }
     
