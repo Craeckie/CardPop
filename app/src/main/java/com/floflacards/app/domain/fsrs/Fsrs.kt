@@ -278,7 +278,7 @@ class Fsrs(
     }
 
     private fun forgettingCurve(interval: Double, stability: Double): Double =
-        if (stability <= 0.0) 1.0 else exp(-interval / stability)
+        if (stability <= 0.0) 1.0 else (1.0 + factor * interval / stability).pow(decay)
 
     private fun generateFuzzFactor(): Double = random.nextDouble()
 
@@ -302,7 +302,7 @@ class Fsrs(
         )
 
     private fun linearDamping(delta: Double, oldD: Double): Double =
-        delta * (10 - oldD / 9)
+        (10 - oldD) * delta / 9
 
     private fun meanReversion(initD: Double, nextD: Double): Double =
         params[7] * initD + (1 - params[7]) * nextD

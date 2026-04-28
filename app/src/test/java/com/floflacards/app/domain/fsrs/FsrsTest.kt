@@ -31,11 +31,10 @@ import org.junit.Test
  *   - Difficulty stays bounded in [1, 10] across every state transition
  *   - Stability does not decrease on consecutive Good ratings without forgetting
  *
- * Numeric pinning is intentionally avoided here: the reference port has small
- * idiosyncrasies (linearDamping uses `(10 - oldD/9)`, forgettingCurve uses the
- * exponential rather than the FSRS-6 power-law form) that diverge slightly from
- * py-fsrs. Replacing those with a strict-spec implementation would be a separate
- * change tracked as a follow-up — for now, invariants are what we pin.
+ * `numeric_pin_against_fsrs_v6_reference` pins exact values for four canonical
+ * inputs computed from the FSRS-6 spec (cross-checked against py-fsrs). These
+ * lock the algebra against accidental regressions in `linearDamping` and
+ * `forgettingCurve` — both of which had bugs in the upstream FSRS-Kotlin port.
  */
 class FsrsTest {
 
@@ -234,6 +233,51 @@ class FsrsTest {
         assertEquals(FsrsRating.Hard, grades[1].rating)
         assertEquals(FsrsRating.Good, grades[2].rating)
         assertEquals(FsrsRating.Easy, grades[3].rating)
+    }
+
+    @Test
+    fun numeric_pin_against_fsrs_v6_reference() {
+        // Reference values derived from the FSRS-6 spec with default 21 weights and
+        // requestRetention = 0.9. Tolerance = 0.05 (a few round2 steps) absorbs any
+        // small drift from intermediate rounding; the buggy variants we're guarding
+        // against diverge by 100+ on stability and ~3 on difficulty. Fuzz disabled.
+        val tol = 0.05
+
+        // Case 1: New + Good -> Learning, D = w_4 - exp(2·w_5) + 1, S = max(w_2, 0.1)
+        val newGood = fsrs().apply(FsrsCard(), FsrsRating.Good, now)
+        assertEquals(FsrsCardState.Learning, newGood.state)
+        assertEquals(2.12, newGood.difficulty, tol)
+        assertEquals(2.31, newGood.stability, tol)
+        assertEquals(0, newGood.scheduledDays)
+
+        // Case 2: New + Easy -> Review, D coerced to 1.0, S = w_3, ivlEasy = 1
+        val newEasy = fsrs().apply(FsrsCard(), FsrsRating.Easy, now)
+        assertEquals(FsrsCardState.Review, newEasy.state)
+        assertEquals(1.0, newEasy.difficulty, tol)
+        assertEquals(8.30, newEasy.stability, tol)
+        assertEquals(1, newEasy.scheduledDays)
+
+        // Case 3: Review s=10 d=5 e=8 + Good. With FSRS-6 power-law forgetting curve,
+        // R ≈ 0.9146 (the FSRS-5 exp form would give R ≈ 0.4493 and stability ≈ 156).
+        val reviewCard = FsrsCard(
+            state = FsrsCardState.Review,
+            stability = 10.0,
+            difficulty = 5.0,
+            elapsedDays = 8
+        )
+        val reviewGood = fsrs().apply(reviewCard, FsrsRating.Good, now)
+        assertEquals(FsrsCardState.Review, reviewGood.state)
+        assertEquals(5.0, reviewGood.difficulty, tol) // delta=0 for Good
+        assertEquals(28.71, reviewGood.stability, tol)
+        assertEquals(29, reviewGood.scheduledDays)
+
+        // Case 4: Review s=10 d=5 e=8 + Hard. The damping formula is the diagnostic:
+        // correct (10-D)·delta/9 -> D' ≈ 6.67; buggy delta·(10-D/9) -> D' clamps at ~9.99.
+        val reviewHard = fsrs().apply(reviewCard, FsrsRating.Hard, now)
+        assertEquals(FsrsCardState.Review, reviewHard.state)
+        assertEquals(6.67, reviewHard.difficulty, tol)
+        assertEquals(21.25, reviewHard.stability, tol)
+        assertEquals(21, reviewHard.scheduledDays)
     }
 
     @Test
