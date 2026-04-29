@@ -20,6 +20,7 @@ package com.floflacards.app.domain.usecase
 import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.data.repository.FlashcardRepository
 import com.floflacards.app.data.repository.SettingsRepository
+import com.floflacards.app.data.source.ReviewHistoryPreferences
 import com.floflacards.app.domain.fsrs.Fsrs
 import com.floflacards.app.domain.fsrs.FsrsCard
 import com.floflacards.app.domain.fsrs.FsrsCardState
@@ -34,7 +35,8 @@ import javax.inject.Singleton
 @Singleton
 class SrsUseCase @Inject constructor(
     private val repository: FlashcardRepository,
-    private val settingsManager: SettingsRepository
+    private val settingsManager: SettingsRepository,
+    private val reviewHistory: ReviewHistoryPreferences
 ) {
     private fun fsrs(): Fsrs = Fsrs(
         requestRetention = settingsManager.getTargetRetention(),
@@ -82,6 +84,16 @@ class SrsUseCase @Inject constructor(
             )
 
             repository.updateFlashcard(updatedFlashcard)
+
+            // Record this review in the daily history so the Statistics chart
+            // can plot reviews-per-day and the running mastered total. Snapshot
+            // is taken AFTER the update so today's mastered count reflects any
+            // card that just crossed the threshold.
+            reviewHistory.recordReview(
+                masteredTotal = repository.getMasteredCount(),
+                now = now
+            )
+
             updatedFlashcard
         }
     }

@@ -21,9 +21,12 @@ import android.content.Context
 import com.floflacards.app.data.backup.BackupManager
 import com.floflacards.app.data.dao.CategoryDao
 import com.floflacards.app.data.dao.FlashcardDao
-import com.floflacards.app.data.source.BackupPreferences
-import com.floflacards.app.data.source.StreakPreferences
 import com.floflacards.app.data.repository.BackupRepository
+import com.floflacards.app.data.repository.SettingsRepository
+import com.floflacards.app.data.source.BackupPreferences
+import com.floflacards.app.data.source.FlashcardUiPreferences
+import com.floflacards.app.data.source.ReviewHistoryPreferences
+import com.floflacards.app.data.source.StreakPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -46,14 +49,20 @@ object BackupModule {
         flashcardDao: FlashcardDao,
         categoryDao: CategoryDao,
         streakPreferences: StreakPreferences,
-        backupPreferences: BackupPreferences
+        backupPreferences: BackupPreferences,
+        settingsRepository: SettingsRepository,
+        flashcardUiPreferences: FlashcardUiPreferences,
+        reviewHistoryPreferences: ReviewHistoryPreferences
     ): BackupManager {
         return BackupManager(
             context = context,
             flashcardDao = flashcardDao,
             categoryDao = categoryDao,
             streakPreferences = streakPreferences,
-            backupPreferences = backupPreferences
+            backupPreferences = backupPreferences,
+            settingsRepository = settingsRepository,
+            flashcardUiPreferences = flashcardUiPreferences,
+            reviewHistoryPreferences = reviewHistoryPreferences
         )
     }
 

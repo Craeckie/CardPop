@@ -281,7 +281,14 @@
     <string name="stats_cards_suffix">%1$d cards</string>
     <string name="stats_reviews_suffix">reviews</string>
     <string name="stats_percent_suffix">%</string>
-    
+
+    <!-- History chart -->
+    <string name="stats_history_title">Activity over time</string>
+    <string name="stats_history_subtitle">Last %1$d days</string>
+    <string name="stats_history_reviews">Reviews / day</string>
+    <string name="stats_history_mastered">Mastered (total)</string>
+    <string name="stats_history_empty">Rate a few cards to start tracking your progress here.</string>
+
     <!-- Statistics Reset Dialogs -->
     <string name="reset_all_stats_title">Reset All Statistics</string>
     <string name="reset_all_stats_description">This will permanently reset:</string>

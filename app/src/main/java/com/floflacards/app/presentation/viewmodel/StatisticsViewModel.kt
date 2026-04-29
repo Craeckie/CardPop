@@ -21,6 +21,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.data.repository.FlashcardRepository
+import com.floflacards.app.data.source.ReviewHistoryPreferences
+import com.floflacards.app.data.source.ReviewHistoryEntry
 import com.floflacards.app.domain.usecase.StatisticsUseCase
 import com.floflacards.app.domain.usecase.SimpleStreakUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -97,6 +99,7 @@ data class ModernStatisticsUiState(
     val isLoading: Boolean = false,
     val overallStats: EnhancedOverallStats? = null,
     val categoryStats: List<CategoryStats> = emptyList(),
+    val reviewHistory: List<ReviewHistoryEntry> = emptyList(),
     val searchQuery: String = "" // Current search query
 )
 
@@ -104,7 +107,8 @@ data class ModernStatisticsUiState(
 class StatisticsViewModel @Inject constructor(
     private val statisticsUseCase: StatisticsUseCase,
     private val repository: FlashcardRepository,
-    private val simpleStreakUseCase: SimpleStreakUseCase
+    private val simpleStreakUseCase: SimpleStreakUseCase,
+    private val reviewHistory: ReviewHistoryPreferences
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(ModernStatisticsUiState())
@@ -147,6 +151,11 @@ class StatisticsViewModel @Inject constructor(
                     relearningCount = stateCounts[3] ?: 0
                 )
                 
+                // Last 30 days of activity for the over-time chart. Reading
+                // SharedPreferences is fast enough to do on the main thread,
+                // but we're already off-main here so it's free.
+                val historySeries = reviewHistory.getHistory(days = HISTORY_DAYS)
+
                 allCategories.collect { categories ->
                     val categoryStatsList = categories
                         .sortedBy { it.createdAt } // Sort categories by creation date
@@ -197,7 +206,8 @@ class StatisticsViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         overallStats = enhancedOverallStats,
-                        categoryStats = categoryStatsList
+                        categoryStats = categoryStatsList,
+                        reviewHistory = historySeries
                     )
                 }
             } catch (e: Exception) {
@@ -291,12 +301,19 @@ class StatisticsViewModel @Inject constructor(
                 repository.resetAllStatistics()
                 // Also reset streak data when resetting all statistics
                 simpleStreakUseCase.resetStreak()
+                // Wipe the over-time chart history too — keeping it would show a
+                // mastered curve that doesn't match the freshly-zeroed cards.
+                reviewHistory.reset()
                 // Reload statistics to reflect changes
                 loadStatistics()
             } catch (e: Exception) {
                 println("Failed to reset all statistics: ${e.message}")
             }
         }
+    }
+
+    private companion object {
+        const val HISTORY_DAYS = 30
     }
 }
 
