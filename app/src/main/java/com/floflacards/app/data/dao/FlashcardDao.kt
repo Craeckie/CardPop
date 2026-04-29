@@ -128,6 +128,15 @@ interface FlashcardDao {
     """)
     suspend fun getDueNowCount(now: Long = System.currentTimeMillis()): Int
 
+    /**
+     * Count of mastered cards across the whole deck (stability ≥ 21 days and at
+     * least 3 reps), matching the definition used by StatisticsViewModel.
+     * Includes disabled cards/categories so the history snapshot doesn't drop
+     * when the user toggles a category off.
+     */
+    @Query("SELECT COUNT(*) FROM flashcards WHERE stability >= 21.0 AND reps >= 3")
+    suspend fun getMasteredCount(): Int
+
     data class StateCount(val state: Int, val count: Int)
     
     @Query("SELECT COUNT(*) FROM flashcards WHERE categoryId = :categoryId")

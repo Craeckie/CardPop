@@ -208,6 +208,37 @@ class FlashcardUiPreferences @Inject constructor(
     fun getCurrentOpacity(): Float =
         prefs.getFloat(KEY_OPACITY, DEFAULT_OPACITY).coerceIn(MIN_OPACITY, MAX_OPACITY)
 
+    /**
+     * Snapshot of the persisted percentages. Returned as-is (no screen
+     * dimension conversion) so it can round-trip through a backup file and
+     * restore correctly on a device with different dimensions.
+     */
+    data class PercentSnapshot(
+        val positionXPercent: Float,
+        val positionYPercent: Float,
+        val widthPercent: Float,
+        val heightPercent: Float,
+        val opacity: Float
+    )
+
+    fun getPercentSnapshot(): PercentSnapshot = PercentSnapshot(
+        positionXPercent = prefs.getFloat(KEY_POSITION_X_PERCENT, DEFAULT_POSITION_X_PERCENT),
+        positionYPercent = prefs.getFloat(KEY_POSITION_Y_PERCENT, DEFAULT_POSITION_Y_PERCENT),
+        widthPercent = prefs.getFloat(KEY_WIDTH_PERCENT, DEFAULT_WIDTH_PERCENT),
+        heightPercent = prefs.getFloat(KEY_HEIGHT_PERCENT, DEFAULT_HEIGHT_PERCENT),
+        opacity = prefs.getFloat(KEY_OPACITY, DEFAULT_OPACITY).coerceIn(MIN_OPACITY, MAX_OPACITY)
+    )
+
+    fun savePercentSnapshot(snapshot: PercentSnapshot) {
+        prefs.edit()
+            .putFloat(KEY_POSITION_X_PERCENT, snapshot.positionXPercent.coerceIn(0f, 1f))
+            .putFloat(KEY_POSITION_Y_PERCENT, snapshot.positionYPercent.coerceIn(0f, 1f))
+            .putFloat(KEY_WIDTH_PERCENT, snapshot.widthPercent.coerceIn(0f, MAX_WIDTH_PERCENT))
+            .putFloat(KEY_HEIGHT_PERCENT, snapshot.heightPercent.coerceIn(0f, MAX_HEIGHT_PERCENT))
+            .putFloat(KEY_OPACITY, snapshot.opacity.coerceIn(MIN_OPACITY, MAX_OPACITY))
+            .apply()
+    }
+
     fun resetToDefaults() {
         prefs.edit()
             .putFloat(KEY_POSITION_X_PERCENT, DEFAULT_POSITION_X_PERCENT)

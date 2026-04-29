@@ -196,10 +196,15 @@ fun StatisticsScreen(
                             item {
                                 uiState.overallStats?.let { stats ->
                                     ModernStatsCardGrid(stats)
-                                    
+
                                     // Add some space between the cards and category list
                                     Spacer(modifier = Modifier.height(16.dp))
                                 }
+                            }
+
+                            item {
+                                ReviewHistoryChart(history = uiState.reviewHistory)
+                                Spacer(modifier = Modifier.height(16.dp))
                             }
                         }
                         

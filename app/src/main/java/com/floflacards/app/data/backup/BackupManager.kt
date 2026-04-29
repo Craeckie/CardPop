@@ -25,7 +25,13 @@ import com.floflacards.app.data.dao.CategoryDao
 import com.floflacards.app.data.dao.FlashcardDao
 import com.floflacards.app.data.entity.CategoryEntity
 import com.floflacards.app.data.entity.FlashcardEntity
+import com.floflacards.app.data.model.AppTheme
+import com.floflacards.app.data.model.FlashcardTheme
+import com.floflacards.app.data.model.Language
+import com.floflacards.app.data.repository.SettingsRepository
 import com.floflacards.app.data.source.BackupPreferences
+import com.floflacards.app.data.source.FlashcardUiPreferences
+import com.floflacards.app.data.source.ReviewHistoryPreferences
 import com.floflacards.app.data.source.StreakPreferences
 import com.floflacards.app.domain.model.StreakData
 import kotlinx.coroutines.Dispatchers
@@ -46,7 +52,10 @@ class BackupManager @Inject constructor(
     private val flashcardDao: FlashcardDao,
     private val categoryDao: CategoryDao,
     private val streakPreferences: StreakPreferences,
-    private val backupPreferences: BackupPreferences
+    private val backupPreferences: BackupPreferences,
+    private val settingsRepository: SettingsRepository,
+    private val flashcardUiPreferences: FlashcardUiPreferences,
+    private val reviewHistoryPreferences: ReviewHistoryPreferences
 ) {
     companion object {
         private const val BACKUP_FILENAME = "backup.json"
@@ -315,11 +324,43 @@ class BackupManager @Inject constructor(
                 lastActivityTimestamp = currentStreakData.lastActivityTimestamp
             )
 
+            // Snapshot user-visible settings (transient runtime flags omitted —
+            // see SettingsBackup KDoc).
+            val settingsBackup = SettingsBackup(
+                intervalMinutes = settingsRepository.getIntervalMinutes(),
+                appTheme = settingsRepository.getAppTheme().name,
+                flashcardTheme = settingsRepository.getFlashcardTheme().name,
+                appLocale = settingsRepository.getAppLocale().code,
+                targetRetention = settingsRepository.getTargetRetention(),
+                blocklist = settingsRepository.getBlocklist().toList().sorted(),
+                snoozeDurationMinutes = settingsRepository.getSnoozeDurationMinutes()
+            )
+
+            val uiSnapshot = flashcardUiPreferences.getPercentSnapshot()
+            val flashcardUiBackup = FlashcardUiBackup(
+                positionXPercent = uiSnapshot.positionXPercent,
+                positionYPercent = uiSnapshot.positionYPercent,
+                widthPercent = uiSnapshot.widthPercent,
+                heightPercent = uiSnapshot.heightPercent,
+                opacity = uiSnapshot.opacity
+            )
+
+            val reviewHistoryBackup = reviewHistoryPreferences.exportAll().map {
+                ReviewHistoryEntryBackup(
+                    dateKey = it.dateKey,
+                    reviews = it.reviews,
+                    masteredTotal = it.masteredTotal
+                )
+            }
+
             // Create backup data
             val backupData = BackupData(
                 categories = categoryBackups,
                 flashcards = flashcardBackups,
                 streakData = streakBackup,
+                settings = settingsBackup,
+                flashcardUi = flashcardUiBackup,
+                reviewHistory = reviewHistoryBackup,
                 metadata = BackupMetadata(
                     totalCategories = categories.size,
                     totalFlashcards = flashcards.size,
@@ -509,6 +550,45 @@ class BackupManager @Inject constructor(
                 println("DEBUG: Streak data restored successfully")
             } ?: run {
                 println("DEBUG: No streak data found in backup (backward compatibility)")
+            }
+
+            // Restore v3+ sections. v1/v2 backups have these as null and are
+            // simply left at the device's current values.
+            backupData.settings?.let { s ->
+                settingsRepository.setIntervalMinutes(s.intervalMinutes)
+                settingsRepository.setAppTheme(AppTheme.fromString(s.appTheme))
+                settingsRepository.setFlashcardTheme(FlashcardTheme.fromString(s.flashcardTheme))
+                settingsRepository.setAppLocale(Language.fromCode(s.appLocale))
+                settingsRepository.setTargetRetention(s.targetRetention)
+                settingsRepository.setBlocklist(s.blocklist.toSet())
+                settingsRepository.setSnoozeDurationMinutes(s.snoozeDurationMinutes)
+            }
+
+            backupData.flashcardUi?.let { ui ->
+                flashcardUiPreferences.savePercentSnapshot(
+                    FlashcardUiPreferences.PercentSnapshot(
+                        positionXPercent = ui.positionXPercent,
+                        positionYPercent = ui.positionYPercent,
+                        widthPercent = ui.widthPercent,
+                        heightPercent = ui.heightPercent,
+                        opacity = ui.opacity
+                    )
+                )
+                // Keep the SettingsRepository opacity StateFlow in sync so the
+                // settings slider reflects the restored value immediately.
+                settingsRepository.setFlashcardOpacity(ui.opacity)
+            }
+
+            backupData.reviewHistory?.let { history ->
+                reviewHistoryPreferences.importAll(
+                    history.map {
+                        ReviewHistoryPreferences.RawEntry(
+                            dateKey = it.dateKey,
+                            reviews = it.reviews,
+                            masteredTotal = it.masteredTotal
+                        )
+                    }
+                )
             }
 
             Result.success(

@@ -29,15 +29,20 @@ data class BackupData(
     /**
      * v1: SM-2 fields (easinessFactor, reviewCount, cooldownUntil).
      * v2: FSRS fields (stability, difficulty, scheduledDays, reps, lapses, state, dueAt).
+     * v3: app settings, flashcard overlay UI prefs, daily review history.
      * v1 backups are restored by mapping legacy fields to FSRS-New defaults.
+     * v1/v2 backups deserialize cleanly because every v3 field is nullable.
      */
-    val version: Int = 2,
+    val version: Int = 3,
     val backupId: String = UUID.randomUUID().toString(),
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
     val categories: List<CategoryBackup>,
     val flashcards: List<FlashcardBackup>,
     val streakData: StreakBackup? = null, // Optional for backward compatibility
+    val settings: SettingsBackup? = null, // v3+
+    val flashcardUi: FlashcardUiBackup? = null, // v3+
+    val reviewHistory: List<ReviewHistoryEntryBackup>? = null, // v3+
     val metadata: BackupMetadata
 )
 
@@ -95,6 +100,49 @@ data class StreakBackup(
     val currentStreak: Int,
     val highestStreak: Int,
     val lastActivityTimestamp: Long
+)
+
+/**
+ * App settings backup (v3+). Only user-facing preferences that survive a
+ * reinstall — transient runtime flags (learning-active, demo-running,
+ * paused-until) and device-specific welcome flags (battery-optimization)
+ * are intentionally omitted.
+ */
+@Serializable
+data class SettingsBackup(
+    val intervalMinutes: Int,
+    val appTheme: String,
+    val flashcardTheme: String,
+    val appLocale: String,
+    val targetRetention: Double,
+    val blocklist: List<String> = emptyList(),
+    val snoozeDurationMinutes: Int
+)
+
+/**
+ * Overlay window position/size/opacity (v3+). Stored as percentages of screen
+ * dimensions so the layout adapts when restoring onto a device with a
+ * different screen size.
+ */
+@Serializable
+data class FlashcardUiBackup(
+    val positionXPercent: Float,
+    val positionYPercent: Float,
+    val widthPercent: Float,
+    val heightPercent: Float,
+    val opacity: Float
+)
+
+/**
+ * One day's reviewed/mastered snapshot (v3+). `timestamp` is intentionally
+ * omitted — it's reconstructed from `dateKey` in the device's local timezone
+ * on restore.
+ */
+@Serializable
+data class ReviewHistoryEntryBackup(
+    val dateKey: String, // "yyyy-MM-dd"
+    val reviews: Int,
+    val masteredTotal: Int
 )
 
 /**
