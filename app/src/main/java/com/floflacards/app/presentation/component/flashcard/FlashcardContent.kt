@@ -31,8 +31,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,6 +71,7 @@ import java.io.File
  * - Dark background theme
  * - Centralized color scheme following DRY principle
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FlashcardContent(
     flashcard: FlashcardEntity,
@@ -78,6 +83,7 @@ fun FlashcardContent(
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val plecoAvailable = remember { PlecoLauncher.isAvailable(context) }
+    val clipboardManager = LocalClipboardManager.current
 
     Column(
         modifier = modifier
@@ -89,7 +95,15 @@ fun FlashcardContent(
     ) {
         // Question section with theme-aware styling
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .combinedClickable(
+                    onClick = {},
+                    onLongClick = {
+                        clipboardManager.setText(AnnotatedString(flashcard.question))
+                        android.widget.Toast.makeText(context, context.getString(R.string.copied_to_clipboard), android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                ),
             colors = FlashcardColors.getQuestionCardColors(theme = theme),
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -166,7 +180,15 @@ fun FlashcardContent(
 
             // Answer section with theme-aware styling
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = {
+                            clipboardManager.setText(AnnotatedString(flashcard.answer))
+                            android.widget.Toast.makeText(context, context.getString(R.string.copied_to_clipboard), android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    ),
                 colors = FlashcardColors.getAnswerCardColors(theme = theme),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)

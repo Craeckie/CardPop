@@ -373,4 +373,5 @@
     <string name="rating_hard">Trudne</string>
     <string name="rating_good">Dobre</string>
     <string name="rating_easy">Łatwe</string>
+    <string name="copied_to_clipboard">Skopiowano do schowka</string>
 </resources>
