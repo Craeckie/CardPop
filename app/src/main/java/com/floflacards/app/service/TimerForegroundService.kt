@@ -182,10 +182,11 @@ class TimerForegroundService : Service() {
             // Handle normal service start
             isInitialized = true
             intervalMinutes = intent?.getIntExtra("interval_minutes", DEFAULT_INTERVAL_MINUTES) ?: DEFAULT_INTERVAL_MINUTES
-            
+
             startForeground(NOTIFICATION_ID, createNotification())
+            serviceCommunicationManager.updateServiceStatus(true)
             startTimer()
-            
+
             Log.d(TAG, "Timer service started with interval: $intervalMinutes minutes")
             return START_STICKY
             
@@ -203,6 +204,7 @@ class TimerForegroundService : Service() {
             unregisterScreenOnReceiver()
             releaseWakeLock()
             isInitialized = false
+            serviceCommunicationManager.updateServiceStatus(false)
         } catch (e: Exception) {
             Log.e(TAG, "Error in onDestroy", e)
         } finally {

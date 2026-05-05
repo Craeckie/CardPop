@@ -26,13 +26,35 @@ class BootReceiver : BroadcastReceiver() {
 
     companion object {
         private const val TAG = "BootReceiver"
+        private const val PREFS_NAME = "floating_learning_settings"
+        private const val KEY_IS_LEARNING_ACTIVE = "is_learning_active"
+        private const val KEY_INTERVAL_MINUTES = "interval_minutes"
+        private const val DEFAULT_INTERVAL_MINUTES = 5
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != Intent.ACTION_BOOT_COMPLETED &&
-            intent.action != "android.intent.action.QUICKBOOT_POWERON") return
+        when (intent.action) {
+            Intent.ACTION_BOOT_COMPLETED,
+            "android.intent.action.QUICKBOOT_POWERON" -> {
+                Log.d(TAG, "Boot completed — rescheduling morning reminder")
+                MorningReminderScheduler.schedule(context)
+                restartLearningIfActive(context)
+            }
+            Intent.ACTION_MY_PACKAGE_REPLACED -> {
+                Log.d(TAG, "Package replaced — restoring learning service state")
+                MorningReminderScheduler.schedule(context)
+                restartLearningIfActive(context)
+            }
+        }
+    }
 
-        Log.d(TAG, "Boot completed — rescheduling morning reminder")
-        MorningReminderScheduler.schedule(context)
+    private fun restartLearningIfActive(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isActive = prefs.getBoolean(KEY_IS_LEARNING_ACTIVE, false)
+        if (isActive) {
+            val interval = prefs.getInt(KEY_INTERVAL_MINUTES, DEFAULT_INTERVAL_MINUTES)
+            Log.d(TAG, "Learning was active — restarting timer service (interval=$interval min)")
+            TimerForegroundService.start(context, interval)
+        }
     }
 }
