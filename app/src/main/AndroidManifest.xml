@@ -23,6 +23,9 @@
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
+    <!-- Reschedule the 7am reminder alarm after device reboot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <!-- No storage permissions needed - using SAF (Storage Access Framework) -->
 
     <!-- Allow detecting and launching Pleco for Chinese word lookup -->
@@ -72,6 +75,21 @@
         <receiver
             android:name=".service.SnoozeBroadcastReceiver"
             android:exported="false" />
+
+        <!-- Morning reminder receiver — fires at 7am if learning is stopped -->
+        <receiver
+            android:name=".service.MorningReminderReceiver"
+            android:exported="false" />
+
+        <!-- Boot receiver — reschedules the morning reminder after device reboot -->
+        <receiver
+            android:name=".service.BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
 
         <!-- Timer Foreground Service -->
         <service

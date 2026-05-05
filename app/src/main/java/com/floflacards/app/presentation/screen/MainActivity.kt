@@ -31,6 +31,7 @@ import com.floflacards.app.data.repository.SettingsRepository
 import com.floflacards.app.data.model.AppTheme
 import com.floflacards.app.presentation.theme.FloatingLearningTheme
 import com.floflacards.app.presentation.navigation.AppNavigation
+import com.floflacards.app.service.MorningReminderScheduler
 import com.floflacards.app.util.PermissionLauncher
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -50,6 +51,8 @@ class MainActivity : AppCompatActivity() {
         
         // Initialize permission handler
         permissionHandler = PermissionLauncher(this)
+
+        MorningReminderScheduler.schedule(this)
         
         setContent {
             // Observe theme preference from SettingsRepository
