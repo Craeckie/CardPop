@@ -364,6 +364,7 @@
     <string name="status_pill_next_in">Next in %1$s</string>
     <string name="status_pill_resumes_in">Resumes in %1$s</string>
     <string name="status_pill_preparing">Preparing…</string>
+    <string name="status_pill_every_min">every %1$d min</string>
     
     <!-- Demo Flashcard Content -->
     <string name="demo_welcome_question">👋 Welcome to your first flashcard!\n\nThis is how flashcards work. Tap the \'Show Answer\' button below to reveal the answer and rating options.</string>

@@ -156,6 +156,7 @@ fun MainScreen(
                 streak = uiState.statistics?.streakDays ?: 0,
                 isSnoozing = uiState.isSnoozing,
                 snoozeRemainingSeconds = uiState.snoozeRemainingSeconds,
+                intervalMinutes = uiState.selectedInterval,
                 onMasteredClick = onNavigateToStatistics,
                 modifier = Modifier.fillMaxWidth()
             )

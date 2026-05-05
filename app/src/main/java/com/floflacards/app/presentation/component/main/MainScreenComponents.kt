@@ -104,6 +104,7 @@ fun StatusDashboard(
     streak: Int = 0,
     isSnoozing: Boolean = false,
     snoozeRemainingSeconds: Long = 0L,
+    intervalMinutes: Int = 0,
     onMasteredClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -123,6 +124,7 @@ fun StatusDashboard(
             isSnoozing = isSnoozing,
             nextFlashcardCountdown = nextFlashcardCountdown,
             snoozeRemainingSeconds = snoozeRemainingSeconds,
+            intervalMinutes = intervalMinutes,
             modifier = Modifier.fillMaxWidth()
         )
     }

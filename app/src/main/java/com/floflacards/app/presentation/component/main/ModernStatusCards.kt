@@ -44,6 +44,7 @@ fun ServiceStatusPill(
     isSnoozing: Boolean,
     nextFlashcardCountdown: Long,
     snoozeRemainingSeconds: Long,
+    intervalMinutes: Int = 0,
     modifier: Modifier = Modifier
 ) {
     val containerColor: Color = when {
@@ -68,10 +69,17 @@ fun ServiceStatusPill(
             R.string.status_pill_resumes_in,
             formatMmSs(snoozeRemainingSeconds)
         )
-        isServiceActive -> if (nextFlashcardCountdown > 0L) {
-            stringResource(R.string.status_pill_next_in, formatMmSs(nextFlashcardCountdown))
-        } else {
-            stringResource(R.string.status_pill_preparing)
+        isServiceActive -> {
+            val countdown = if (nextFlashcardCountdown > 0L) {
+                stringResource(R.string.status_pill_next_in, formatMmSs(nextFlashcardCountdown))
+            } else {
+                stringResource(R.string.status_pill_preparing)
+            }
+            if (intervalMinutes > 0) {
+                "$countdown · ${stringResource(R.string.status_pill_every_min, intervalMinutes)}"
+            } else {
+                countdown
+            }
         }
         else -> null
     }

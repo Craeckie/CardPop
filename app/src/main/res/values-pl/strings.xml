@@ -335,6 +335,7 @@
     <string name="status_pill_next_in">Następna za %1$s</string>
     <string name="status_pill_resumes_in">Wznowienie za %1$s</string>
     <string name="status_pill_preparing">Przygotowuję…</string>
+    <string name="status_pill_every_min">co %1$d min</string>
     
     <!-- Demo Flashcard Content - Polish -->
     <string name="demo_welcome_question">👋 Witaj przy swojej pierwszej fiszce!\n\nTak działają fiszki. Dotknij przycisk \'Pokaż odpowiedź\' poniżej, żeby zobaczyć odpowiedź i opcje oceny.</string>

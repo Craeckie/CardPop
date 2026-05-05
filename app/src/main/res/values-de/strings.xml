@@ -335,6 +335,7 @@
     <string name="status_pill_next_in">Nächste in %1$s</string>
     <string name="status_pill_resumes_in">Fortsetzung in %1$s</string>
     <string name="status_pill_preparing">Bereit gleich…</string>
+    <string name="status_pill_every_min">alle %1$d Min</string>
     
     <!-- Demo Flashcard Content - German -->
     <string name="demo_welcome_question">👋 Willkommen zu deiner ersten Lernkarte!\n\nSo funktionieren Lernkarten. Tippe auf den \'Antwort zeigen\'-Button unten, um die Antwort und Bewertungsoptionen zu sehen.</string>
