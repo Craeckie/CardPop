@@ -1,17 +1,24 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## Project
 FloFla Cards — offline, ad-free Android flashcard app (Kotlin, minSdk 24, targetSdk 36; F-Droid). Pops a system overlay with a flashcard at user-set intervals; tap to reveal back. User studies Chinese: front = word, back = meaning + pronunciation.
 
-## Build
+## Build & test
 ```bash
-./gradlew assembleDebug | assembleRelease | test | lint
+./gradlew assembleDebug
+./gradlew assembleRelease
+./gradlew test                      # all unit tests
+./gradlew lint
 ./gradlew :app:testDebugUnitTest --tests "com.floflacards.app.data.csv.CsvParserTest"
 ```
 
-## Layers
+Unit tests are JVM-only (Robolectric). No instrumented tests are run in CI. FSRS logic (`domain/fsrs/`) has no Android imports and is fully testable without a device.
 
-**`data/`** — `entity/` Room (`FlashcardEntity`, `CategoryEntity`); `dao/`; `repository/` (`FlashcardRepository`, `SettingsRepository` SharedPrefs, `BackupRepository` SAF JSON); `source/` (`FlashcardUiPreferences`, `StreakPreferences`, `ImageManager`, `BackupPreferences`); `csv/`; `anki/AnkiParser` (.apkg import); `model/` (`AppTheme`, `FlashcardTheme`, `Language`).
+## Architecture layers
+
+**`data/`** — `entity/` Room (`FlashcardEntity`, `CategoryEntity`); `dao/`; `repository/` (`FlashcardRepository`, `SettingsRepository` SharedPrefs, `BackupRepository` SAF JSON); `source/` (`FlashcardUiPreferences`, `StreakPreferences`, `ReviewHistoryPreferences`, `ImageManager`, `BackupPreferences`); `csv/`; `anki/AnkiParser` (.apkg import); `model/` (`AppTheme`, `FlashcardTheme`, `Language`).
 
 **`domain/`** — `fsrs/` pure FSRS v6 port (`Fsrs`, `FsrsCard`, `FsrsRating`, `FsrsCardState`, `FsrsGrade`, `FsrsParameters`); JVM-testable, no Android imports. `usecase/` (CSV i/o, backup, `SrsUseCase`, `SimpleStreakUseCase`, statistics). `model/` (`FlashcardRating`, `StreakData`). `manager/ServiceStateManager` singleton.
 
@@ -25,23 +32,39 @@ FloFla Cards — offline, ad-free Android flashcard app (Kotlin, minSdk 24, targ
 - **FSRS (days)** — *which* card. `FlashcardEntity` has `stability/difficulty/scheduledDays/reps/lapses/state/dueAt`. `SrsUseCase` calls `Fsrs.apply()`, writes `dueAt = now + scheduledDays·86_400_000` (Review) or short-term ms (Learning/Relearning). `FlashcardDao.getNextDueFlashcard` orders by state (Relearning→Learning→Review→New), then `dueAt`, then `difficulty`.
 - **Overlay (minutes)** — *how often*. `TimerForegroundService`, FSRS-independent. Tick → `getNextAvailableFlashcard()`; if none due, falls back to closest-to-due. Interval has a "Now" option for immediate display.
 
+## Service communication
+`ServiceStateManager` (singleton, `domain/manager/`) holds two `StateFlow`s — `countdownTime: Long` (seconds) and `isServiceActive: Boolean` — that `TimerForegroundService` writes and `MainViewModel` collects. It is the only in-process bridge between the timer service and the UI; do not add new inter-service state outside it.
+
+## Key non-obvious behaviors
+
+**Auto-backup on every write**: `FlashcardRepository` calls `CreateBackupUseCase()` after every insert/update/delete. This is by design — backups are cheap SAF JSON writes. Do not remove these calls.
+
+**Guaranteed overlay flashcard**: `FlashcardRepository.getNextAvailableFlashcard()` never returns null. When no cards are available/due it returns `EmptyStateFlashcard.create()` so `TimerForegroundService` always has something to display and the overlay shows an empty-state prompt.
+
+**Flashcard passed via Intent extras**: `TimerForegroundService` → `OverlayService` passes all `FlashcardEntity` fields as extras (not just an ID). `OverlayService.handleFlashcardRating()` re-fetches from DB by ID before writing to avoid stale data races.
+
+**Screen-off postpone**: If the interval alarm fires while `PowerManager.isInteractive == false`, `TimerForegroundService` sets `postponePending = true` instead of showing the overlay. The `ACTION_SCREEN_ON` receiver then waits 60 s before surfacing the card. If the screen goes off again during that wait, `postponePending` is re-armed.
+
+**Demo flashcard**: `OverlayService.startWithDemoFlashcard()` creates a synthetic card with `id = -1`. Rating/close handlers detect this sentinel and call `handleDemoCompletion()` instead of writing to the DB. Demo completion auto-starts the real learning session.
+
 ## Ratings & FSRS
 - `FlashcardRating { WRONG, HARD, GOOD, EASY, CLOSED }`; `WRONG` displays as "Again". Buttons in `component/flashcard/FlashcardControls.kt`; collapses to 2×2 below 240dp. `CLOSED` = no-op for FSRS.
 - **Mastered** (`StatisticsViewModel`): `stability ≥ 21d && reps ≥ 3`.
 - **FSRS difficulty is 1..10, low = easy, high = hard** (inverse of old SM-2 EF). Any difficulty→label/color mapping must respect this.
-- **SM-2 → FSRS migration**: DB v8 / backup v2. Legacy `easinessFactor`/`reviewCount`/`cooldownUntil` gone; upgrade made every card FSRS-`New` (history counters kept, scheduling zeroed). Backup v1 imports same.
+- **SM-2 → FSRS migration**: DB v8 / backup v2. Legacy `easinessFactor`/`reviewCount`/`cooldownUntil` gone; every card reset to FSRS-`New` (history counters kept, scheduling zeroed). Backup v1 imports same.
 
 ## Features
 - **APKG import** (`data/anki/AnkiParser`) alongside two-column CSV (preview before save).
 - **Pleco lookup** button on overlay (opens front term in Pleco app).
 - **Snooze** — pause overlay for N minutes; duration in `SettingsRepository`, end-time persisted, triggered by `SnoozeBroadcastReceiver`; main screen shows state.
-- **App blocklist** (`blocklist_packages`) — overlay suppressed while a listed package is foreground.
+- **App blocklist** (`blocklist_packages`) — overlay suppressed while a listed package is foreground; uses `UsageStatsHelper` (degrades gracefully if permission not granted).
 - **Long-press overlay** — reveals answer type/meta.
-- **In-popup resize & drag**; popup opacity moved into settings. Old `OpacityControls`/`ResizeHandles`/`CompactOpacitySlider`/`FlashcardModeSelector`/`InteractionMode` removed.
+- **In-popup resize & drag**; popup opacity in settings.
 - **FSRS target retention** 0.80–0.95, default 0.90 (`SettingsRepository`).
 
 ## Misc
-- `SettingsRepository` = SharedPreferences (not DataStore). Streak/stats in separate `StreakPreferences`.
+- `SettingsRepository` = SharedPreferences (not DataStore). Streak/stats in separate `StreakPreferences`. Daily review history (for statistics chart) in `ReviewHistoryPreferences`.
 - Backup: `kotlinx.serialization` JSON via SAF.
 - Locales: en (default), pl (`values-pl`), de (`values-de`); switch via `AppCompatDelegate.setApplicationLocales`.
 - Permissions: `SYSTEM_ALERT_WINDOW`, `POST_NOTIFICATIONS` via `PermissionHelper`/`PermissionLauncher`.
+- Room schema exported to `app/schemas/`; migrations live in `FloatingLearningDatabase`.
