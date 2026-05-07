@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     id("org.jetbrains.kotlin.kapt")
     id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.21"
 }
 
 android {
@@ -71,14 +71,14 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     
     // Jetpack Compose - Updated to latest stable versions
-    implementation(platform("androidx.compose:compose-bom:2025.07.00"))
+    implementation(platform("androidx.compose:compose-bom:2025.09.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.navigation:navigation-compose:2.9.3")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
     
     // Room Database - Latest stable version
     implementation("androidx.room:room-runtime:2.7.2")
@@ -100,13 +100,13 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     
     // JSON Serialization for backup functionality
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.7.0")
     
     // Charts
-    implementation("com.patrykandpatrick.vico:compose-m3:2.1.4")
+    implementation("com.patrykandpatrick.vico:compose-m3:2.2.1")
 
     // Zstandard decompression for newer Anki .apkg files
     implementation("com.github.luben:zstd-jni:1.5.6-4@aar")
@@ -116,10 +116,10 @@ dependencies {
     implementation("androidx.documentfile:documentfile:1.0.1")
     
     // ViewModel and LiveData - Stable versions
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.2")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.2")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
     
     // Testing
     testImplementation(libs.junit)
