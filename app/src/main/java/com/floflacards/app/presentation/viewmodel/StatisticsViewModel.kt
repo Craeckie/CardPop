@@ -95,12 +95,22 @@ data class EnhancedOverallStats(
     val relearningCount: Int
 )
 
+data class RatingDistribution(
+    val wrong: Int,
+    val hard: Int,
+    val good: Int,
+    val easy: Int
+) {
+    val total: Int get() = wrong + hard + good + easy
+}
+
 data class ModernStatisticsUiState(
     val isLoading: Boolean = false,
     val overallStats: EnhancedOverallStats? = null,
     val categoryStats: List<CategoryStats> = emptyList(),
     val reviewHistory: List<ReviewHistoryEntry> = emptyList(),
-    val searchQuery: String = "" // Current search query
+    val ratingDistribution: RatingDistribution? = null,
+    val searchQuery: String = ""
 )
 
 @HiltViewModel
@@ -203,11 +213,19 @@ class StatisticsViewModel @Inject constructor(
                         )
                     }
                     
+                    val dist = RatingDistribution(
+                        wrong = allFlashcards.sumOf { it.incorrectCount },
+                        hard  = allFlashcards.sumOf { it.hardCount },
+                        good  = allFlashcards.sumOf { it.correctCount },
+                        easy  = allFlashcards.sumOf { it.easyCount }
+                    )
+
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         overallStats = enhancedOverallStats,
                         categoryStats = categoryStatsList,
-                        reviewHistory = historySeries
+                        reviewHistory = historySeries,
+                        ratingDistribution = dist.takeIf { it.total > 0 }
                     )
                 }
             } catch (e: Exception) {

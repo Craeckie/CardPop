@@ -216,6 +216,12 @@
     <string name="flashcard_save_changes">Zapisz</string>
     <string name="flashcard_discard_changes">Odrzuć</string>
     
+    <!-- Flashcard image - Polish -->
+    <string name="flashcard_image">Obraz fiszki</string>
+    <string name="add_image">Dodaj obraz</string>
+    <string name="add_image_optional">Dodaj obraz (opcjonalnie)</string>
+    <string name="remove_image">Usuń obraz</string>
+
     <!-- Delete Confirmation Dialogs - polite but clear Polish -->
     <string name="delete_flashcard_title">Usuń fiszkę</string>
     <string name="delete_flashcard_message">Czy na pewno chcesz usunąć tę fiszkę?\n\n"%1$s"</string>
@@ -261,6 +267,18 @@
     <string name="stats_reviews_suffix">powtórek</string>
     <string name="stats_percent_suffix">%</string>
     
+    <!-- Statistics screen extras - Polish -->
+    <string name="stats_due_now">%1$d do powtórki</string>
+    <string name="stats_history_title">Aktywność w czasie</string>
+    <string name="stats_history_subtitle">Ostatnie %1$d dni</string>
+    <string name="stats_history_reviews">Powtórki / dzień</string>
+    <string name="stats_history_mastered">Opanowane (łącznie)</string>
+    <string name="stats_history_empty">Oceń kilka kart, aby zacząć śledzić tutaj swój postęp.</string>
+    <string name="stats_state_new">Nowe</string>
+    <string name="stats_state_learning">Nauka</string>
+    <string name="stats_state_review">Powtórka</string>
+    <string name="stats_state_relearning">Ponowna nauka</string>
+
     <!-- Statistics Reset Dialogs - careful Polish phrasing -->
     <string name="reset_all_stats_title">Resetuj wszystkie statystyki</string>
     <string name="reset_all_stats_description">To spowoduje trwałe zresetowanie:</string>
@@ -363,6 +381,16 @@
     <string name="settings_test_popup_title">Testuj wyskakujące okno</string>
     <string name="settings_test_popup_description">Pokaż fiszkę teraz</string>
 
+    <!-- Scheduling / FSRS settings - Polish -->
+    <string name="settings_scheduling_title">Harmonogramowanie</string>
+    <string name="settings_scheduling_subtitle">Dostosuj algorytm powtórek</string>
+    <string name="settings_target_retention_title">Docelowe zapamiętywanie</string>
+    <string name="settings_target_retention_description">Jak dobrze chcesz pamiętać swoje fiszki. 90%% oznacza, że mniej więcej 1 na 10 fiszek zostanie zapomniana w terminie. Wyższy = częstsze powtórki.</string>
+    <string name="settings_target_retention_value">%1$d%%</string>
+    <string name="settings_actual_retention_label">Twoje zapamiętywanie</string>
+    <string name="settings_actual_retention_value">%1$d%% (z %2$d powtórek)</string>
+    <string name="settings_actual_retention_empty">Za mało powtórek</string>
+
     <!-- Snooze feature - Polish -->
     <string name="settings_snooze_duration_title">Czas drzemki</string>
     <string name="settings_snooze_duration_description">Jak długo wstrzymać wyskakujące fiszki po naciśnięciu przycisku drzemki</string>
@@ -374,4 +402,57 @@
     <string name="rating_good">Dobre</string>
     <string name="rating_easy">Łatwe</string>
     <string name="copied_to_clipboard">Skopiowano do schowka</string>
+
+    <!-- Category CSV menu items - Polish -->
+    <string name="category_export_csv">Eksportuj jako CSV</string>
+    <string name="category_import_csv">Importuj z CSV</string>
+
+    <!-- CSV export - Polish -->
+    <string name="csv_export_title">Eksportuj jako CSV</string>
+    <string name="csv_export_description">Eksportuj wszystkie fiszki z „%1$s" jako plik CSV.</string>
+    <string name="csv_export_button">Eksportuj</string>
+    <string name="csv_export_flashcard_count">%1$d fiszek zostanie wyeksportowanych</string>
+    <string name="csv_export_filename_hint">Nazwa pliku</string>
+    <string name="csv_export_default_filename">%1$s_fiszki</string>
+    <string name="csv_export_select_location">Wybierz miejsce zapisu pliku CSV</string>
+    <string name="csv_export_save_file">Zapisz plik CSV</string>
+    <string name="csv_export_preparing">Przygotowywanie eksportu…</string>
+    <string name="csv_export_exporting">Eksportowanie…</string>
+    <string name="csv_export_success">Pomyślnie wyeksportowano %1$d fiszek</string>
+    <string name="csv_export_error">Eksport nie powiódł się: %1$s</string>
+    <string name="csv_export_note">Uwaga: Obrazy nie są zawarte w eksporcie CSV. Użyj funkcji kopii zapasowej JSON, aby wykonać pełną kopię z obrazami.</string>
+    <string name="csv_export_all_categories">Eksportuj wszystkie kategorie</string>
+    <string name="csv_export_bulk_subtitle">Wszystkie kategorie razem</string>
+    <string name="csv_export_bulk_preparing">Przygotowywanie zbiorczego eksportu…</string>
+
+    <!-- CSV import - Polish -->
+    <string name="csv_import_title">Importuj z CSV</string>
+    <string name="csv_import_back">Wróć</string>
+    <string name="csv_import_select_file">Wybierz plik CSV</string>
+    <string name="csv_import_file_description">Wybierz plik CSV do importu. Plik powinien mieć co najmniej dwie kolumny: pytanie i odpowiedź.</string>
+    <string name="csv_import_pick_file_button">Wybierz plik CSV</string>
+    <string name="csv_import_pick_another">Wybierz inny plik</string>
+    <string name="csv_import_supported_formats">Obsługiwane: CSV, TSV z nagłówkami takimi jak question/answer, front/back, term/definition</string>
+    <string name="csv_import_parsing_file">Parsowanie pliku CSV…</string>
+    <string name="csv_import_preview_title">Podgląd</string>
+    <string name="csv_import_preview_label">Podgląd (pierwsze %1$d z %2$d):</string>
+    <string name="csv_import_question_header">Pytanie</string>
+    <string name="csv_import_answer_header">Odpowiedź</string>
+    <string name="csv_import_and_more">…i %1$d więcej</string>
+    <string name="csv_import_valid_cards">Prawidłowe fiszki: %1$d</string>
+    <string name="csv_import_parse_errors">Błędy parsowania: %1$d</string>
+    <string name="csv_import_parsing_errors_detail">%1$d wierszy zawierało błędy i zostało pominiętych</string>
+    <string name="csv_import_no_valid_cards">Nie znaleziono prawidłowych fiszek w tym pliku.</string>
+    <string name="csv_import_select_category">Wybierz kategorię</string>
+    <string name="csv_import_into_category">Importuj do kategorii:</string>
+    <string name="csv_import_skip_duplicates">Pomijaj duplikaty</string>
+    <string name="csv_import_skip_duplicates_description">Pomijaj fiszki, które już istnieją (to samo pytanie i odpowiedź)</string>
+    <string name="csv_import_import_button">Importuj %1$d fiszek</string>
+    <string name="csv_import_importing">Importowanie…</string>
+    <string name="csv_import_success">Pomyślnie zaimportowano %1$d fiszek</string>
+    <string name="csv_import_skipped">Pominięto %1$d duplikatów</string>
+    <string name="csv_import_done">Import zakończony</string>
+    <string name="csv_import_done_button">Gotowe</string>
+    <string name="csv_import_error_title">Błąd importu</string>
+    <string name="csv_import_error_close">Zamknij</string>
 </resources>

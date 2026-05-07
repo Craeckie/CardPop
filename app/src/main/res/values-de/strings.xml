@@ -216,6 +216,12 @@
     <string name="flashcard_save_changes">Speichern</string>
     <string name="flashcard_discard_changes">Verwerfen</string>
     
+    <!-- Flashcard image - German -->
+    <string name="flashcard_image">Lernkarten-Bild</string>
+    <string name="add_image">Bild hinzufügen</string>
+    <string name="add_image_optional">Bild hinzufügen (optional)</string>
+    <string name="remove_image">Bild entfernen</string>
+
     <!-- Delete Confirmation Dialogs - polite but clear German -->
     <string name="delete_flashcard_title">Lernkarte löschen</string>
     <string name="delete_flashcard_message">Möchtest du diese Lernkarte wirklich löschen?\n\n\"%1$s\"</string>
@@ -261,6 +267,18 @@
     <string name="stats_reviews_suffix">Wiederholungen</string>
     <string name="stats_percent_suffix">%</string>
     
+    <!-- Statistics screen extras - German -->
+    <string name="stats_due_now">%1$d fällig</string>
+    <string name="stats_history_title">Aktivität im Zeitverlauf</string>
+    <string name="stats_history_subtitle">Letzte %1$d Tage</string>
+    <string name="stats_history_reviews">Wiederholungen / Tag</string>
+    <string name="stats_history_mastered">Gemeistert (gesamt)</string>
+    <string name="stats_history_empty">Bewertet ein paar Karten, um deinen Fortschritt hier zu verfolgen.</string>
+    <string name="stats_state_new">Neu</string>
+    <string name="stats_state_learning">Lernen</string>
+    <string name="stats_state_review">Wiederholung</string>
+    <string name="stats_state_relearning">Erneut lernen</string>
+
     <!-- Statistics Reset Dialogs - careful German phrasing -->
     <string name="reset_all_stats_title">Alle Statistiken zurücksetzen</string>
     <string name="reset_all_stats_description">Dies wird dauerhaft zurücksetzen:</string>
@@ -415,6 +433,16 @@
     <string name="settings_interval_value">%1$d min</string>
     <string name="settings_test_popup_title">Popup testen</string>
     <string name="settings_test_popup_description">Jetzt eine Lernkarte anzeigen</string>
+
+    <!-- Scheduling / FSRS settings - German -->
+    <string name="settings_scheduling_title">Planung</string>
+    <string name="settings_scheduling_subtitle">Algorithmus für Wiederholungen anpassen</string>
+    <string name="settings_target_retention_title">Ziel-Behaltensrate</string>
+    <string name="settings_target_retention_description">Wie gut du deine Karten behalten möchtest. 90%% bedeutet, dass etwa 1 von 10 Karten zum Fälligkeitstermin vergessen wird. Höher = häufigere Wiederholungen.</string>
+    <string name="settings_target_retention_value">%1$d%%</string>
+    <string name="settings_actual_retention_label">Deine Behaltensrate</string>
+    <string name="settings_actual_retention_value">%1$d%% (aus %2$d Wiederholungen)</string>
+    <string name="settings_actual_retention_empty">Noch nicht genug Wiederholungen</string>
 
     <!-- Snooze feature - German -->
     <string name="settings_snooze_duration_title">Schlummerdauer</string>

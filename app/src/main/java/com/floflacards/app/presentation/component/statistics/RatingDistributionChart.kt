@@ -36,7 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.floflacards.app.data.source.ReviewHistoryEntry
+import com.floflacards.app.presentation.viewmodel.RatingDistribution
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
@@ -44,6 +44,8 @@ import com.patrykandpatrick.vico.compose.cartesian.cartesianLayerPadding
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.marker.rememberDefaultCartesianMarker
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.cartesian.rememberVicoScrollState
+import com.patrykandpatrick.vico.compose.cartesian.rememberVicoZoomState
 import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
 import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
 import com.patrykandpatrick.vico.compose.common.fill
@@ -55,34 +57,39 @@ import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.core.cartesian.marker.ColumnCartesianLayerMarkerTarget
 import com.patrykandpatrick.vico.core.cartesian.marker.DefaultCartesianMarker
-import com.patrykandpatrick.vico.core.common.data.ExtraStore
 
-private val HistoryDateKey = ExtraStore.Key<List<String>>()
+private val RatingLabels = listOf("Again", "Hard", "Good", "Easy")
 
-private val HistoryBottomAxisFormatter = CartesianValueFormatter { context, x, _ ->
-    context.model.extraStore[HistoryDateKey].getOrElse(x.toInt()) { "" }
+private val RatingBottomAxisFormatter = CartesianValueFormatter { _, x, _ ->
+    RatingLabels.getOrElse(x.toInt()) { "" }
 }
 
-private val HistoryMarkerFormatter = DefaultCartesianMarker.ValueFormatter { _, targets ->
+private val RatingMarkerFormatter = DefaultCartesianMarker.ValueFormatter { _, targets ->
     val column = (targets[0] as ColumnCartesianLayerMarkerTarget).columns[0]
+    val ratingIndex = column.entry.x.toInt()
     val count = column.entry.y.toInt()
     SpannableStringBuilder().append(
-        "$count reviews",
+        "${RatingLabels.getOrElse(ratingIndex) { "?" }}: $count",
         ForegroundColorSpan(column.color),
         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
     )
 }
 
 @Composable
-fun ReviewHistoryChart(history: List<ReviewHistoryEntry>) {
-    if (history.all { it.reviews == 0 }) return
-
+fun RatingDistributionChart(distribution: RatingDistribution) {
     val modelProducer = remember { CartesianChartModelProducer() }
 
-    LaunchedEffect(history) {
+    val ratingColors = listOf(AccentRed, AccentAmber, AccentTeal, AccentBlue)
+    val counts = listOf(distribution.wrong, distribution.hard, distribution.good, distribution.easy)
+
+    LaunchedEffect(distribution) {
         modelProducer.runTransaction {
-            columnSeries { series(history.map { it.reviews }) }
-            extras { it[HistoryDateKey] = history.map { it.dateKey.takeLast(5) } }
+            columnSeries {
+                // One series per rating so each bar gets its own color via ColumnProvider.series()
+                counts.forEachIndexed { index, count ->
+                    series(x = listOf(index), y = listOf(count))
+                }
+            }
         }
     }
 
@@ -90,7 +97,7 @@ fun ReviewHistoryChart(history: List<ReviewHistoryEntry>) {
     val labelComponent = rememberTextComponent(color = onSurfaceVariant)
     val marker = rememberDefaultCartesianMarker(
         label = rememberTextComponent(color = MaterialTheme.colorScheme.onSurface),
-        valueFormatter = HistoryMarkerFormatter,
+        valueFormatter = RatingMarkerFormatter,
     )
 
     Card(
@@ -101,7 +108,7 @@ fun ReviewHistoryChart(history: List<ReviewHistoryEntry>) {
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Text(
-                text = "Daily Reviews",
+                text = "Rating Distribution",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = getStatisticsOnSurface()
@@ -111,22 +118,26 @@ fun ReviewHistoryChart(history: List<ReviewHistoryEntry>) {
                 chart = rememberCartesianChart(
                     rememberColumnCartesianLayer(
                         columnProvider = ColumnCartesianLayer.ColumnProvider.series(
-                            rememberLineComponent(fill = fill(AccentTeal), thickness = 6.dp)
-                        )
+                            ratingColors.map { color ->
+                                rememberLineComponent(fill = fill(color), thickness = 32.dp)
+                            }
+                        ),
                     ),
                     startAxis = VerticalAxis.rememberStart(label = labelComponent),
                     bottomAxis = HorizontalAxis.rememberBottom(
                         label = labelComponent,
-                        itemPlacer = remember { HorizontalAxis.ItemPlacer.aligned(spacing = { 5 }) },
-                        valueFormatter = HistoryBottomAxisFormatter,
+                        itemPlacer = remember { HorizontalAxis.ItemPlacer.segmented() },
+                        valueFormatter = RatingBottomAxisFormatter,
                     ),
                     marker = marker,
-                    layerPadding = { cartesianLayerPadding(scalableStart = 4.dp, scalableEnd = 4.dp) },
+                    layerPadding = { cartesianLayerPadding(scalableStart = 16.dp, scalableEnd = 16.dp) },
                 ),
                 modelProducer = modelProducer,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(160.dp),
+                scrollState = rememberVicoScrollState(scrollEnabled = false),
+                zoomState = rememberVicoZoomState(zoomEnabled = false),
             )
         }
     }

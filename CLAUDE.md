@@ -5,6 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project
 FloFla Cards — offline, ad-free Android flashcard app (Kotlin, minSdk 24, targetSdk 36; F-Droid). Pops a system overlay with a flashcard at user-set intervals; tap to reveal back. User studies Chinese: front = word, back = meaning + pronunciation.
 
+**minSdk 24 guards**: Any API added after 24 must be wrapped in a `Build.VERSION.SDK_INT` check. Use the deprecated pre-29 overload (with `@Suppress("DEPRECATION")`) when a newer overload requires API ≥ 29. Example: `AppOpsManager.unsafeCheckOpNoThrow` requires API 29 — use `checkOpNoThrow` below that.
+
 ## Build & test
 ```bash
 ./gradlew assembleDebug
@@ -15,6 +17,10 @@ FloFla Cards — offline, ad-free Android flashcard app (Kotlin, minSdk 24, targ
 ```
 
 Unit tests are JVM-only (Robolectric). No instrumented tests are run in CI. FSRS logic (`domain/fsrs/`) has no Android imports and is fully testable without a device.
+
+`AnkiParserTest` requires network access and will fail offline — pre-existing, not a regression to fix.
+
+**Translations**: All string resources must be present in `values/` (en), `values-pl/` (pl), and `values-de/` (de). `./gradlew lint` reports `MissingTranslation` errors that block release builds. When adding new strings, add translations for all three locales at the same time.
 
 ## Architecture layers
 
@@ -50,6 +56,9 @@ Unit tests are JVM-only (Robolectric). No instrumented tests are run in CI. FSRS
 ## Ratings & FSRS
 - `FlashcardRating { WRONG, HARD, GOOD, EASY, CLOSED }`; `WRONG` displays as "Again". Buttons in `component/flashcard/FlashcardControls.kt`; collapses to 2×2 below 240dp. `CLOSED` = no-op for FSRS.
 - **Mastered** (`StatisticsViewModel`): `stability ≥ 21d && reps ≥ 3`.
+- **Statistics charts** (`presentation/component/statistics/`): two Vico bar charts on the statistics screen.
+  - `ReviewHistoryChart` — daily review counts for the last 30 days; Y-axis with ticks, X-axis label every 5 bars, tap marker. Hidden when all counts are zero.
+  - `RatingDistributionChart` — four bars (Again/Hard/Good/Easy) aggregated across all cards; one series per rating so each bar has its own color (Red/Amber/Teal/Blue). Hidden when `ratingDistribution` in `ModernStatisticsUiState` is null (no reviews yet). Both charts use `ExtraStore.Key` to pass label lists into Vico `CartesianValueFormatter`s.
 - **FSRS difficulty is 1..10, low = easy, high = hard** (inverse of old SM-2 EF). Any difficulty→label/color mapping must respect this.
 - **SM-2 → FSRS migration**: DB v8 / backup v2. Legacy `easinessFactor`/`reviewCount`/`cooldownUntil` gone; every card reset to FSRS-`New` (history counters kept, scheduling zeroed). Backup v1 imports same.
 
@@ -67,4 +76,5 @@ Unit tests are JVM-only (Robolectric). No instrumented tests are run in CI. FSRS
 - Backup: `kotlinx.serialization` JSON via SAF.
 - Locales: en (default), pl (`values-pl`), de (`values-de`); switch via `AppCompatDelegate.setApplicationLocales`.
 - Permissions: `SYSTEM_ALERT_WINDOW`, `POST_NOTIFICATIONS` via `PermissionHelper`/`PermissionLauncher`.
+- **Charts**: `com.patrykandpatrick.vico:compose-m3:2.1.4` (Kotlin 2.1.x Compose-first charting, Apache 2.0). Requires Kotlin ≥ 2.1.x — project uses 2.1.21. Do not downgrade Kotlin below 2.1.x or update Vico to 3.x (compiled with Kotlin 2.3.x, incompatible with Hilt's `kotlin-metadata-jvm`).
 - Room schema exported to `app/schemas/`; migrations live in `FloatingLearningDatabase`.

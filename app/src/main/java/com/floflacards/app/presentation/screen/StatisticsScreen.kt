@@ -204,7 +204,14 @@ fun StatisticsScreen(
 
                             item {
                                 ReviewHistoryChart(history = uiState.reviewHistory)
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+
+                            item {
+                                uiState.ratingDistribution?.let { dist ->
+                                    RatingDistributionChart(distribution = dist)
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
                             }
                         }
                         

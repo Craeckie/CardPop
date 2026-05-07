@@ -105,6 +105,9 @@ dependencies {
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.7.0")
     
+    // Charts
+    implementation("com.patrykandpatrick.vico:compose-m3:2.1.4")
+
     // Zstandard decompression for newer Anki .apkg files
     implementation("com.github.luben:zstd-jni:1.5.6-4@aar")
     testImplementation("com.github.luben:zstd-jni:1.5.6-4")
