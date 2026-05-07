@@ -311,6 +311,7 @@
     
     <!-- Learning Controls Additional Strings - action-oriented German -->
     <string name="learning_stop_button_caps">LERNEN BEENDEN</string>
+    <string name="learning_continue_button_caps">FORTSETZEN</string>
     <string name="learning_no_cards_hint">Erstelle zuerst Lernkarten im \'Karten\'-Bereich</string>
     <string name="learning_permission_required_button">BERECHTIGUNG ERTEILEN</string>
     <string name="learning_start_button_caps">LERNEN STARTEN</string>

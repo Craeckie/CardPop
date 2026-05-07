@@ -311,6 +311,7 @@
     
     <!-- Learning Controls Additional Strings - action-oriented Polish -->
     <string name="learning_stop_button_caps">ZATRZYMAJ NAUKĘ</string>
+    <string name="learning_continue_button_caps">KONTYNUUJ</string>
     <string name="learning_no_cards_hint">Najpierw dodaj fiszki w sekcji \'Karty\'</string>
     <string name="learning_permission_required_button">PRZYZNAJ UPRAWNIENIE</string>
     <string name="learning_start_button_caps">ROZPOCZNIJ NAUKĘ</string>

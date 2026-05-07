@@ -180,6 +180,7 @@ fun MainScreen(
                     }
                 },
                 onStopLearning = { viewModel.toggleLearningService() },
+                onContinueLearning = { viewModel.startLearningWithInterval(uiState.selectedInterval) },
                 onRequestPermission = { permissionState.setShowOverlayPermissionDialog(true) },
                 onNavigateToCards = onNavigateToSettings // Reuse existing navigation to cards
             )
