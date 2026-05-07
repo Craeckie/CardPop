@@ -50,6 +50,7 @@ fun LearningControls(
     isSnoozing: Boolean,
     onStartLearning: () -> Unit,
     onStopLearning: () -> Unit,
+    onContinueLearning: () -> Unit,
     onRequestPermission: () -> Unit,
     onNavigateToCards: () -> Unit,
     modifier: Modifier = Modifier
@@ -60,11 +61,13 @@ fun LearningControls(
     ) {
         // Unified Learning/Navigation Button (replaces old button + hint card)
         UnifiedLearningButton(
-            isServiceActive = isServiceActive || isSnoozing,
+            isServiceActive = isServiceActive,
+            isSnoozing = isSnoozing,
             hasOverlayPermission = hasOverlayPermission,
             activeFlashcardCount = activeFlashcardCount,
             onStartLearning = onStartLearning,
             onStopLearning = onStopLearning,
+            onContinueLearning = onContinueLearning,
             onRequestPermission = onRequestPermission,
             onNavigateToCards = onNavigateToCards
         )
@@ -125,14 +128,22 @@ private fun StatusCard(
 @Composable
 private fun UnifiedLearningButton(
     isServiceActive: Boolean,
+    isSnoozing: Boolean,
     hasOverlayPermission: Boolean,
     activeFlashcardCount: Int,
     onStartLearning: () -> Unit,
     onStopLearning: () -> Unit,
+    onContinueLearning: () -> Unit,
     onRequestPermission: () -> Unit,
     onNavigateToCards: () -> Unit
 ) {
     val (buttonText, buttonColor, buttonAction) = when {
+        // Snoozed - resume learning
+        isSnoozing -> Triple(
+            stringResource(R.string.learning_continue_button_caps),
+            Color(0xFF4CAF50), // Green for go
+            onContinueLearning
+        )
         // Service is active - stop learning
         isServiceActive -> Triple(
             stringResource(R.string.learning_stop_button_caps),

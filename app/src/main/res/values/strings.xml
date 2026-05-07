@@ -321,6 +321,7 @@
     
     <!-- Learning Controls Additional Strings -->
     <string name="learning_stop_button_caps">STOP LEARNING</string>
+    <string name="learning_continue_button_caps">CONTINUE</string>
     <string name="learning_no_cards_hint">First, add flashcards in \'Cards\' section</string>
     <string name="learning_permission_required_button">GRANT PERMISSION TO START</string>
     <string name="learning_start_button_caps">START LEARNING</string>
