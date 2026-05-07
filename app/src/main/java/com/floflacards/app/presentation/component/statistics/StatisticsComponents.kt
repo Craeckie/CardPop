@@ -51,6 +51,8 @@ import com.floflacards.app.presentation.viewmodel.CategoryStats
 import com.floflacards.app.presentation.viewmodel.FlashcardStats
 import com.floflacards.app.presentation.viewmodel.EnhancedOverallStats
 
+private data class StateBar(val label: String, val count: Int, val color: Color)
+
 @Composable
 fun ModernStatsCardGrid(stats: EnhancedOverallStats) {
     Column(
@@ -458,9 +460,15 @@ private fun CardStatesCard(
                 .border(1.dp, getStatisticsCardBorder(), RoundedCornerShape(12.dp))
                 .padding(horizontal = 10.dp, vertical = 10.dp)
         ) {
+            val bars = listOf(
+                StateBar(stringResource(R.string.stats_state_new), newCount, getStatisticsOnSurfaceVariant()),
+                StateBar(stringResource(R.string.stats_state_learning), learning, AccentAmber),
+                StateBar(stringResource(R.string.stats_state_review), review, AccentGreen),
+                StateBar(stringResource(R.string.stats_state_relearning), relearning, AccentRed),
+            )
+            val maxCount = bars.maxOf { it.count }.coerceAtLeast(1)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
@@ -472,55 +480,51 @@ private fun CardStatesCard(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    verticalAlignment = Alignment.Bottom,
                 ) {
-                    StateCountChip(
-                        label = stringResource(R.string.stats_state_new),
-                        count = newCount,
-                        accentColor = getStatisticsOnSurfaceVariant()
-                    )
-                    StateCountChip(
-                        label = stringResource(R.string.stats_state_learning),
-                        count = learning,
-                        accentColor = AccentAmber
-                    )
-                    StateCountChip(
-                        label = stringResource(R.string.stats_state_review),
-                        count = review,
-                        accentColor = AccentGreen
-                    )
-                    StateCountChip(
-                        label = stringResource(R.string.stats_state_relearning),
-                        count = relearning,
-                        accentColor = AccentRed
-                    )
+                    bars.forEach { bar ->
+                        val fraction = bar.count.toFloat() / maxCount.toFloat()
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Spacer(modifier = Modifier.weight((1f - fraction).coerceAtLeast(0.001f)))
+                            Text(
+                                text = bar.count.toString(),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = getStatisticsOnSurface(),
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.6f)
+                                    .weight(fraction.coerceAtLeast(0.005f))
+                                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                    .background(bar.color),
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    bars.forEach { bar ->
+                        Text(
+                            text = bar.label,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center,
+                            fontSize = 9.sp,
+                            color = getStatisticsOnSurfaceVariant(),
+                        )
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun StateCountChip(
-    label: String,
-    count: Int,
-    accentColor: Color
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = count.toString(),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = accentColor
-        )
-        Text(
-            text = label,
-            fontSize = 9.sp,
-            color = getStatisticsOnSurfaceVariant(),
-            maxLines = 1
-        )
     }
 }
 
