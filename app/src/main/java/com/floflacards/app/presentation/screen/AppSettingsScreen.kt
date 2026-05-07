@@ -200,9 +200,34 @@ fun AppSettingsScreen(
                         opacity = currentFlashcardOpacity,
                         onOpacityChange = { viewModel.setFlashcardOpacity(it) }
                     )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    FilledTonalButton(
+                        onClick = { viewModel.showSingleFlashcardNow() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                text = stringResource(R.string.settings_test_popup_title),
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = stringResource(R.string.settings_test_popup_description),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
                 }
             }
-            
+
             // Permissions section - SECOND section as requested
             item {
                 AppSettingsSection(
@@ -246,31 +271,6 @@ fun AppSettingsScreen(
                         durationMinutes = currentSnoozeDuration,
                         onDurationChange = { viewModel.setSnoozeDurationMinutes(it) }
                     )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    FilledTonalButton(
-                        onClick = { viewModel.showSingleFlashcardNow() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column {
-                            Text(
-                                text = stringResource(R.string.settings_test_popup_title),
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Text(
-                                text = stringResource(R.string.settings_test_popup_description),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
