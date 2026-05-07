@@ -80,9 +80,10 @@ fun ReviewHistoryChart(history: List<ReviewHistoryEntry>) {
     val modelProducer = remember { CartesianChartModelProducer() }
 
     LaunchedEffect(history) {
+        val reversed = history.reversed()
         modelProducer.runTransaction {
-            columnSeries { series(history.map { it.reviews }) }
-            extras { it[HistoryDateKey] = history.map { it.dateKey.takeLast(5) } }
+            columnSeries { series(reversed.map { it.reviews }) }
+            extras { it[HistoryDateKey] = reversed.map { it.dateKey.takeLast(5) } }
         }
     }
 
