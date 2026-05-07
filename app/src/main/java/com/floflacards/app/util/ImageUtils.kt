@@ -35,7 +35,6 @@ object ImageUtils {
     
     private const val MAX_IMAGE_DIMENSION = 2048 // Maximum width or height in pixels
     private const val JPEG_QUALITY = 85 // Quality percentage for JPEG compression
-    private const val THUMBNAIL_SIZE = 100 // Thumbnail size in pixels
     
     /**
      * Compress and resize an image from URI.
@@ -56,22 +55,6 @@ object ImageUtils {
             
             // Resize if too large
             resizeBitmap(rotatedBitmap, MAX_IMAGE_DIMENSION)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-    
-    /**
-     * Create a thumbnail from an image file.
-     * 
-     * @param imagePath Path to the source image
-     * @return Thumbnail bitmap or null
-     */
-    fun createThumbnail(imagePath: String): Bitmap? {
-        return try {
-            val originalBitmap = BitmapFactory.decodeFile(imagePath) ?: return null
-            resizeBitmap(originalBitmap, THUMBNAIL_SIZE)
         } catch (e: Exception) {
             e.printStackTrace()
             null

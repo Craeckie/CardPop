@@ -406,27 +406,19 @@ class BackupManager @Inject constructor(
                 ?: return@withContext Result.failure(IllegalStateException("Cannot read backup file"))
             val backupData = json.decodeFromString<BackupData>(backupContent)
 
-            // Debug: Log backup data info
-            println("DEBUG: Backup contains ${backupData.categories.size} categories and ${backupData.flashcards.size} flashcards")
-        
             // REPLACE MODE: Clear all existing data and restore everything from backup
-            println("DEBUG: Using REPLACE mode - clearing all existing data")
-        
+
             // Clear all flashcards first (due to foreign key constraints)
             flashcardDao.deleteAllFlashcards()
-            println("DEBUG: Cleared all existing flashcards")
-        
+
             // Clear all categories
             categoryDao.deleteAllCategories()
-            println("DEBUG: Cleared all existing categories")
         
             var categoriesRestored = 0
             var flashcardsRestored = 0
 
             // Restore all categories from backup
-            println("DEBUG: Restoring ${backupData.categories.size} categories")
             for (categoryBackup in backupData.categories) {
-                println("DEBUG: Restoring category '${categoryBackup.name}'")
                 val categoryEntity = CategoryEntity(
                     name = categoryBackup.name,
                     isEnabled = categoryBackup.isEnabled,
@@ -435,27 +427,21 @@ class BackupManager @Inject constructor(
                 )
                 categoryDao.insertCategory(categoryEntity)
                 categoriesRestored++
-                println("DEBUG: Category '${categoryBackup.name}' restored successfully")
             }
 
             // Get all restored categories for flashcard mapping
             val allCategories = categoryDao.getAllCategoriesForBackup()
             val categoryNameToIdMap = allCategories.associate { it.name to it.id }
-            println("DEBUG: Category mapping created: $categoryNameToIdMap")
 
             // Restore all flashcards from backup
-            println("DEBUG: Restoring ${backupData.flashcards.size} flashcards")
             for (flashcardBackup in backupData.flashcards) {
-                println("DEBUG: Restoring flashcard '${flashcardBackup.question}'")
-            
                 // Find category by name (more reliable than UUID for restore)
                 val categoryName = backupData.categories.find { 
                     it.uuid == flashcardBackup.categoryUuid 
                 }?.name
             
                 val categoryId = categoryName?.let { categoryNameToIdMap[it] }
-                println("DEBUG: Mapped flashcard to category ID: $categoryId")
-            
+
                 if (categoryId != null) {
                     // Insert flashcard first to get the ID
                     val flashcardEntity = FlashcardEntity(
@@ -511,16 +497,11 @@ class BackupManager @Inject constructor(
                     }
                     
                     flashcardsRestored++
-                    println("DEBUG: Flashcard '${flashcardBackup.question}' restored successfully")
-                } else {
-                    println("DEBUG: ERROR - Could not find category ID for flashcard '${flashcardBackup.question}'")
                 }
             }
 
             // Restore streak data with gap detection logic
             backupData.streakData?.let { streakBackup ->
-                println("DEBUG: Restoring streak data - Current: ${streakBackup.currentStreak}, Highest: ${streakBackup.highestStreak}")
-                
                 // Create StreakData from backup
                 val backupStreakData = StreakData(
                     currentStreak = streakBackup.currentStreak,
@@ -534,22 +515,16 @@ class BackupManager @Inject constructor(
                 
                 // If there's a gap (validCurrentStreak = 0), preserve highest but reset current
                 val finalStreakData = if (validCurrentStreak == 0 && streakBackup.currentStreak > 0) {
-                    println("DEBUG: Gap detected - resetting current streak but preserving highest")
                     StreakData(
                         currentStreak = 0,
                         highestStreak = streakBackup.highestStreak,
                         lastActivityTimestamp = streakBackup.lastActivityTimestamp
                     )
                 } else {
-                    println("DEBUG: No gap detected - restoring full streak data")
                     backupStreakData
                 }
-                
-                // Save the processed streak data
+
                 streakPreferences.saveStreakData(finalStreakData)
-                println("DEBUG: Streak data restored successfully")
-            } ?: run {
-                println("DEBUG: No streak data found in backup (backward compatibility)")
             }
 
             // Restore v3+ sections. v1/v2 backups have these as null and are

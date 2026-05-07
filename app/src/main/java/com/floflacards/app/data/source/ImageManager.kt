@@ -194,32 +194,4 @@ class ImageManager(private val context: Context) {
         val file = File(imagePath)
         return if (file.exists()) file.length() else 0
     }
-    
-    /**
-     * Delete all orphaned image files (images not referenced by any flashcard).
-     * This is a maintenance operation that should be called periodically.
-     * Note: Implementation would require database access, so this is a placeholder.
-     * 
-     * @return Number of files deleted
-     */
-    fun cleanupOrphanedImages(): Int {
-        // This would require database access to check which images are still referenced
-        // Implementation should be done in a repository or use case
-        return 0
-    }
-    
-    /**
-     * Get total storage used by flashcard images.
-     * 
-     * @return Total size in bytes
-     */
-    fun getTotalStorageUsed(): Long {
-        val imageDir = File(context.filesDir, IMAGE_DIRECTORY)
-        if (!imageDir.exists()) return 0
-        
-        return imageDir.walkTopDown()
-            .filter { it.isFile }
-            .map { it.length() }
-            .sum()
-    }
 }

@@ -115,9 +115,6 @@ dependencies {
     // DocumentFile for SAF (Storage Access Framework)
     implementation("androidx.documentfile:documentfile:1.0.1")
     
-    // LocalBroadcastManager for service communication
-    implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
-    
     // ViewModel and LiveData - Stable versions
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.2")
