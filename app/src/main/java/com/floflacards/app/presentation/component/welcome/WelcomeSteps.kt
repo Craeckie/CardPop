@@ -77,15 +77,30 @@ fun IntroductionStep(
                     modifier = Modifier.padding(bottom = 32.dp)
                 )
                 
-                // Single compelling benefit with prominent styling
+                // Feature highlights
                 Text(
-                    text = stringResource(R.string.welcome_intro_benefit),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2196F3),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    text = stringResource(R.string.welcome_intro_features_title),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                listOf(
+                    stringResource(R.string.welcome_intro_benefit),
+                    stringResource(R.string.welcome_intro_feature_anki),
+                    stringResource(R.string.welcome_intro_feature_fsrs),
+                ).forEach { feature ->
+                    Text(
+                        text = feature,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2196F3),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    )
+                }
             }
         },
         buttonText = stringResource(R.string.welcome_intro_button),

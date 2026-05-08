@@ -6,6 +6,9 @@
     <string name="welcome_intro_title">Gotowy, żeby uczyć się sprytniej?</string>
     <string name="welcome_intro_description">Unoszące się fiszki, które pojawiają się nad każdą aplikacją – wykorzystaj każdą chwilę.</string>
     <string name="welcome_intro_benefit">✨ Ucz się podczas pisania wiadomości, przeglądania internetu czy grania</string>
+    <string name="welcome_intro_features_title">Co go wyróżnia:</string>
+    <string name="welcome_intro_feature_anki">📦 Importuj dowolną talię Anki z AnkiWeb.net</string>
+    <string name="welcome_intro_feature_fsrs">🧠 FSRS v6 — najnowocześniejszy algorytm powtórek</string>
     <string name="welcome_intro_button">Pokaż mi jak!</string>
     
     <!-- Privacy Step -->

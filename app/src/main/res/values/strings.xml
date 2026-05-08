@@ -6,6 +6,9 @@
     <string name="welcome_intro_title">Ready to Learn Smarter?</string>
     <string name="welcome_intro_description">Floating flashcards that appear over any app, making every moment count.</string>
     <string name="welcome_intro_benefit">✨ Learn while texting, browsing, or gaming</string>
+    <string name="welcome_intro_features_title">What makes it special:</string>
+    <string name="welcome_intro_feature_anki">📦 Import any Anki deck from AnkiWeb.net</string>
+    <string name="welcome_intro_feature_fsrs">🧠 FSRS v6 — state-of-the-art spaced repetition</string>
     <string name="welcome_intro_button">Show Me How!</string>
     
     <!-- Privacy Step -->

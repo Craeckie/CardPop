@@ -6,6 +6,9 @@
     <string name="welcome_intro_title">Bereit, schlauer zu lernen – ganz nebenbei?</string>
     <string name="welcome_intro_description">Lernkarten, die über jeder App schweben – so nutzt du jede Minute.</string>
     <string name="welcome_intro_benefit">✨ Lernen beim Chatten, Surfen oder Spielen</string>
+    <string name="welcome_intro_features_title">Was es besonders macht:</string>
+    <string name="welcome_intro_feature_anki">📦 Beliebige Anki-Decks von AnkiWeb.net importieren</string>
+    <string name="welcome_intro_feature_fsrs">🧠 FSRS v6 – modernster Spaced-Repetition-Algorithmus</string>
     <string name="welcome_intro_button">Zeig mir, wie!</string>
     
     <!-- Privacy Step -->
