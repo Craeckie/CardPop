@@ -103,7 +103,7 @@ jobs:
             --ks "$RUNNER_TEMP/release.jks" \
             --ks-key-alias "$KEY_ALIAS" \
             --ks-pass "pass:$KEYSTORE_PASSWORD" \
-            --key-pass "pass:$KEY_PASSWORD" \
+            --key-pass "pass:${KEY_PASSWORD:-$KEYSTORE_PASSWORD}" \
             --v1-signing-enabled false \
             --v2-signing-enabled true \
             --v3-signing-enabled false \
