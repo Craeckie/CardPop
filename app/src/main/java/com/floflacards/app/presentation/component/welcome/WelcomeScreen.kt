@@ -145,7 +145,7 @@ private fun WelcomeProgressIndicator(
         )
         
         LinearProgressIndicator(
-            progress = { (currentStepIndex + 1) / steps.size.toFloat() },
+            progress = { currentStepIndex / steps.size.toFloat() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(8.dp),

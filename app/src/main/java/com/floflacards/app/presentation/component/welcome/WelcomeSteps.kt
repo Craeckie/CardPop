@@ -94,7 +94,7 @@ fun IntroductionStep(
                         text = feature,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF64B5F6),
+                        color = Color(0xFF90CAF9),
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
