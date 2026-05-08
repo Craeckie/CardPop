@@ -81,7 +81,7 @@ jobs:
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
-          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "$KEYSTORE_BASE64" | tr -d '\r\n' | base64 -d > "$RUNNER_TEMP/release.jks"
 
       - name: Sign APK
         env:
@@ -97,7 +97,7 @@ jobs:
             --ks "$RUNNER_TEMP/release.jks" \
             --ks-key-alias "$KEY_ALIAS" \
             --ks-pass "pass:$KEYSTORE_PASSWORD" \
-            --key-pass "pass:$KEY_PASSWORD" \
+            --key-pass "pass:${KEY_PASSWORD:-$KEYSTORE_PASSWORD}" \
             --v1-signing-enabled false \
             --v2-signing-enabled true \
             --v3-signing-enabled false \
