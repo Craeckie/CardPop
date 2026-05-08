@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Git workflow
-After each change, commit it with a semantic commit message (`feat:`, `fix:`, `chore:`, etc.). If the change is a fix for the immediately preceding commit and that commit has not been pushed, amend it instead of creating a new one. To undo a commit that has not been pushed, drop it from history (reset/rebase) rather than creating a revert commit. Never force-push.
+After each change, commit it with a semantic commit message (`feat:`, `fix:`, `chore:`, etc.). If the change is a fix **or a closely related addition** to the immediately preceding commit and that commit has not been pushed, amend it instead of creating a new one. To undo a commit that has not been pushed, drop it from history (reset/rebase) rather than creating a revert commit. Never force-push.
 
 ## Project
 FloFla Cards — offline, ad-free Android flashcard app (Kotlin, minSdk 24, targetSdk 36; F-Droid). Pops a system overlay with a flashcard at user-set intervals; tap to reveal back. User studies Chinese: front = word, back = meaning + pronunciation.
