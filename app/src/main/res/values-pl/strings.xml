@@ -406,7 +406,7 @@
 
     <!-- Category CSV menu items - Polish -->
     <string name="category_export_csv">Eksportuj jako CSV</string>
-    <string name="category_import_csv">Importuj z CSV</string>
+    <string name="category_import_csv">Importuj karty</string>
 
     <!-- CSV export - Polish -->
     <string name="csv_export_title">Eksportuj jako CSV</string>
@@ -427,14 +427,15 @@
     <string name="csv_export_bulk_preparing">Przygotowywanie zbiorczego eksportu…</string>
 
     <!-- CSV import - Polish -->
-    <string name="csv_import_title">Importuj z CSV</string>
+    <string name="csv_import_title">Importuj karty</string>
+    <string name="csv_import_formats_hint">CSV · TSV · Anki (.apkg)</string>
     <string name="csv_import_back">Wróć</string>
-    <string name="csv_import_select_file">Wybierz plik CSV</string>
-    <string name="csv_import_file_description">Wybierz plik CSV do importu. Plik powinien mieć co najmniej dwie kolumny: pytanie i odpowiedź.</string>
-    <string name="csv_import_pick_file_button">Wybierz plik CSV</string>
+    <string name="csv_import_select_file">Wybierz plik</string>
+    <string name="csv_import_file_description">Wybierz plik CSV/TSV lub Anki (.apkg) do importu. Pliki CSV/TSV powinny mieć co najmniej dwie kolumny: pytanie i odpowiedź.</string>
+    <string name="csv_import_pick_file_button">Wybierz plik</string>
     <string name="csv_import_pick_another">Wybierz inny plik</string>
-    <string name="csv_import_supported_formats">Obsługiwane: CSV, TSV z nagłówkami takimi jak question/answer, front/back, term/definition</string>
-    <string name="csv_import_parsing_file">Parsowanie pliku CSV…</string>
+    <string name="csv_import_supported_formats">Obsługiwane: CSV, TSV z nagłówkami jak question/answer, front/back, term/definition; oraz talie Anki (.apkg)</string>
+    <string name="csv_import_parsing_file">Parsowanie pliku…</string>
     <string name="csv_import_preview_title">Podgląd</string>
     <string name="csv_import_preview_label">Podgląd (pierwsze %1$d z %2$d):</string>
     <string name="csv_import_question_header">Pytanie</string>

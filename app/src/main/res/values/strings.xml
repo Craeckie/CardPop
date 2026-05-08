@@ -387,11 +387,12 @@
     <string name="search_clear">Clear Search</string>
 
     <!-- CSV Import -->
-    <string name="csv_import_title">Import from CSV</string>
+    <string name="csv_import_title">Import Cards</string>
+    <string name="csv_import_formats_hint">CSV · TSV · Anki (.apkg)</string>
     <string name="csv_import_back">Back</string>
-    <string name="csv_import_select_file">Select CSV File</string>
-    <string name="csv_import_file_description">Choose a CSV file to import. The file should have at least two columns: question and answer.</string>
-    <string name="csv_import_pick_file_button">Pick CSV File</string>
+    <string name="csv_import_select_file">Select File</string>
+    <string name="csv_import_file_description">Choose a CSV/TSV or Anki (.apkg) file to import. CSV/TSV files should have at least two columns: question and answer.</string>
+    <string name="csv_import_pick_file_button">Pick File</string>
     <string name="csv_import_preview_title">Preview</string>
     <string name="csv_import_valid_cards">Valid flashcards: %1$d</string>
     <string name="csv_import_parse_errors">Parse errors: %1$d</string>
@@ -407,8 +408,8 @@
     <string name="csv_import_error_title">Import Error</string>
     <string name="csv_import_error_close">Close</string>
     <string name="csv_import_parsing_errors_detail">%1$d rows had errors and were skipped</string>
-    <string name="csv_import_supported_formats">Supported: CSV, TSV with headers like question/answer, front/back, term/definition</string>
-    <string name="csv_import_parsing_file">Parsing CSV file…</string>
+    <string name="csv_import_supported_formats">Supports: CSV, TSV with headers like question/answer, front/back, term/definition; and Anki (.apkg) decks</string>
+    <string name="csv_import_parsing_file">Parsing file…</string>
     <string name="csv_import_into_category">Import into category:</string>
     <string name="csv_import_preview_label">Preview (first %1$d of %2$d):</string>
     <string name="csv_import_question_header">Question</string>
@@ -437,7 +438,7 @@
 
     <!-- Category context menu -->
     <string name="category_export_csv">Export as CSV</string>
-    <string name="category_import_csv">Import from CSV</string>
+    <string name="category_import_csv">Import Cards</string>
 
     <!-- Interval setting -->
     <string name="settings_interval_title">Flashcard Interval</string>

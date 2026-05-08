@@ -376,11 +376,12 @@
     <string name="search_clear">Suche löschen</string>
 
     <!-- CSV Import/Export - German -->
-    <string name="csv_import_title">Aus CSV importieren</string>
+    <string name="csv_import_title">Karten importieren</string>
+    <string name="csv_import_formats_hint">CSV · TSV · Anki (.apkg)</string>
     <string name="csv_import_back">Zurück</string>
-    <string name="csv_import_select_file">CSV-Datei auswählen</string>
-    <string name="csv_import_file_description">Wähle eine CSV-Datei zum Importieren. Die Datei sollte mindestens zwei Spalten haben: Frage und Antwort.</string>
-    <string name="csv_import_pick_file_button">CSV-Datei wählen</string>
+    <string name="csv_import_select_file">Datei auswählen</string>
+    <string name="csv_import_file_description">Wähle eine CSV/TSV- oder Anki-(.apkg)-Datei zum Importieren. CSV/TSV-Dateien sollten mindestens zwei Spalten haben: Frage und Antwort.</string>
+    <string name="csv_import_pick_file_button">Datei wählen</string>
     <string name="csv_import_preview_title">Vorschau</string>
     <string name="csv_import_valid_cards">Gültige Lernkarten: %1$d</string>
     <string name="csv_import_parse_errors">Parse-Fehler: %1$d</string>
@@ -396,8 +397,8 @@
     <string name="csv_import_error_title">Import-Fehler</string>
     <string name="csv_import_error_close">Schließen</string>
     <string name="csv_import_parsing_errors_detail">%1$d Zeilen hatten Fehler und wurden übersprungen</string>
-    <string name="csv_import_supported_formats">Unterstützt: CSV, TSV mit Kopfzeilen wie Frage/Antwort, Vorderseite/Rückseite, Begriff/Definition</string>
-    <string name="csv_import_parsing_file">CSV-Datei wird analysiert…</string>
+    <string name="csv_import_supported_formats">Unterstützt: CSV, TSV mit Kopfzeilen wie Frage/Antwort, Vorderseite/Rückseite, Begriff/Definition; sowie Anki-Decks (.apkg)</string>
+    <string name="csv_import_parsing_file">Datei wird analysiert…</string>
     <string name="csv_import_into_category">Importieren in Kategorie:</string>
     <string name="csv_import_preview_label">Vorschau (erste %1$d von %2$d):</string>
     <string name="csv_import_question_header">Frage</string>
@@ -426,7 +427,7 @@
 
     <!-- Category context menu - German -->
     <string name="category_export_csv">Als CSV exportieren</string>
-    <string name="category_import_csv">Aus CSV importieren</string>
+    <string name="category_import_csv">Karten importieren</string>
 
     <!-- Interval setting - German -->
     <string name="settings_interval_title">Karten-Intervall</string>
