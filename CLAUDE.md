@@ -18,6 +18,7 @@ FloFla Cards — offline, ad-free Android flashcard app (Kotlin, minSdk 24, targ
 ./gradlew lint
 ./gradlew :app:testDebugUnitTest --tests "com.floflacards.app.data.csv.CsvParserTest"
 ```
+Prefer `./gradlew assembleRelease` over `assembleDebug` unless there is a specific reason to build a debug variant.
 
 Unit tests are JVM-only (Robolectric). No instrumented tests are run in CI. FSRS logic (`domain/fsrs/`) has no Android imports and is fully testable without a device.
 
