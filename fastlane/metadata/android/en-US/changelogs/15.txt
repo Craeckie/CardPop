@@ -1,0 +1,21 @@
+Version 2.1.0
+
+✨ New features
+🌑 Black (OLED) theme — pure black backgrounds for battery savings on AMOLED screens
+🎨 Flashcard questions now use the LXGW WenKai font, making Chinese characters easier to read
+📊 Main screen now shows a bar chart of card states (new / learning / due) instead of chips
+📈 Statistics screen now includes an answer rating distribution chart
+📋 Copy question & answer to clipboard from the overlay
+💾 Backups now include app settings and review history
+🔔 Morning reminder shows a prompt to add cards when your deck is empty
+🔔 Notification when the learning session stops
+📥 Anki (.apkg) import is now more prominently shown on the import screen
+▶️ The overlay shows a "Continue" button instead of "Stop" while snoozed
+⏱️ Interval is now shown on the main screen; the interval setting moved to Settings
+
+🐛 Bug fixes & small improvements
+Fixed answer distribution chart being clipped in portrait mode
+Fixed status bar overlap on the welcome screen
+Improved text contrast on the welcome screen and empty state card
+Empty state now hints that a category must exist before importing cards
+Daily review chart now shows the most recent day first
