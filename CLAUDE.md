@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Releases
+When asked to create a release:
+1. **Inspect recent commits** (since the last tag) to identify changes relevant to users of the app. Ignore internal refactors, CI changes, and code cleanup that users would never notice.
+2. **Bump the version** in `app/build.gradle` (`versionName` and `versionCode`). Never bump the major version unless explicitly instructed. Bump the minor version for new features or changes users would notice (new UI element, changed font, moved setting, new option). Bump the patch version for bug fixes and small tweaks (e.g. slightly adjusted font size, minor layout fix).
+3. **Write a changelog** in this order:
+   - New features and major visible changes first (new screens, new settings, visual overhauls, changed fonts, moved controls)
+   - Smaller changes and bug fixes second
+   - Use emojis to make entries engaging (e.g. ✨ for new features, 🐛 for bug fixes, 🎨 for visual changes, ⚡ for performance, 🌍 for translations, 🔧 for settings/config changes)
+   - Omit anything invisible to users (refactors, CI, internal architecture)
+
 ## Git workflow
 After each change, commit it with a semantic commit message (`feat:`, `fix:`, `chore:`, etc.). **Always amend the preceding commit** unless it has already been pushed, or the new change is about an unrelated feature, aspect, or part of the app/code. To undo a commit that has not been pushed, drop it from history (reset/rebase) rather than creating a revert commit. Never force-push.
 
