@@ -36,7 +36,7 @@ Prefer `./gradlew assembleRelease` over `assembleDebug` unless there is a specif
 
 Unit tests are JVM-only (Robolectric). No instrumented tests are run in CI. FSRS logic (`domain/fsrs/`) has no Android imports and is fully testable without a device.
 
-`AnkiParserTest` requires network access and will fail offline — pre-existing, not a regression to fix.
+`AnkiParserTest` uses Robolectric, which downloads Android SDK JARs on first run. If running behind a proxy, configure `systemProp.http(s).proxyHost/Port` in `~/.gradle/gradle.properties` — `app/build.gradle.kts` forwards those into the test JVM automatically.
 
 **Translations**: All string resources must be present in `values/` (en), `values-pl/` (pl), and `values-de/` (de). `./gradlew lint` reports `MissingTranslation` errors that block release builds. When adding new strings, add translations for all three locales at the same time.
 
