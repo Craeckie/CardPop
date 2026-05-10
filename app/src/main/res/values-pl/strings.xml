@@ -127,11 +127,11 @@
 
     <!-- Flashcard font -->
     <string name="settings_appearance_flashcard_font">Czcionka fiszek</string>
-    <string name="settings_appearance_flashcard_font_description">Czcionka tekstu pytania i odpowiedzi. Noto Sans SC dołącza chińską czcionkę uproszczoną dla spójnego renderowania CJK.</string>
+    <string name="settings_appearance_flashcard_font_description">Czcionka używana dla pytania na fiszce. Odpowiedź zawsze używa czcionki systemowej.</string>
     <string name="flashcard_font_system_name">Domyślna systemowa</string>
     <string name="flashcard_font_system_description">Użyj domyślnej czcionki urządzenia i awaryjnej czcionki CJK</string>
-    <string name="flashcard_font_noto_sans_sc_name">Zoptymalizowana dla chińskiego</string>
-    <string name="flashcard_font_noto_sans_sc_description">Dołączona Noto Sans SC (chiński uproszczony, Noto Sans CJK)</string>
+    <string name="flashcard_font_wenkai_name">LXGW WenKai (chiński)</string>
+    <string name="flashcard_font_wenkai_description">Dołączona czcionka 楷书 open-source o naturalnym, okrągłym stylu (SIL OFL)</string>
 
     <!-- Permissions section -->
     <string name="settings_permissions_title">Uprawnienia</string>

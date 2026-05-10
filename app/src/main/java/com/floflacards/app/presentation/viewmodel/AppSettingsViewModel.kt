@@ -23,6 +23,7 @@ import androidx.lifecycle.viewModelScope
 import com.floflacards.app.data.repository.FlashcardRepository
 import com.floflacards.app.data.repository.SettingsRepository
 import com.floflacards.app.data.model.AppTheme
+import com.floflacards.app.data.model.FlashcardFont
 import com.floflacards.app.data.model.FlashcardTheme
 import com.floflacards.app.data.model.Language
 import com.floflacards.app.domain.usecase.RetentionData
@@ -70,7 +71,10 @@ class AppSettingsViewModel @Inject constructor(
      * CRITICAL: This controls flashcard theme independently from both app and device theme
      */
     val flashcardTheme: StateFlow<FlashcardTheme> = settingsManager.flashcardTheme
-    
+
+    /** Current flashcard font (applies to question/answer text only). */
+    val flashcardFont: StateFlow<FlashcardFont> = settingsManager.flashcardFont
+
     /**
      * Current app locale preference as StateFlow
      * CRITICAL: This controls app language independently from system locale
@@ -143,7 +147,11 @@ class AppSettingsViewModel @Inject constructor(
     fun setFlashcardTheme(theme: FlashcardTheme) {
         settingsManager.setFlashcardTheme(theme)
     }
-    
+
+    fun setFlashcardFont(font: FlashcardFont) {
+        settingsManager.setFlashcardFont(font)
+    }
+
     /**
      * Updates the app locale preference
      * CRITICAL: This will immediately change the app language

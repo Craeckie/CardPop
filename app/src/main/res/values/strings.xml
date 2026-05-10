@@ -127,11 +127,11 @@
 
     <!-- Flashcard font -->
     <string name="settings_appearance_flashcard_font">Flashcard Font</string>
-    <string name="settings_appearance_flashcard_font_description">Font used for flashcard question and answer text. Noto Sans SC bundles a Simplified Chinese font for consistent CJK rendering.</string>
+    <string name="settings_appearance_flashcard_font_description">Font used for the flashcard question. The answer always uses the system font.</string>
     <string name="flashcard_font_system_name">System Default</string>
     <string name="flashcard_font_system_description">Use the device\'s default font and CJK fallback</string>
-    <string name="flashcard_font_noto_sans_sc_name">Optimized for Chinese</string>
-    <string name="flashcard_font_noto_sans_sc_description">Bundled Noto Sans SC (Simplified Chinese, Noto Sans CJK)</string>
+    <string name="flashcard_font_wenkai_name">LXGW WenKai (Chinese)</string>
+    <string name="flashcard_font_wenkai_description">Bundled open-source 楷书 font with a natural, round style (SIL OFL)</string>
 
     <!-- Permissions section -->
     <string name="settings_permissions_title">Permissions</string>

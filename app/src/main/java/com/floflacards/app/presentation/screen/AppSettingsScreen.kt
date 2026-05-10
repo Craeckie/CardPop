@@ -48,6 +48,7 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 import com.floflacards.app.data.model.AppTheme
 import com.floflacards.app.util.IntervalConstants
+import com.floflacards.app.data.model.FlashcardFont
 import com.floflacards.app.data.model.FlashcardTheme
 import com.floflacards.app.data.model.Language
 import com.floflacards.app.presentation.component.BatteryOptimizationSettingItem
@@ -77,6 +78,7 @@ fun AppSettingsScreen(
     val viewModel: AppSettingsViewModel = hiltViewModel()
     val currentTheme by viewModel.appTheme.collectAsState()
     val currentFlashcardTheme by viewModel.flashcardTheme.collectAsState()
+    val currentFlashcardFont by viewModel.flashcardFont.collectAsState()
     val currentLanguage: Language by viewModel.appLocale.collectAsState()
     val currentTargetRetention by viewModel.targetRetention.collectAsState()
     val currentActualRetention by viewModel.actualRetention.collectAsState()
@@ -183,6 +185,29 @@ fun AppSettingsScreen(
                     FlashcardThemeSelectionItem(
                         currentTheme = currentFlashcardTheme,
                         onThemeSelected = { theme -> viewModel.setFlashcardTheme(theme) }
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Flashcard Font subsection
+                    Text(
+                        text = stringResource(R.string.settings_appearance_flashcard_font),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    Text(
+                        text = stringResource(R.string.settings_appearance_flashcard_font_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                    FlashcardFontSelectionItem(
+                        currentFont = currentFlashcardFont,
+                        onFontSelected = { font -> viewModel.setFlashcardFont(font) }
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -714,6 +739,63 @@ fun FlashcardThemeSelectionItem(
                             FlashcardTheme.LIGHT -> stringResource(R.string.flashcard_theme_light_description)
                             FlashcardTheme.DARK -> stringResource(R.string.flashcard_theme_dark_description)
                             FlashcardTheme.BLACK -> stringResource(R.string.flashcard_theme_black_description)
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Flashcard font selection — radio buttons for the bundled font choices.
+ * Applies only to the question/answer text; UI chrome stays on the system font.
+ */
+@Composable
+fun FlashcardFontSelectionItem(
+    currentFont: FlashcardFont,
+    onFontSelected: (FlashcardFont) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectableGroup()
+    ) {
+        FlashcardFont.values().forEach { font ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = (font == currentFont),
+                        onClick = { onFontSelected(font) },
+                        role = Role.RadioButton
+                    )
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = (font == currentFont),
+                    onClick = null
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column {
+                    Text(
+                        text = when (font) {
+                            FlashcardFont.SYSTEM -> stringResource(R.string.flashcard_font_system_name)
+                            FlashcardFont.WENKAI -> stringResource(R.string.flashcard_font_wenkai_name)
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    Text(
+                        text = when (font) {
+                            FlashcardFont.SYSTEM -> stringResource(R.string.flashcard_font_system_description)
+                            FlashcardFont.WENKAI -> stringResource(R.string.flashcard_font_wenkai_description)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant

@@ -20,6 +20,7 @@ package com.floflacards.app.data.repository
 import android.content.Context
 import android.content.SharedPreferences
 import com.floflacards.app.data.model.AppTheme
+import com.floflacards.app.data.model.FlashcardFont
 import com.floflacards.app.data.model.FlashcardTheme
 import com.floflacards.app.data.model.Language
 import com.floflacards.app.data.source.FlashcardUiPreferences
@@ -57,6 +58,10 @@ class SettingsRepository @Inject constructor(
     // Flashcard theme preference tracking - independent from both app and device theme
     private val _flashcardTheme = MutableStateFlow(getFlashcardTheme())
     val flashcardTheme: StateFlow<FlashcardTheme> = _flashcardTheme.asStateFlow()
+
+    // Flashcard font preference tracking - applies to question/answer text only
+    private val _flashcardFont = MutableStateFlow(getFlashcardFont())
+    val flashcardFont: StateFlow<FlashcardFont> = _flashcardFont.asStateFlow()
     
     // App locale preference tracking - allows user to override system locale
     private val _appLocale = MutableStateFlow(getAppLocale())
@@ -91,6 +96,7 @@ class SettingsRepository @Inject constructor(
         private const val KEY_IS_DEMO_RUNNING = "is_demo_running"
         private const val KEY_APP_THEME = "app_theme"
         private const val KEY_FLASHCARD_THEME = "flashcard_theme"
+        private const val KEY_FLASHCARD_FONT = "flashcard_font"
         private const val KEY_BATTERY_OPTIMIZATION_SKIPPED = "battery_optimization_skipped"
         private const val KEY_BATTERY_OPTIMIZATION_EVER_DISABLED = "battery_optimization_ever_disabled"
         private const val KEY_APP_LOCALE = "app_locale"
@@ -256,6 +262,18 @@ class SettingsRepository @Inject constructor(
             .putString(KEY_FLASHCARD_THEME, theme.name)
             .apply()
         _flashcardTheme.value = theme
+    }
+
+    fun getFlashcardFont(): FlashcardFont {
+        val fontString = prefs.getString(KEY_FLASHCARD_FONT, FlashcardFont.DEFAULT_FONT.name)
+        return FlashcardFont.fromString(fontString ?: FlashcardFont.DEFAULT_FONT.name)
+    }
+
+    fun setFlashcardFont(font: FlashcardFont) {
+        prefs.edit()
+            .putString(KEY_FLASHCARD_FONT, font.name)
+            .apply()
+        _flashcardFont.value = font
     }
     
     /**

@@ -56,6 +56,7 @@ class OverlayComponents(
         var category by remember { mutableStateOf<CategoryEntity?>(null) }
         var currentUiState by remember { mutableStateOf(flashcardUiPreferences.getFlashcardUiState()) }
         val currentFlashcardTheme by settingsManager.flashcardTheme.collectAsState()
+        val currentFlashcardFont by settingsManager.flashcardFont.collectAsState()
 
         LaunchedEffect(flashcard.categoryId) {
             try {
@@ -97,6 +98,7 @@ class OverlayComponents(
                 category = category,
                 uiState = currentUiState,
                 theme = currentFlashcardTheme,
+                font = currentFlashcardFont,
                 onPositionChange = handlePositionChange,
                 onSizeChange = handleSizeChange,
                 onRating = onRating,

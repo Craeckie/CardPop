@@ -50,12 +50,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import com.floflacards.app.R
 import com.floflacards.app.data.entity.FlashcardEntity
+import com.floflacards.app.data.model.FlashcardFont
 import com.floflacards.app.data.model.FlashcardTheme
+import com.floflacards.app.presentation.component.flashcard.FlashcardFonts
 import com.floflacards.app.util.PlecoLauncher
 import java.io.File
 
@@ -78,12 +81,17 @@ fun FlashcardContent(
     showAnswer: Boolean,
     onShowAnswer: () -> Unit,
     theme: FlashcardTheme = FlashcardTheme.DEFAULT_THEME,
+    font: FlashcardFont = FlashcardFont.DEFAULT_FONT,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val plecoAvailable = remember { PlecoLauncher.isAvailable(context) }
     val clipboardManager = LocalClipboardManager.current
+    val questionFontFamily = remember(font) { FlashcardFonts.resolve(font) }
+    val questionFontSize = (17f * font.sizeScale).sp
+    val questionLineHeight = (24f * font.sizeScale).sp
+    val questionLetterSpacing = font.letterSpacingEm.em
 
     Column(
         modifier = modifier
@@ -116,9 +124,11 @@ fun FlashcardContent(
                 Text(
                     text = flashcard.question,
                     color = FlashcardColors.getQuestionTextColor(theme),
-                    fontSize = 17.sp,
+                    fontSize = questionFontSize,
+                    fontFamily = questionFontFamily,
                     textAlign = TextAlign.Center,
-                    lineHeight = 24.sp,
+                    lineHeight = questionLineHeight,
+                    letterSpacing = questionLetterSpacing,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.fillMaxWidth()
                 )

@@ -48,6 +48,7 @@ import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.data.entity.CategoryEntity
 import com.floflacards.app.domain.model.FlashcardRating
 import com.floflacards.app.data.source.FlashcardUiPreferences
+import com.floflacards.app.data.model.FlashcardFont
 import com.floflacards.app.data.model.FlashcardTheme
 
 /**
@@ -61,6 +62,7 @@ fun FlashcardContainer(
     category: CategoryEntity?,
     uiState: FlashcardUiPreferences.FlashcardUiState,
     theme: FlashcardTheme = FlashcardTheme.DEFAULT_THEME,
+    font: FlashcardFont = FlashcardFont.DEFAULT_FONT,
     onPositionChange: (Int, Int) -> Unit,
     onSizeChange: (Int, Int) -> Unit,
     onRating: (FlashcardRating) -> Unit,
@@ -106,6 +108,7 @@ fun FlashcardContainer(
                         showAnswer = showAnswer,
                         onShowAnswer = { showAnswer = true },
                         theme = theme,
+                        font = font,
                         modifier = Modifier.weight(1f)
                     )
 

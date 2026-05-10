@@ -127,11 +127,11 @@
 
     <!-- Flashcard font -->
     <string name="settings_appearance_flashcard_font">Schriftart der Karteikarte</string>
-    <string name="settings_appearance_flashcard_font_description">Schriftart für Frage- und Antworttext. Noto Sans SC enthält eine vereinfachte chinesische Schrift für konsistente CJK-Darstellung.</string>
+    <string name="settings_appearance_flashcard_font_description">Schriftart für den Fragetext der Karteikarte. Die Antwort verwendet immer die Systemschrift.</string>
     <string name="flashcard_font_system_name">Systemstandard</string>
     <string name="flashcard_font_system_description">Standardschrift des Geräts und CJK-Fallback verwenden</string>
-    <string name="flashcard_font_noto_sans_sc_name">Für Chinesisch optimiert</string>
-    <string name="flashcard_font_noto_sans_sc_description">Mitgeliefert: Noto Sans SC (vereinfachtes Chinesisch, Noto Sans CJK)</string>
+    <string name="flashcard_font_wenkai_name">LXGW WenKai (Chinesisch)</string>
+    <string name="flashcard_font_wenkai_description">Mitgelieferte Open-Source-楷書-Schrift mit natürlichem, rundem Stil (SIL OFL)</string>
 
     <!-- Permissions section -->
     <string name="settings_permissions_title">Berechtigungen</string>
