@@ -128,10 +128,10 @@
     <!-- Flashcard font -->
     <string name="settings_appearance_flashcard_font">Schriftart der Karteikarte</string>
     <string name="settings_appearance_flashcard_font_description">Schriftart für den Fragetext der Karteikarte. Die Antwort verwendet immer die Systemschrift.</string>
-    <string name="flashcard_font_system_name">Systemstandard</string>
-    <string name="flashcard_font_system_description">Standardschrift des Geräts und CJK-Fallback verwenden</string>
-    <string name="flashcard_font_wenkai_name">LXGW WenKai (Chinesisch)</string>
-    <string name="flashcard_font_wenkai_description">Mitgelieferte Open-Source-楷書-Schrift mit natürlichem, rundem Stil (SIL OFL)</string>
+    <string name="flashcard_font_system_name">Standard</string>
+    <string name="flashcard_font_system_description">Standardschrift des Geräts verwenden</string>
+    <string name="flashcard_font_wenkai_name">Chinesisch</string>
+    <string name="flashcard_font_wenkai_description">Mitgelieferte 楷書-Schrift; aktiviert Pleco-Wörterbuch-Suche</string>
 
     <!-- Permissions section -->
     <string name="settings_permissions_title">Berechtigungen</string>
@@ -163,14 +163,12 @@
     <!-- About section - professional but warm -->
     <string name="settings_about_title">Über die App</string>
     <string name="settings_about_subtitle">App-Informationen</string>
-    <string name="settings_about_app_title">FloFla Cards</string>
     <string name="settings_about_app_subtitle">Intelligentes und passives Lernkarten-System</string>
     <string name="settings_about_creator_title">Entwickler</string>
     <string name="settings_about_creator_subtitle">FloFla Dev</string>
     <string name="settings_about_version_title">Version</string>
     
     <!-- Home Screen - German (natural and inviting) -->
-    <string name="home_header_title">FloFla Cards</string>
     <string name="home_header_subtitle">Wissen fließt nebenbei mit schwebenden Karten</string>
     <string name="home_cards_title">Karten</string>
     <string name="home_cards_subtitle"></string>

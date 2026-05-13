@@ -25,13 +25,17 @@ package com.floflacards.app.data.model
  * The font applies to the question only; the answer always uses the system font.
  */
 enum class FlashcardFont(val displayName: String, val sizeScale: Float, val letterSpacingEm: Float) {
-    SYSTEM("System Default", 1.0f, 0f),
-    WENKAI("LXGW WenKai", 1.2f, 0.05f);
+    DEFAULT("Default", 1.0f, 0f),
+    CHINESE("Chinese", 1.25f, 0.05f);
 
     companion object {
-        val DEFAULT_FONT = SYSTEM
+        val DEFAULT_FONT = DEFAULT
 
         fun fromString(value: String): FlashcardFont =
-            values().find { it.name == value } ?: DEFAULT_FONT
+            when (value) {
+                "SYSTEM" -> DEFAULT   // migrate old stored value
+                "WENKAI" -> CHINESE   // migrate old stored value
+                else -> entries.find { it.name == value } ?: DEFAULT_FONT
+            }
     }
 }

@@ -785,8 +785,8 @@ fun FlashcardFontSelectionItem(
                 Column {
                     Text(
                         text = when (font) {
-                            FlashcardFont.SYSTEM -> stringResource(R.string.flashcard_font_system_name)
-                            FlashcardFont.WENKAI -> stringResource(R.string.flashcard_font_wenkai_name)
+                            FlashcardFont.DEFAULT -> stringResource(R.string.flashcard_font_system_name)
+                            FlashcardFont.CHINESE -> stringResource(R.string.flashcard_font_wenkai_name)
                         },
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium
@@ -794,8 +794,8 @@ fun FlashcardFontSelectionItem(
 
                     Text(
                         text = when (font) {
-                            FlashcardFont.SYSTEM -> stringResource(R.string.flashcard_font_system_description)
-                            FlashcardFont.WENKAI -> stringResource(R.string.flashcard_font_wenkai_description)
+                            FlashcardFont.DEFAULT -> stringResource(R.string.flashcard_font_system_description)
+                            FlashcardFont.CHINESE -> stringResource(R.string.flashcard_font_wenkai_description)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant

@@ -129,7 +129,7 @@ fun FlashcardContent(
                     textAlign = TextAlign.Center,
                     lineHeight = questionLineHeight,
                     letterSpacing = questionLetterSpacing,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = if (font == FlashcardFont.CHINESE) FontWeight.SemiBold else FontWeight.Medium,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -174,7 +174,7 @@ fun FlashcardContent(
                 }
             }
         } else {
-            if (plecoAvailable) {
+            if (font == FlashcardFont.CHINESE && plecoAvailable) {
                 TextButton(
                     onClick = { PlecoLauncher.lookup(context, flashcard.question) },
                     modifier = Modifier.height(32.dp)

@@ -128,10 +128,10 @@
     <!-- Flashcard font -->
     <string name="settings_appearance_flashcard_font">Czcionka fiszek</string>
     <string name="settings_appearance_flashcard_font_description">Czcionka używana dla pytania na fiszce. Odpowiedź zawsze używa czcionki systemowej.</string>
-    <string name="flashcard_font_system_name">Domyślna systemowa</string>
-    <string name="flashcard_font_system_description">Użyj domyślnej czcionki urządzenia i awaryjnej czcionki CJK</string>
-    <string name="flashcard_font_wenkai_name">LXGW WenKai (chiński)</string>
-    <string name="flashcard_font_wenkai_description">Dołączona czcionka 楷书 open-source o naturalnym, okrągłym stylu (SIL OFL)</string>
+    <string name="flashcard_font_system_name">Domyślny</string>
+    <string name="flashcard_font_system_description">Użyj domyślnej czcionki urządzenia</string>
+    <string name="flashcard_font_wenkai_name">Chiński</string>
+    <string name="flashcard_font_wenkai_description">Dołączona czcionka 楷书; włącza wyszukiwanie w słowniku Pleco</string>
 
     <!-- Permissions section -->
     <string name="settings_permissions_title">Uprawnienia</string>
@@ -163,14 +163,12 @@
     <!-- About section - professional but friendly -->
     <string name="settings_about_title">O aplikacji</string>
     <string name="settings_about_subtitle">Informacje o aplikacji</string>
-    <string name="settings_about_app_title">FloFla Cards</string>
     <string name="settings_about_app_subtitle">Inteligentny i pasywny system nauki z fiszkami</string>
     <string name="settings_about_creator_title">Twórca</string>
     <string name="settings_about_creator_subtitle">FloFla Dev</string>
     <string name="settings_about_version_title">Wersja</string>
     
     <!-- Home Screen - Polish (welcoming and inviting) -->
-    <string name="home_header_title">FloFla Cards</string>
     <string name="home_header_subtitle">Wiedza płynie naturalnie z unoszącymi się kartami</string>
     <string name="home_cards_title">Karty</string>
     <string name="home_cards_subtitle"></string>

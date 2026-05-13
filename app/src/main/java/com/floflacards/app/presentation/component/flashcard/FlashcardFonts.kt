@@ -33,7 +33,7 @@ object FlashcardFonts {
     }
 
     fun resolve(font: FlashcardFont): FontFamily = when (font) {
-        FlashcardFont.SYSTEM -> FontFamily.Default
-        FlashcardFont.WENKAI -> wenkaiScreen
+        FlashcardFont.DEFAULT -> FontFamily.Default
+        FlashcardFont.CHINESE -> wenkaiScreen
     }
 }
