@@ -5,7 +5,10 @@
   <br>
   FloFla Cards
 </h1>
-  
+
+> **This is a fork of [FloFla Cards](https://github.com/flofladev/floflacards) by [flofladev](https://github.com/flofladev).**  
+> The original idea and base implementation are theirs. Using Claude, I implemented significant new features on top of their work.
+
 <h3 align="center">Passive learning with your phone! 🎓📱</h3>
 
 <div align="center">
@@ -36,24 +39,30 @@ FloFla Cards helps you learn **passively** while using your phone. Flashcards wi
 - Privacy first: FloFla Cards works fully offline. We do notcollect, store, or share any personal data. No ads, no analytics, no hidden costs – just learning. Start learning passively today and turn your screen time into studytime! 🚀
 
 ## Features
-- 📂 Create your own categories and flashcards 
-- ⏰Set the interval for how often cards appear 
-- 📐 Adjust the size and opacity so they don’t disturb you 
-- 🔒 100% offline – no internet, no accounts, no data collection 
-- 💡 Learn languages, prepare for exams, or memorize anything 
+- 📂 Create your own categories and flashcards
+- ⏰ Set the interval for how often cards appear
+- 📐 Adjust the size and opacity so they don’t disturb you
+- 🔒 100% offline – no internet, no accounts, no data collection
+- 💡 Learn languages, prepare for exams, or memorize anything
 - 🎉 Completely free, no ads, no tracking
 
+### Added in this fork
+- 🧠 **FSRS v6 spaced repetition** — cards are scheduled using [FSRS](https://github.com/open-spaced-repetition/fsrs4anki), the algorithm that powers the newest Anki scheduler. Intervals adapt to your performance, with configurable target retention (80–95 %, default 90 %).
+- 📦 **Anki import** — import `.apkg` decks from Anki Web
+- 📊 **Statistics screen** — review history chart (last 30 days) and rating distribution chart
+- 📤 **CSV import & export** — two-column CSV (front, back) with a preview before saving
+- 💾 **Automatic backup** — every card change is immediately backed up as a JSON file via Android’s Storage Access Framework
+- 😴 **Snooze** — pause the overlay for a configurable number of minutes
+- 🚫 **App blocklist** — suppress the overlay while specific apps are in the foreground
+- 🔍 **Pleco lookup** — tap a button on the overlay to look up the front side in the Pleco dictionary app
+- 🌍 **Translations** — English, Polish, German
 
-## Translation
-- English
-- Polish
-- German
 
 ## Roadmap
 
-- [ ] Import/Export flashcards
-- [ ] Use phone's TTS for pronunciation practice while learning vocabulary
-- [ ] Smarter Scheduling with algorithms like **FSRS**  
+- [x] Import/Export flashcards (CSV + Anki .apkg)
+- [x] Smarter scheduling with **FSRS v6**
+- [ ] TTS pronunciation practice
 
 ---
 ## License
