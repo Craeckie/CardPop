@@ -18,7 +18,7 @@ When asked to create a release:
 6. **Commit** both changed files (`app/build.gradle.kts` and the new changelog), then **tag** the commit: `git tag v{versionName}`.
 
 ## Git workflow
-After each change, commit it with a semantic commit message (`feat:`, `fix:`, `chore:`, etc.). **Always amend the preceding commit** unless it has already been pushed, or the new change is about an unrelated feature, aspect, or part of the app/code. To undo a commit that has not been pushed, drop it from history (reset/rebase) rather than creating a revert commit. Never force-push.
+After each change, commit it with a semantic commit message (`feat:`, `fix:`, `chore:`, etc.). **Always amend the preceding commit** unless it has already been pushed, or the new change is about an unrelated feature, aspect, or part of the app/code. **Amend is the default; a new commit is the exception.** When in doubt, amend. To undo a commit that has not been pushed, drop it from history (reset/rebase) rather than creating a revert commit. Never force-push.
 
 ## Project
 FloFla Cards — offline, ad-free Android flashcard app (Kotlin, minSdk 24, targetSdk 36; F-Droid). Pops a system overlay with a flashcard at user-set intervals; tap to reveal back. User studies Chinese: front = word, back = meaning + pronunciation.
