@@ -62,6 +62,10 @@ class SettingsRepository @Inject constructor(
     // Flashcard font preference tracking - applies to question/answer text only
     private val _flashcardFont = MutableStateFlow(getFlashcardFont())
     val flashcardFont: StateFlow<FlashcardFont> = _flashcardFont.asStateFlow()
+
+    // Display name of the user-imported custom font file (null = no custom font loaded)
+    private val _customFontName = MutableStateFlow(prefs.getString(KEY_CUSTOM_FONT_NAME, null))
+    val customFontName: StateFlow<String?> = _customFontName.asStateFlow()
     
     // App locale preference tracking - allows user to override system locale
     private val _appLocale = MutableStateFlow(getAppLocale())
@@ -97,6 +101,7 @@ class SettingsRepository @Inject constructor(
         private const val KEY_APP_THEME = "app_theme"
         private const val KEY_FLASHCARD_THEME = "flashcard_theme"
         private const val KEY_FLASHCARD_FONT = "flashcard_font"
+        private const val KEY_CUSTOM_FONT_NAME = "custom_font_name"
         private const val KEY_BATTERY_OPTIMIZATION_SKIPPED = "battery_optimization_skipped"
         private const val KEY_BATTERY_OPTIMIZATION_EVER_DISABLED = "battery_optimization_ever_disabled"
         private const val KEY_APP_LOCALE = "app_locale"
@@ -275,7 +280,14 @@ class SettingsRepository @Inject constructor(
             .apply()
         _flashcardFont.value = font
     }
-    
+
+    fun setCustomFontName(name: String?) {
+        prefs.edit()
+            .putString(KEY_CUSTOM_FONT_NAME, name)
+            .apply()
+        _customFontName.value = name
+    }
+
     /**
      * Gets the current app locale preference.
      * Returns SYSTEM by default to respect user's device locale.

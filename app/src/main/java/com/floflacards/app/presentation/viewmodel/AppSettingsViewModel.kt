@@ -18,6 +18,9 @@
 package com.floflacards.app.presentation.viewmodel
 
 import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.floflacards.app.data.repository.FlashcardRepository
@@ -33,10 +36,13 @@ import com.floflacards.app.util.IntervalConstants
 import com.floflacards.app.util.PermissionHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -74,6 +80,9 @@ class AppSettingsViewModel @Inject constructor(
 
     /** Current flashcard font (applies to question/answer text only). */
     val flashcardFont: StateFlow<FlashcardFont> = settingsManager.flashcardFont
+
+    /** Display name of the user-imported font file, or null if none loaded. */
+    val customFontName: StateFlow<String?> = settingsManager.customFontName
 
     /**
      * Current app locale preference as StateFlow
@@ -151,6 +160,36 @@ class AppSettingsViewModel @Inject constructor(
     fun setFlashcardFont(font: FlashcardFont) {
         settingsManager.setFlashcardFont(font)
     }
+
+    fun setCustomFont(uri: Uri) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    val dest = File(appContext.filesDir, "custom_font.ttf")
+                    appContext.contentResolver.openInputStream(uri)?.use { input ->
+                        dest.outputStream().use { output -> input.copyTo(output) }
+                    }
+                    val name = resolveDisplayName(uri) ?: dest.name
+                    settingsManager.setCustomFontName(name)
+                    settingsManager.setFlashcardFont(FlashcardFont.CUSTOM)
+                } catch (e: Exception) {
+                    Log.e("AppSettingsViewModel", "Failed to load custom font", e)
+                }
+            }
+        }
+    }
+
+    fun removeCustomFont() {
+        File(appContext.filesDir, "custom_font.ttf").delete()
+        settingsManager.setCustomFontName(null)
+        settingsManager.setFlashcardFont(FlashcardFont.DEFAULT)
+    }
+
+    private fun resolveDisplayName(uri: Uri): String? =
+        appContext.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val col = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (col >= 0 && cursor.moveToFirst()) cursor.getString(col) else null
+        }
 
     /**
      * Updates the app locale preference

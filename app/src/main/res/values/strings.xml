@@ -128,10 +128,9 @@
     <!-- Flashcard font -->
     <string name="settings_appearance_flashcard_font">Flashcard Font</string>
     <string name="settings_appearance_flashcard_font_description">Font used for the flashcard question. The answer always uses the system font.</string>
-    <string name="flashcard_font_system_name">Default</string>
-    <string name="flashcard_font_system_description">Use the device\'s default font</string>
-    <string name="flashcard_font_wenkai_name">Chinese</string>
-    <string name="flashcard_font_wenkai_description">Bundled 楷书 font; enables Pleco dictionary lookup</string>
+    <string name="flashcard_font_none">System font (no custom font loaded)</string>
+    <string name="flashcard_font_load_button">Load font file</string>
+    <string name="flashcard_font_remove_button">Remove</string>
 
     <!-- Permissions section -->
     <string name="settings_permissions_title">Permissions</string>

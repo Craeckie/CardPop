@@ -128,10 +128,9 @@
     <!-- Flashcard font -->
     <string name="settings_appearance_flashcard_font">Schriftart der Karteikarte</string>
     <string name="settings_appearance_flashcard_font_description">Schriftart für den Fragetext der Karteikarte. Die Antwort verwendet immer die Systemschrift.</string>
-    <string name="flashcard_font_system_name">Standard</string>
-    <string name="flashcard_font_system_description">Standardschrift des Geräts verwenden</string>
-    <string name="flashcard_font_wenkai_name">Chinesisch</string>
-    <string name="flashcard_font_wenkai_description">Mitgelieferte 楷書-Schrift; aktiviert Pleco-Wörterbuch-Suche</string>
+    <string name="flashcard_font_none">Systemschrift (keine eigene Schrift geladen)</string>
+    <string name="flashcard_font_load_button">Schriftdatei laden</string>
+    <string name="flashcard_font_remove_button">Entfernen</string>
 
     <!-- Permissions section -->
     <string name="settings_permissions_title">Berechtigungen</string>

@@ -17,23 +17,27 @@
 
 package com.floflacards.app.presentation.component.flashcard
 
-import androidx.compose.ui.text.font.Font
+import android.graphics.Typeface
 import androidx.compose.ui.text.font.FontFamily
-import com.floflacards.app.R
 import com.floflacards.app.data.model.FlashcardFont
+import java.io.File
 
-/**
- * Maps a [FlashcardFont] preference to a Compose [FontFamily]. Bundled
- * font resources are resolved lazily so the OTF is parsed only when first
- * selected.
- */
 object FlashcardFonts {
-    private val wenkaiScreen: FontFamily by lazy {
-        FontFamily(Font(R.font.lxgw_wenkai))
+    private var cachedFile: String? = null
+    private var cachedFamily: FontFamily? = null
+
+    fun resolve(font: FlashcardFont, customFontFile: File? = null): FontFamily = when (font) {
+        FlashcardFont.DEFAULT -> FontFamily.Default
+        FlashcardFont.CUSTOM -> loadCustom(customFontFile)
     }
 
-    fun resolve(font: FlashcardFont): FontFamily = when (font) {
-        FlashcardFont.DEFAULT -> FontFamily.Default
-        FlashcardFont.CHINESE -> wenkaiScreen
+    @Suppress("DEPRECATION")
+    private fun loadCustom(file: File?): FontFamily {
+        if (file == null || !file.exists()) return FontFamily.Default
+        if (file.absolutePath == cachedFile && cachedFamily != null) return cachedFamily!!
+        val family = FontFamily(Typeface.createFromFile(file))
+        cachedFile = file.absolutePath
+        cachedFamily = family
+        return family
     }
 }

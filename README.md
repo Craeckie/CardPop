@@ -47,6 +47,9 @@ CardPop helps you learn **passively** while using your phone. Flashcards will ap
 - 😴 **Snooze** — pause the overlay for a configurable number of minutes
 - 🚫 **App blocklist** — suppress the overlay while specific apps are in the foreground
 - 🔍 **Pleco lookup** — tap a button on the overlay to look up the front side in the Pleco dictionary app
+- 🖋️ **Custom question font** — load any TTF or OTF font file from your device (Settings → Flashcard Font → Load font file). Applied to the flashcard question only; the answer always uses the system font. Suggestions for Chinese study:
+  - **LXGW WenKai** — open-source 楷书 font, available at [github.com/lxgw/LxgwWenKai](https://github.com/lxgw/LxgwWenKai/releases) (SIL OFL 1.1 license)
+  - **Gukai** — the handwriting font bundled with the [Hanping Chinese Dictionary](https://hanping.app/) app; extract it from the APK and load it here
 - 🌍 **Translations** — English, Polish, German
 
 

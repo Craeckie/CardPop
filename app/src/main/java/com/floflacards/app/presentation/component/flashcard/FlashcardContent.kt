@@ -82,13 +82,14 @@ fun FlashcardContent(
     onShowAnswer: () -> Unit,
     theme: FlashcardTheme = FlashcardTheme.DEFAULT_THEME,
     font: FlashcardFont = FlashcardFont.DEFAULT_FONT,
+    customFontFile: java.io.File? = null,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val plecoAvailable = remember { PlecoLauncher.isAvailable(context) }
     val clipboardManager = LocalClipboardManager.current
-    val questionFontFamily = remember(font) { FlashcardFonts.resolve(font) }
+    val questionFontFamily = remember(font, customFontFile) { FlashcardFonts.resolve(font, customFontFile) }
     val questionFontSize = (17f * font.sizeScale).sp
     val questionLineHeight = (24f * font.sizeScale).sp
     val questionLetterSpacing = font.letterSpacingEm.em
@@ -129,7 +130,7 @@ fun FlashcardContent(
                     textAlign = TextAlign.Center,
                     lineHeight = questionLineHeight,
                     letterSpacing = questionLetterSpacing,
-                    fontWeight = if (font == FlashcardFont.CHINESE) FontWeight.SemiBold else FontWeight.Medium,
+                    fontWeight = if (font == FlashcardFont.CUSTOM) FontWeight.SemiBold else FontWeight.Medium,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -174,7 +175,7 @@ fun FlashcardContent(
                 }
             }
         } else {
-            if (font == FlashcardFont.CHINESE && plecoAvailable) {
+            if (plecoAvailable) {
                 TextButton(
                     onClick = { PlecoLauncher.lookup(context, flashcard.question) },
                     modifier = Modifier.height(32.dp)

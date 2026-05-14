@@ -19,15 +19,18 @@ package com.floflacards.app.service
 
 import android.util.Log
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.data.entity.CategoryEntity
 import com.floflacards.app.data.dao.CategoryDao
+import com.floflacards.app.data.model.FlashcardFont
 import com.floflacards.app.domain.model.FlashcardRating
 import com.floflacards.app.data.source.FlashcardUiPreferences
 import com.floflacards.app.data.repository.SettingsRepository
 import com.floflacards.app.presentation.component.FlashcardContainer
 import com.floflacards.app.presentation.component.flashcard.EmptyStateFlashcardContainer
 import androidx.compose.runtime.collectAsState
+import java.io.File
 
 /**
  * UI composition for the overlay service. Wires overlay callbacks to
@@ -53,10 +56,16 @@ class OverlayComponents(
         onManageCards: () -> Unit = { },
         onSnooze: () -> Unit = { }
     ) {
+        val context = LocalContext.current
         var category by remember { mutableStateOf<CategoryEntity?>(null) }
         var currentUiState by remember { mutableStateOf(flashcardUiPreferences.getFlashcardUiState()) }
         val currentFlashcardTheme by settingsManager.flashcardTheme.collectAsState()
         val currentFlashcardFont by settingsManager.flashcardFont.collectAsState()
+        val customFontFile = remember(currentFlashcardFont) {
+            if (currentFlashcardFont == FlashcardFont.CUSTOM)
+                File(context.filesDir, "custom_font.ttf").takeIf { it.exists() }
+            else null
+        }
 
         LaunchedEffect(flashcard.categoryId) {
             try {
@@ -99,6 +108,7 @@ class OverlayComponents(
                 uiState = currentUiState,
                 theme = currentFlashcardTheme,
                 font = currentFlashcardFont,
+                customFontFile = customFontFile,
                 onPositionChange = handlePositionChange,
                 onSizeChange = handleSizeChange,
                 onRating = onRating,

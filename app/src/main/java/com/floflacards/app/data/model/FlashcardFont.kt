@@ -20,13 +20,13 @@ package com.floflacards.app.data.model
 /**
  * Font choice for flashcard question text.
  *
- * WENKAI bundles a subsetted LXGW WenKai Screen font (SIL OFL 1.1) so CJK
- * glyphs render with a natural, round 楷书 style instead of the OEM fallback.
- * The font applies to the question only; the answer always uses the system font.
+ * CUSTOM uses a TTF/OTF file the user imports via the file picker; the file
+ * is stored at filesDir/custom_font.ttf. The font applies to the question
+ * only; the answer always uses the system font.
  */
 enum class FlashcardFont(val displayName: String, val sizeScale: Float, val letterSpacingEm: Float) {
     DEFAULT("Default", 1.0f, 0f),
-    CHINESE("Chinese", 1.25f, 0.05f);
+    CUSTOM("Custom", 1.0f, 0f);
 
     companion object {
         val DEFAULT_FONT = DEFAULT
@@ -34,7 +34,8 @@ enum class FlashcardFont(val displayName: String, val sizeScale: Float, val lett
         fun fromString(value: String): FlashcardFont =
             when (value) {
                 "SYSTEM" -> DEFAULT   // migrate old stored value
-                "WENKAI" -> CHINESE   // migrate old stored value
+                "WENKAI" -> DEFAULT   // bundled font removed
+                "CHINESE" -> DEFAULT  // bundled font removed
                 else -> entries.find { it.name == value } ?: DEFAULT_FONT
             }
     }

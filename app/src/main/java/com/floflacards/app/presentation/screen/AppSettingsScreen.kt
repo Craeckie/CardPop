@@ -17,6 +17,8 @@
 
 package com.floflacards.app.presentation.screen
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
@@ -79,7 +81,12 @@ fun AppSettingsScreen(
     val currentTheme by viewModel.appTheme.collectAsState()
     val currentFlashcardTheme by viewModel.flashcardTheme.collectAsState()
     val currentFlashcardFont by viewModel.flashcardFont.collectAsState()
+    val customFontName by viewModel.customFontName.collectAsState()
     val currentLanguage: Language by viewModel.appLocale.collectAsState()
+
+    val fontFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri -> uri?.let { viewModel.setCustomFont(it) } }
     val currentTargetRetention by viewModel.targetRetention.collectAsState()
     val currentActualRetention by viewModel.actualRetention.collectAsState()
     val currentFlashcardOpacity by viewModel.flashcardOpacity.collectAsState()
@@ -205,9 +212,15 @@ fun AppSettingsScreen(
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
 
-                    FlashcardFontSelectionItem(
+                    FlashcardFontPickerItem(
                         currentFont = currentFlashcardFont,
-                        onFontSelected = { font -> viewModel.setFlashcardFont(font) }
+                        customFontName = customFontName,
+                        onLoadFont = {
+                            fontFileLauncher.launch(
+                                arrayOf("font/ttf", "font/otf", "application/octet-stream")
+                            )
+                        },
+                        onRemoveFont = { viewModel.removeCustomFont() }
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -749,59 +762,36 @@ fun FlashcardThemeSelectionItem(
     }
 }
 
-/**
- * Flashcard font selection — radio buttons for the bundled font choices.
- * Applies only to the question/answer text; UI chrome stays on the system font.
- */
 @Composable
-fun FlashcardFontSelectionItem(
+fun FlashcardFontPickerItem(
     currentFont: FlashcardFont,
-    onFontSelected: (FlashcardFont) -> Unit
+    customFontName: String?,
+    onLoadFont: () -> Unit,
+    onRemoveFont: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .selectableGroup()
+    val label = if (currentFont == FlashcardFont.CUSTOM && customFontName != null)
+        customFontName
+    else
+        stringResource(R.string.flashcard_font_none)
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        FlashcardFont.values().forEach { font ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .selectable(
-                        selected = (font == currentFont),
-                        onClick = { onFontSelected(font) },
-                        role = Role.RadioButton
-                    )
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = (font == currentFont),
-                    onClick = null
-                )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
 
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column {
-                    Text(
-                        text = when (font) {
-                            FlashcardFont.DEFAULT -> stringResource(R.string.flashcard_font_system_name)
-                            FlashcardFont.CHINESE -> stringResource(R.string.flashcard_font_wenkai_name)
-                        },
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium
-                    )
-
-                    Text(
-                        text = when (font) {
-                            FlashcardFont.DEFAULT -> stringResource(R.string.flashcard_font_system_description)
-                            FlashcardFont.CHINESE -> stringResource(R.string.flashcard_font_wenkai_description)
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+        if (currentFont == FlashcardFont.CUSTOM) {
+            TextButton(onClick = onRemoveFont) {
+                Text(stringResource(R.string.flashcard_font_remove_button))
             }
+        }
+
+        OutlinedButton(onClick = onLoadFont) {
+            Text(stringResource(R.string.flashcard_font_load_button))
         }
     }
 }
