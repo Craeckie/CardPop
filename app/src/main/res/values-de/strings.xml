@@ -131,6 +131,10 @@
     <string name="flashcard_font_none">Systemschrift (keine eigene Schrift geladen)</string>
     <string name="flashcard_font_load_button">Schriftdatei laden</string>
     <string name="flashcard_font_remove_button">Entfernen</string>
+    <string name="settings_appearance_font_size">Schriftgröße</string>
+    <string name="flashcard_question_font_size_label">Frage</string>
+    <string name="flashcard_answer_font_size_label">Antwort</string>
+    <string name="flashcard_font_size_value">%d sp</string>
 
     <!-- Permissions section -->
     <string name="settings_permissions_title">Berechtigungen</string>

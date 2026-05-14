@@ -131,6 +131,10 @@
     <string name="flashcard_font_none">Czcionka systemowa (brak własnej czcionki)</string>
     <string name="flashcard_font_load_button">Wczytaj plik czcionki</string>
     <string name="flashcard_font_remove_button">Usuń</string>
+    <string name="settings_appearance_font_size">Rozmiar czcionki</string>
+    <string name="flashcard_question_font_size_label">Pytanie</string>
+    <string name="flashcard_answer_font_size_label">Odpowiedź</string>
+    <string name="flashcard_font_size_value">%d sp</string>
 
     <!-- Permissions section -->
     <string name="settings_permissions_title">Uprawnienia</string>

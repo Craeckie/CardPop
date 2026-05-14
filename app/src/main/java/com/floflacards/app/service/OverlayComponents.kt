@@ -61,6 +61,8 @@ class OverlayComponents(
         var currentUiState by remember { mutableStateOf(flashcardUiPreferences.getFlashcardUiState()) }
         val currentFlashcardTheme by settingsManager.flashcardTheme.collectAsState()
         val currentFlashcardFont by settingsManager.flashcardFont.collectAsState()
+        val currentQuestionFontSize by settingsManager.questionFontSize.collectAsState()
+        val currentAnswerFontSize by settingsManager.answerFontSize.collectAsState()
         val customFontFile = remember(currentFlashcardFont) {
             if (currentFlashcardFont == FlashcardFont.CUSTOM)
                 File(context.filesDir, "custom_font.ttf").takeIf { it.exists() }
@@ -109,6 +111,8 @@ class OverlayComponents(
                 theme = currentFlashcardTheme,
                 font = currentFlashcardFont,
                 customFontFile = customFontFile,
+                questionFontSize = currentQuestionFontSize,
+                answerFontSize = currentAnswerFontSize,
                 onPositionChange = handlePositionChange,
                 onSizeChange = handleSizeChange,
                 onRating = onRating,

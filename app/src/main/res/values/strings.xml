@@ -131,6 +131,10 @@
     <string name="flashcard_font_none">System font (no custom font loaded)</string>
     <string name="flashcard_font_load_button">Load font file</string>
     <string name="flashcard_font_remove_button">Remove</string>
+    <string name="settings_appearance_font_size">Font Size</string>
+    <string name="flashcard_question_font_size_label">Question</string>
+    <string name="flashcard_answer_font_size_label">Answer</string>
+    <string name="flashcard_font_size_value">%d sp</string>
 
     <!-- Permissions section -->
     <string name="settings_permissions_title">Permissions</string>

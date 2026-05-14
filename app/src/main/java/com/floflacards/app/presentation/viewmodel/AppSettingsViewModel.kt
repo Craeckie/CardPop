@@ -84,6 +84,12 @@ class AppSettingsViewModel @Inject constructor(
     /** Display name of the user-imported font file, or null if none loaded. */
     val customFontName: StateFlow<String?> = settingsManager.customFontName
 
+    /** Font size in sp for question text (10..40). */
+    val questionFontSize: StateFlow<Float> = settingsManager.questionFontSize
+
+    /** Font size in sp for answer text (10..40). */
+    val answerFontSize: StateFlow<Float> = settingsManager.answerFontSize
+
     /**
      * Current app locale preference as StateFlow
      * CRITICAL: This controls app language independently from system locale
@@ -178,6 +184,9 @@ class AppSettingsViewModel @Inject constructor(
             }
         }
     }
+
+    fun setQuestionFontSize(size: Float) = settingsManager.setQuestionFontSize(size)
+    fun setAnswerFontSize(size: Float) = settingsManager.setAnswerFontSize(size)
 
     fun removeCustomFont() {
         File(appContext.filesDir, "custom_font.ttf").delete()

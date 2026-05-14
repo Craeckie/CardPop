@@ -83,6 +83,8 @@ fun FlashcardContent(
     theme: FlashcardTheme = FlashcardTheme.DEFAULT_THEME,
     font: FlashcardFont = FlashcardFont.DEFAULT_FONT,
     customFontFile: java.io.File? = null,
+    questionFontSize: Float = 17f,
+    answerFontSize: Float = 17f,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -90,8 +92,6 @@ fun FlashcardContent(
     val plecoAvailable = remember { PlecoLauncher.isAvailable(context) }
     val clipboardManager = LocalClipboardManager.current
     val questionFontFamily = remember(font, customFontFile) { FlashcardFonts.resolve(font, customFontFile) }
-    val questionFontSize = (17f * font.sizeScale).sp
-    val questionLineHeight = (24f * font.sizeScale).sp
     val questionLetterSpacing = font.letterSpacingEm.em
 
     Column(
@@ -120,17 +120,17 @@ fun FlashcardContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp)
+                    .padding(6.dp)
             ) {
                 Text(
                     text = flashcard.question,
                     color = FlashcardColors.getQuestionTextColor(theme),
-                    fontSize = questionFontSize,
+                    fontSize = questionFontSize.sp,
                     fontFamily = questionFontFamily,
                     textAlign = TextAlign.Center,
-                    lineHeight = questionLineHeight,
+                    lineHeight = (questionFontSize * 24f / 17f).sp,
                     letterSpacing = questionLetterSpacing,
-                    fontWeight = if (font == FlashcardFont.CUSTOM) FontWeight.SemiBold else FontWeight.Medium,
+                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -207,14 +207,14 @@ fun FlashcardContent(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(12.dp)
+                        .padding(8.dp)
                 ) {
                     Text(
                         text = flashcard.answer,
                         color = FlashcardColors.getAnswerTextColor(theme),
-                        fontSize = 17.sp,
+                        fontSize = answerFontSize.sp,
                         textAlign = TextAlign.Center,
-                        lineHeight = 24.sp,
+                        lineHeight = (answerFontSize * 24f / 17f).sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.fillMaxWidth()
                     )

@@ -66,6 +66,18 @@ class SettingsRepository @Inject constructor(
     // Display name of the user-imported custom font file (null = no custom font loaded)
     private val _customFontName = MutableStateFlow(prefs.getString(KEY_CUSTOM_FONT_NAME, null))
     val customFontName: StateFlow<String?> = _customFontName.asStateFlow()
+
+    // Font size in sp for question text (10..40, default 17)
+    private val _questionFontSize = MutableStateFlow(
+        prefs.getFloat(KEY_QUESTION_FONT_SIZE, DEFAULT_FONT_SIZE)
+    )
+    val questionFontSize: StateFlow<Float> = _questionFontSize.asStateFlow()
+
+    // Font size in sp for answer text (10..40, default 17)
+    private val _answerFontSize = MutableStateFlow(
+        prefs.getFloat(KEY_ANSWER_FONT_SIZE, DEFAULT_FONT_SIZE)
+    )
+    val answerFontSize: StateFlow<Float> = _answerFontSize.asStateFlow()
     
     // App locale preference tracking - allows user to override system locale
     private val _appLocale = MutableStateFlow(getAppLocale())
@@ -102,6 +114,9 @@ class SettingsRepository @Inject constructor(
         private const val KEY_FLASHCARD_THEME = "flashcard_theme"
         private const val KEY_FLASHCARD_FONT = "flashcard_font"
         private const val KEY_CUSTOM_FONT_NAME = "custom_font_name"
+        private const val KEY_QUESTION_FONT_SIZE = "question_font_size"
+        private const val KEY_ANSWER_FONT_SIZE = "answer_font_size"
+        private const val DEFAULT_FONT_SIZE = 17f
         private const val KEY_BATTERY_OPTIMIZATION_SKIPPED = "battery_optimization_skipped"
         private const val KEY_BATTERY_OPTIMIZATION_EVER_DISABLED = "battery_optimization_ever_disabled"
         private const val KEY_APP_LOCALE = "app_locale"
@@ -286,6 +301,16 @@ class SettingsRepository @Inject constructor(
             .putString(KEY_CUSTOM_FONT_NAME, name)
             .apply()
         _customFontName.value = name
+    }
+
+    fun setQuestionFontSize(size: Float) {
+        prefs.edit().putFloat(KEY_QUESTION_FONT_SIZE, size).apply()
+        _questionFontSize.value = size
+    }
+
+    fun setAnswerFontSize(size: Float) {
+        prefs.edit().putFloat(KEY_ANSWER_FONT_SIZE, size).apply()
+        _answerFontSize.value = size
     }
 
     /**

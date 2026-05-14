@@ -90,6 +90,8 @@ fun AppSettingsScreen(
     val currentTargetRetention by viewModel.targetRetention.collectAsState()
     val currentActualRetention by viewModel.actualRetention.collectAsState()
     val currentFlashcardOpacity by viewModel.flashcardOpacity.collectAsState()
+    val currentQuestionFontSize by viewModel.questionFontSize.collectAsState()
+    val currentAnswerFontSize by viewModel.answerFontSize.collectAsState()
     val currentSnoozeDuration by viewModel.snoozeDurationMinutes.collectAsState()
     val currentIntervalMinutes by viewModel.intervalMinutes.collectAsState()
 
@@ -221,6 +223,24 @@ fun AppSettingsScreen(
                             )
                         },
                         onRemoveFont = { viewModel.removeCustomFont() }
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Font Size subsection
+                    Text(
+                        text = stringResource(R.string.settings_appearance_font_size),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    FlashcardFontSizeSettingItem(
+                        questionFontSize = currentQuestionFontSize,
+                        answerFontSize = currentAnswerFontSize,
+                        onQuestionFontSizeChange = { viewModel.setQuestionFontSize(it) },
+                        onAnswerFontSizeChange = { viewModel.setAnswerFontSize(it) }
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -1057,6 +1077,61 @@ private fun FlashcardOpacitySettingItem(
             valueRange = 0.1f..1.0f,
             // 18 positions inclusive ⇒ 16 intermediate stops.
             steps = 16
+        )
+    }
+}
+
+@Composable
+private fun FlashcardFontSizeSettingItem(
+    questionFontSize: Float,
+    answerFontSize: Float,
+    onQuestionFontSizeChange: (Float) -> Unit,
+    onAnswerFontSizeChange: (Float) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        FontSizeSliderRow(
+            label = stringResource(R.string.flashcard_question_font_size_label),
+            fontSize = questionFontSize,
+            onFontSizeChange = onQuestionFontSizeChange
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        FontSizeSliderRow(
+            label = stringResource(R.string.flashcard_answer_font_size_label),
+            fontSize = answerFontSize,
+            onFontSizeChange = onAnswerFontSizeChange
+        )
+    }
+}
+
+@Composable
+private fun FontSizeSliderRow(
+    label: String,
+    fontSize: Float,
+    onFontSizeChange: (Float) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = stringResource(R.string.flashcard_font_size_value, fontSize.toInt()),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Slider(
+            value = fontSize,
+            onValueChange = onFontSizeChange,
+            valueRange = 10f..40f,
+            steps = 29
         )
     }
 }

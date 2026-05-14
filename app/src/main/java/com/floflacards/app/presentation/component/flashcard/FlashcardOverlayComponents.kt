@@ -64,6 +64,8 @@ fun FlashcardContainer(
     theme: FlashcardTheme = FlashcardTheme.DEFAULT_THEME,
     font: FlashcardFont = FlashcardFont.DEFAULT_FONT,
     customFontFile: java.io.File? = null,
+    questionFontSize: Float = 17f,
+    answerFontSize: Float = 17f,
     onPositionChange: (Int, Int) -> Unit,
     onSizeChange: (Int, Int) -> Unit,
     onRating: (FlashcardRating) -> Unit,
@@ -111,6 +113,8 @@ fun FlashcardContainer(
                         theme = theme,
                         font = font,
                         customFontFile = customFontFile,
+                        questionFontSize = questionFontSize,
+                        answerFontSize = answerFontSize,
                         modifier = Modifier.weight(1f)
                     )
 
