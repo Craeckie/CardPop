@@ -1,9 +1,9 @@
 <h1 align="center">
   <a href="https://github.com/mhss1/MyBrain">
-    <img alt="FloFla Cards" src="https://raw.githubusercontent.com/flofladev/floflacards/refs/heads/main/fastlane/metadata/android/en-US/images/icon.png" width="180" />
+    <img alt="CardPop" src="https://raw.githubusercontent.com/flofladev/floflacards/refs/heads/main/fastlane/metadata/android/en-US/images/icon.png" width="180" />
   </a>
   <br>
-  FloFla Cards
+  CardPop
 </h1>
 
 > **This is a fork of [FloFla Cards](https://github.com/flofladev/floflacards) by [flofladev](https://github.com/flofladev).**  
@@ -19,11 +19,11 @@
   </a>
 </div>
 
-## What is FloFla Cards?
+## What is CardPop?
 
-FloFla Cards helps you learn **passively** while using your phone. Flashcards will appear on top of other apps at intervals you choose – so you can memorize words, formulas, or definitions while scrolling, chatting, or browsing.No extra effort. Just daily learning in the background.
+CardPop helps you learn **passively** while using your phone. Flashcards will appear on top of other apps at intervals you choose – so you can memorize words, formulas, or definitions while scrolling, chatting, or browsing.No extra effort. Just daily learning in the background.
 
-### With FloFla Cards, you can: 
+### With CardPop, you can: 
 - Learn new words daily while scrolling social media 
 - Revise definitions before a test 
 - Practice foreign languages without opening a book 
@@ -34,9 +34,9 @@ FloFla Cards helps you learn **passively** while using your phone. Flashcards wi
 - Language learners who want to expand vocabulary 
 - Anyone who wants tolearn on the go
 
-### Why FloFla Cards? 
-- Unlike other flashcard apps, FloFla Cards **doesn’t** require you to open it every time. It gently reminds you of what you want to learn while you’re already using your phone. Simple,effective, and distraction-free.📌 
-- Privacy first: FloFla Cards works fully offline. We do notcollect, store, or share any personal data. No ads, no analytics, no hidden costs – just learning. Start learning passively today and turn your screen time into studytime! 🚀
+### Why CardPop? 
+- Unlike other flashcard apps, CardPop **doesn’t** require you to open it every time. It gently reminds you of what you want to learn while you’re already using your phone. Simple,effective, and distraction-free.📌 
+- Privacy first: CardPop works fully offline. We do notcollect, store, or share any personal data. No ads, no analytics, no hidden costs – just learning. Start learning passively today and turn your screen time into studytime! 🚀
 
 ## Features
 - 📂 Create your own categories and flashcards

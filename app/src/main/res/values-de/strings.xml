@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FloFla Cards</string>
+    <string name="app_name">CardPop</string>
     
     <!-- Welcome Flow Strings - German (meaning-first, not literal) -->
     <!-- Introduction Step -->
@@ -165,7 +165,7 @@
     <string name="settings_about_subtitle">App-Informationen</string>
     <string name="settings_about_app_subtitle">Intelligentes und passives Lernkarten-System</string>
     <string name="settings_about_creator_title">Entwickler</string>
-    <string name="settings_about_creator_subtitle">FloFla Dev</string>
+    <string name="settings_about_creator_subtitle">CardPop Dev</string>
     <string name="settings_about_version_title">Version</string>
     
     <!-- Home Screen - German (natural and inviting) -->

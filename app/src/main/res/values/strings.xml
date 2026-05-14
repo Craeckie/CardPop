@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FloFla Cards</string>
+    <string name="app_name">CardPop</string>
     
     <!-- Welcome Flow Strings -->
     <!-- Introduction Step -->
@@ -176,7 +176,7 @@
     <string name="settings_about_app_title" translatable="false">@string/app_name</string>
     <string name="settings_about_app_subtitle">Smart and passive flashcard learning system</string>
     <string name="settings_about_creator_title">Creator</string>
-    <string name="settings_about_creator_subtitle">FloFla Dev</string>
+    <string name="settings_about_creator_subtitle">CardPop Dev</string>
     <string name="settings_about_version_title">Version</string>
     
     <!-- Home Screen -->

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FloFla Cards</string>
+    <string name="app_name">CardPop</string>
     
     <!-- Welcome Flow Strings - Polish (meaning-first, not literal) -->
     <!-- Introduction Step -->
@@ -165,7 +165,7 @@
     <string name="settings_about_subtitle">Informacje o aplikacji</string>
     <string name="settings_about_app_subtitle">Inteligentny i pasywny system nauki z fiszkami</string>
     <string name="settings_about_creator_title">Twórca</string>
-    <string name="settings_about_creator_subtitle">FloFla Dev</string>
+    <string name="settings_about_creator_subtitle">CardPop Dev</string>
     <string name="settings_about_version_title">Wersja</string>
     
     <!-- Home Screen - Polish (welcoming and inviting) -->
