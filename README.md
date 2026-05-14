@@ -1,6 +1,6 @@
 <h1 align="center">
   <a href="https://github.com/mhss1/MyBrain">
-    <img alt="CardPop" src="https://raw.githubusercontent.com/flofladev/floflacards/refs/heads/main/fastlane/metadata/android/en-US/images/icon.png" width="180" />
+    <img alt="CardPop" src="fastlane/metadata/android/en-US/images/icon.png" width="180" />
   </a>
   <br>
   CardPop
