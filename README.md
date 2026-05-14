@@ -6,18 +6,10 @@
   CardPop
 </h1>
 
-> **This is a fork of [FloFla Cards](https://github.com/flofladev/floflacards) by [flofladev](https://github.com/flofladev).**  
-> The original idea and base implementation are theirs. Using Claude, I implemented significant new features on top of their work.
-
 <h3 align="center">Passive learning with your phone! 🎓📱</h3>
 
-<div align="center">
-  <a href="https://f-droid.org/packages/com.floflacards.app">
-    <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" 
-         alt="Get it on F-Droid" 
-         height="80">
-  </a>
-</div>
+> **This is a fork of [FloFla Cards](https://github.com/flofladev/floflacards) by [flofladev](https://github.com/flofladev).**  
+> The original idea and base implementation are theirs. Using Claude, I implemented significant new features on top of their work.
 
 ## What is CardPop?
 
@@ -57,12 +49,6 @@ CardPop helps you learn **passively** while using your phone. Flashcards will ap
 - 🔍 **Pleco lookup** — tap a button on the overlay to look up the front side in the Pleco dictionary app
 - 🌍 **Translations** — English, Polish, German
 
-
-## Roadmap
-
-- [x] Import/Export flashcards (CSV + Anki .apkg)
-- [x] Smarter scheduling with **FSRS v6**
-- [ ] TTS pronunciation practice
 
 ---
 ## License
