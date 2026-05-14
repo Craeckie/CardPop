@@ -63,6 +63,10 @@ class OverlayComponents(
         val currentFlashcardFont by settingsManager.flashcardFont.collectAsState()
         val currentQuestionFontSize by settingsManager.questionFontSize.collectAsState()
         val currentAnswerFontSize by settingsManager.answerFontSize.collectAsState()
+        val currentOpacity by settingsManager.flashcardOpacity.collectAsState()
+        LaunchedEffect(currentOpacity) {
+            currentUiState = currentUiState.copy(opacity = currentOpacity)
+        }
         val customFontFile = remember(currentFlashcardFont) {
             if (currentFlashcardFont == FlashcardFont.CUSTOM)
                 File(context.filesDir, "custom_font.ttf").takeIf { it.exists() }
