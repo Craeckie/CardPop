@@ -6,7 +6,7 @@
   CardPop
 </h1>
 
-<h3 align="center">Passive learning with your phone! 🎓📱</h3>
+<h3 align="center">Passive learning with your phone! 📱</h3>
 
 > **This is a fork of [FloFla Cards](https://github.com/flofladev/floflacards) by [flofladev](https://github.com/flofladev).**  
 > The original idea and base implementation are theirs. Using Claude, I implemented significant new features on top of their work.
@@ -19,7 +19,7 @@ CardPop helps you learn **passively** while using your phone. Flashcards will ap
 - Learn new words daily while scrolling social media 
 - Revise definitions before a test 
 - Practice foreign languages without opening a book 
-- Build your own library of flashcards for any subject👩‍🎓 
+- Build your own library of flashcards for any subject
 
 ### Perfect for: 
 - Students and high schoolers preparing for exams 
