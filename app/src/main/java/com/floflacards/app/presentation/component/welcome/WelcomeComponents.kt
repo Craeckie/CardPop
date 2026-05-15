@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.floflacards.app.presentation.theme.Palette
 
 /**
  * Reusable components for welcome onboarding flow.
@@ -145,7 +146,7 @@ fun WelcomeStepCard(
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2196F3),
+                        containerColor = Palette.BrandBlue,
                         disabledContainerColor = Color(0xFFBDBDBD),
                         contentColor = Color.White
                     ),

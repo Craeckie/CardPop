@@ -33,6 +33,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -79,21 +80,13 @@ fun ModernStatsCardGrid(stats: EnhancedOverallStats) {
                 modifier = Modifier.weight(1f)
             )
         }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            CardStatesCard(
-                dueNow = stats.dueNowCount,
-                newCount = stats.newCount,
-                learning = stats.learningCount,
-                review = stats.reviewCount,
-                relearning = stats.relearningCount,
-                modifier = Modifier.weight(1f)
-            )
-        }
+        CardStatesCard(
+            dueNow = stats.dueNowCount,
+            newCount = stats.newCount,
+            learning = stats.learningCount,
+            review = stats.reviewCount,
+            relearning = stats.relearningCount,
+        )
     }
 }
 
@@ -445,21 +438,12 @@ private fun CardStatesCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
-            .wrapContentHeight()
-            .heightIn(min = 90.dp),
-        colors = CardDefaults.cardColors(containerColor = getStatisticsCardBackground()),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = getStatisticsSurface()),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .background(getStatisticsCardBackground(), RoundedCornerShape(12.dp))
-                .border(1.dp, getStatisticsCardBorder(), RoundedCornerShape(12.dp))
-                .padding(horizontal = 10.dp, vertical = 10.dp)
-        ) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             val bars = listOf(
                 StateBar(stringResource(R.string.stats_state_new), newCount, getStatisticsOnSurfaceVariant()),
                 StateBar(stringResource(R.string.stats_state_learning), learning, AccentAmber),
@@ -467,61 +451,65 @@ private fun CardStatesCard(
                 StateBar(stringResource(R.string.stats_state_relearning), relearning, AccentRed),
             )
             val maxCount = bars.maxOf { it.count }.coerceAtLeast(1)
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+
+            Text(
+                text = stringResource(R.string.stats_card_states_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = getStatisticsOnSurface(),
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = stringResource(R.string.stats_due_now, dueNow),
+                style = MaterialTheme.typography.bodySmall,
+                color = if (dueNow > 0) AccentTeal else getStatisticsOnSurfaceVariant(),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp),
+                verticalAlignment = Alignment.Bottom,
             ) {
-                Text(
-                    text = stringResource(R.string.stats_due_now, dueNow),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (dueNow > 0) AccentTeal else getStatisticsOnSurfaceVariant(),
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
-                    verticalAlignment = Alignment.Bottom,
-                ) {
-                    bars.forEach { bar ->
-                        val fraction = bar.count.toFloat() / maxCount.toFloat()
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Spacer(modifier = Modifier.weight((1f - fraction).coerceAtLeast(0.001f)))
-                            Text(
-                                text = bar.count.toString(),
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = getStatisticsOnSurface(),
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth(0.6f)
-                                    .weight(fraction.coerceAtLeast(0.005f))
-                                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                    .background(bar.color),
-                            )
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    bars.forEach { bar ->
+                bars.forEach { bar ->
+                    val fraction = bar.count.toFloat() / maxCount.toFloat()
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Spacer(modifier = Modifier.weight((1f - fraction).coerceAtLeast(0.001f)))
                         Text(
-                            text = bar.label,
-                            modifier = Modifier.weight(1f),
-                            textAlign = TextAlign.Center,
-                            fontSize = 9.sp,
-                            color = getStatisticsOnSurfaceVariant(),
+                            text = bar.count.toString(),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = getStatisticsOnSurface(),
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(0.6f)
+                                .weight(fraction.coerceAtLeast(0.005f))
+                                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                .background(bar.color),
                         )
                     }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                bars.forEach { bar ->
+                    Text(
+                        text = bar.label,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = getStatisticsOnSurfaceVariant(),
+                    )
                 }
             }
         }

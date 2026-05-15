@@ -284,6 +284,7 @@
     <string name="stats_percent_suffix">%</string>
     
     <!-- Statistics screen extras - Polish -->
+    <string name="stats_card_states_title">Stany kart</string>
     <string name="stats_due_now">%1$d do powtórki</string>
     <string name="stats_history_title">Aktywność w czasie</string>
     <string name="stats_history_subtitle">Ostatnie %1$d dni</string>

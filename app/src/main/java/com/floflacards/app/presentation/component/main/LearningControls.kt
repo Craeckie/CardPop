@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.floflacards.app.R
+import com.floflacards.app.presentation.theme.Palette
 
 /**
  * Learning controls component following SRP.
@@ -153,7 +154,7 @@ private fun UnifiedLearningButton(
         // No flashcards - navigate to cards (replaces NoFlashcardsHintCard)
         activeFlashcardCount == 0 -> Triple(
             stringResource(R.string.learning_no_cards_hint),
-            Color(0xFF1DB096), // Purple theme to match app design
+            Palette.BrandBlue,
             onNavigateToCards
         )
         // Has flashcards but no overlay permission - request permission

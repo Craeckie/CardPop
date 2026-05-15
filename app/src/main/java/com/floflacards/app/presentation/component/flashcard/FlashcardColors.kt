@@ -20,6 +20,7 @@ package com.floflacards.app.presentation.component
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.floflacards.app.data.model.FlashcardTheme
+import com.floflacards.app.presentation.theme.Palette
 
 /**
  * Centralized flashcard color scheme following DRY principle.
@@ -45,52 +46,52 @@ object FlashcardColors {
         val softWhite: Color
     )
     
-    // DEFAULT theme colors - Refined dark theme with elegant purple accents
+    // DEFAULT theme - dark with brand blue answer card
     private val defaultTheme = ThemeColors(
-        darkBackground = Color(0xFF121212), // Rich dark background
-        headerBackground = Color(0xFF1E1E1E), // Subtle contrast for header
-        questionBackground = Color(0xFF2A2A2A), // Warmer gray for questions - less harsh
-        questionText = Color(0xFFE6E1E5), // Soft light text with purple undertone
-        answerBackground = Color(0xFF6750A4), // Modern purple - sophisticated
-        answerText = Color(0xFFEADDFF), // Light purple tint - elegant
-        buttonAccent = Color(0xFF7F39FB), // Vibrant purple accent - eye-catching
-        softWhite = Color(0xFFE6E1E5) // Consistent soft light text
-    )
-    
-    // LIGHT theme colors - Modern, elegant design with sophisticated purple palette
-    private val lightTheme = ThemeColors(
-        darkBackground = Color(0xFFFBFBFE), // Subtle off-white background for warmth
-        headerBackground = Color(0xFFEDE7F6), // Soft lavender header - elegant and calming
-        questionBackground = Color(0xFFF5F3FF), // Ultra-light purple with hint of blue - modern
-        questionText = Color(0xFF2D1B69), // Rich deep purple - excellent readability
-        answerBackground = Color(0xFFE8DEF8), // Sophisticated light purple - premium feel
-        answerText = Color(0xFF1D192B), // Near-black with purple undertone - sharp contrast
-        buttonAccent = Color(0xFF6750A4), // Refined purple - modern Material You style
-        softWhite = Color(0xFF1C1B1F) // Rich dark text for perfect contrast
-    )
-    
-    // BLACK theme colors - Pure OLED black with deep purple accents
-    private val blackTheme = ThemeColors(
-        darkBackground = Color(0xFF000000), // True black for OLED
-        headerBackground = Color(0xFF0D0D0D), // Near-black header
-        questionBackground = Color(0xFF111111), // Barely-lifted black for questions
-        questionText = Color(0xFFE6E0E9), // Soft light text
-        answerBackground = Color(0xFF3B2D6B), // Deep purple on black
-        answerText = Color(0xFFD0BCFF), // Light lavender accent
-        buttonAccent = Color(0xFF7F39FB), // Bright purple button
-        softWhite = Color(0xFFE6E0E9) // Consistent refined light text
+        darkBackground = Palette.SurfaceDarkDeep,
+        headerBackground = Palette.SurfaceDarkElev,
+        questionBackground = Palette.QuestionBgDarkDefault,
+        questionText = Palette.OnSurfaceDark,
+        answerBackground = Palette.BrandBlue,
+        answerText = Color.White,
+        buttonAccent = Palette.BrandTeal,
+        softWhite = Palette.OnSurfaceDark
     )
 
-    // DARK theme colors - Premium deep dark with luxurious purple accents
+    // LIGHT theme - light surfaces with blue-container answer card
+    private val lightTheme = ThemeColors(
+        darkBackground = Palette.SurfaceLight,
+        headerBackground = Palette.BrandBlueContainer,
+        questionBackground = Palette.QuestionBgLight,
+        questionText = Palette.OnSurfaceLight,
+        answerBackground = Palette.BrandBlueContainer,
+        answerText = Palette.BrandBlueOnContainer,
+        buttonAccent = Palette.BrandTeal,
+        softWhite = Palette.OnSurfaceLight
+    )
+
+    // BLACK theme - OLED black with brand blue answer card
+    private val blackTheme = ThemeColors(
+        darkBackground = Palette.SurfaceBlack,
+        headerBackground = Palette.SurfaceBlackElev,
+        questionBackground = Palette.QuestionBgBlack,
+        questionText = Palette.OnSurfaceDark,
+        answerBackground = Palette.BrandBlue,
+        answerText = Color.White,
+        buttonAccent = Palette.BrandTealLight,
+        softWhite = Palette.OnSurfaceDark
+    )
+
+    // DARK theme - premium deep dark with blue-dark answer card
     private val darkTheme = ThemeColors(
-        darkBackground = Color(0xFF0F0D13), // Deep purple-black - premium feel
-        headerBackground = Color(0xFF1D1B20), // Rich dark with purple undertone
-        questionBackground = Color(0xFF2B2930), // Sophisticated dark gray with warmth
-        questionText = Color(0xFFE6E0E9), // Soft light text - easy on eyes
-        answerBackground = Color(0xFF4F378B), // Deep rich purple - luxurious
-        answerText = Color(0xFFD0BCFF), // Light lavender - premium accent
-        buttonAccent = Color(0xFF7F39FB), // Bright purple - striking contrast
-        softWhite = Color(0xFFE6E0E9) // Consistent refined light text
+        darkBackground = Palette.SurfaceDarkDeep,
+        headerBackground = Palette.SurfaceDarkElev,
+        questionBackground = Palette.QuestionBgDarkPremium,
+        questionText = Palette.OnSurfaceDark,
+        answerBackground = Palette.BrandBlueDark,
+        answerText = Color.White,
+        buttonAccent = Palette.BrandTealLight,
+        softWhite = Palette.OnSurfaceDark
     )
     
     /**

@@ -284,6 +284,7 @@
     <string name="stats_percent_suffix">%</string>
     
     <!-- Statistics screen extras - German -->
+    <string name="stats_card_states_title">Kartenstatus</string>
     <string name="stats_due_now">%1$d fällig</string>
     <string name="stats_history_title">Aktivität im Zeitverlauf</string>
     <string name="stats_history_subtitle">Letzte %1$d Tage</string>

@@ -105,7 +105,7 @@ private fun RatingButton(
         shape = SharedStyles.CornerRadius.small,
         shadowElevation = 2.dp,
         modifier = modifier
-            .height(40.dp)
+            .height(34.dp)
             .clickable(onClick = onClick)
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
