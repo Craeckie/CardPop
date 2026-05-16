@@ -47,15 +47,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.floflacards.app.R
+import com.floflacards.app.domain.usecase.RetentionData
 import com.floflacards.app.presentation.component.text.AutoSizeText
 import com.floflacards.app.presentation.viewmodel.CategoryStats
 import com.floflacards.app.presentation.viewmodel.FlashcardStats
 import com.floflacards.app.presentation.viewmodel.EnhancedOverallStats
+import kotlin.math.roundToInt
 
 private data class StateBar(val label: String, val count: Int, val color: Color)
 
 @Composable
-fun ModernStatsCardGrid(stats: EnhancedOverallStats) {
+fun ModernStatsCardGrid(stats: EnhancedOverallStats, retentionData: RetentionData? = null) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -79,6 +81,9 @@ fun ModernStatsCardGrid(stats: EnhancedOverallStats) {
                 total = stats.totalFlashcards,
                 modifier = Modifier.weight(1f)
             )
+            retentionData?.let {
+                RetentionCard(retentionData = it, modifier = Modifier.weight(1f))
+            }
         }
         CardStatesCard(
             dueNow = stats.dueNowCount,
@@ -534,6 +539,18 @@ private fun MasteredCard(
             )
         },
         progressBar = null,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun RetentionCard(retentionData: RetentionData, modifier: Modifier = Modifier) {
+    StatCard(
+        value = "${(retentionData.rate * 100).roundToInt()}%",
+        label = stringResource(R.string.stats_retention),
+        accentColor = AccentTeal,
+        backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+        icon = { Text(text = "🎯", fontSize = 14.sp) },
         modifier = modifier
     )
 }

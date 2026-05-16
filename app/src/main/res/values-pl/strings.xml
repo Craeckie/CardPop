@@ -276,6 +276,7 @@
     <string name="stats_current_streak">Obecna seria</string>
     <string name="stats_highest_streak">Najlepsza seria</string>
     <string name="stats_total_flashcards">Opanowane</string>
+    <string name="stats_retention">Retencja</string>
     <string name="stats_categories_count">Kategorie</string>
     <string name="stats_average_difficulty">Śred. trudność</string>
     <string name="stats_days_suffix">dni</string>

@@ -195,7 +195,7 @@ fun StatisticsScreen(
                         if (!isSearching) {
                             item {
                                 uiState.overallStats?.let { stats ->
-                                    ModernStatsCardGrid(stats)
+                                    ModernStatsCardGrid(stats, uiState.retentionData)
 
                                     // Add some space between the cards and category list
                                     Spacer(modifier = Modifier.height(16.dp))

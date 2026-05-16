@@ -23,6 +23,7 @@ import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.data.repository.FlashcardRepository
 import com.floflacards.app.data.source.ReviewHistoryPreferences
 import com.floflacards.app.data.source.ReviewHistoryEntry
+import com.floflacards.app.domain.usecase.RetentionData
 import com.floflacards.app.domain.usecase.StatisticsUseCase
 import com.floflacards.app.domain.usecase.SimpleStreakUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -110,6 +111,7 @@ data class ModernStatisticsUiState(
     val categoryStats: List<CategoryStats> = emptyList(),
     val reviewHistory: List<ReviewHistoryEntry> = emptyList(),
     val ratingDistribution: RatingDistribution? = null,
+    val retentionData: RetentionData? = null,
     val searchQuery: String = ""
 )
 
@@ -220,12 +222,21 @@ class StatisticsViewModel @Inject constructor(
                         easy  = allFlashcards.sumOf { it.easyCount }
                     )
 
+                    val remembered = allFlashcards.sumOf { it.correctCount + it.easyCount + it.hardCount }
+                    val forgotten  = allFlashcards.sumOf { it.incorrectCount }
+                    val totalRev   = remembered + forgotten
+                    val retentionData = RetentionData(
+                        rate = if (totalRev > 0) remembered.toFloat() / totalRev else 0f,
+                        totalReviews = totalRev
+                    ).takeIf { totalRev >= 10 }
+
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         overallStats = enhancedOverallStats,
                         categoryStats = categoryStatsList,
                         reviewHistory = historySeries,
-                        ratingDistribution = dist.takeIf { it.total > 0 }
+                        ratingDistribution = dist.takeIf { it.total > 0 },
+                        retentionData = retentionData
                     )
                 }
             } catch (e: Exception) {

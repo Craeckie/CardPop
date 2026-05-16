@@ -288,6 +288,7 @@
     <string name="stats_current_streak">Current Streak</string>
     <string name="stats_highest_streak">Highest Streak</string>
     <string name="stats_total_flashcards">Mastered</string>
+    <string name="stats_retention">Retention</string>
     <string name="stats_card_states_title">Card States</string>
     <string name="stats_due_now">%1$d due now</string>
     <string name="stats_state_new">New</string>

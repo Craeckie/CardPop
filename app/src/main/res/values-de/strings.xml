@@ -276,6 +276,7 @@
     <string name="stats_current_streak">Aktuelle Serie</string>
     <string name="stats_highest_streak">Beste Serie</string>
     <string name="stats_total_flashcards">Gemeistert</string>
+    <string name="stats_retention">Behaltensrate</string>
     <string name="stats_categories_count">Kategorien</string>
     <string name="stats_average_difficulty">Ø Schwierigkeit</string>
     <string name="stats_days_suffix">Tage</string>
