@@ -26,6 +26,7 @@ import com.cardpop.app.data.dao.FlashcardDao
 import com.cardpop.app.data.entity.CategoryEntity
 import com.cardpop.app.data.entity.FlashcardEntity
 import com.cardpop.app.data.model.AppTheme
+import com.cardpop.app.data.model.FlashcardFont
 import com.cardpop.app.data.model.FlashcardTheme
 import com.cardpop.app.data.model.Language
 import com.cardpop.app.data.repository.SettingsRepository
@@ -333,7 +334,11 @@ class BackupManager @Inject constructor(
                 appLocale = settingsRepository.getAppLocale().code,
                 targetRetention = settingsRepository.getTargetRetention(),
                 blocklist = settingsRepository.getBlocklist().toList().sorted(),
-                snoozeDurationMinutes = settingsRepository.getSnoozeDurationMinutes()
+                snoozeDurationMinutes = settingsRepository.getSnoozeDurationMinutes(),
+                flashcardFont = settingsRepository.getFlashcardFont().name,
+                customFontName = settingsRepository.customFontName.value,
+                questionFontSize = settingsRepository.questionFontSize.value,
+                answerFontSize = settingsRepository.answerFontSize.value,
             )
 
             val uiSnapshot = flashcardUiPreferences.getPercentSnapshot()
@@ -537,6 +542,10 @@ class BackupManager @Inject constructor(
                 settingsRepository.setTargetRetention(s.targetRetention)
                 settingsRepository.setBlocklist(s.blocklist.toSet())
                 settingsRepository.setSnoozeDurationMinutes(s.snoozeDurationMinutes)
+                settingsRepository.setFlashcardFont(FlashcardFont.fromString(s.flashcardFont))
+                settingsRepository.setCustomFontName(s.customFontName)
+                settingsRepository.setQuestionFontSize(s.questionFontSize)
+                settingsRepository.setAnswerFontSize(s.answerFontSize)
             }
 
             backupData.flashcardUi?.let { ui ->

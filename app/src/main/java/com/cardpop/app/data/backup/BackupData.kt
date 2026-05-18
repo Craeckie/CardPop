@@ -116,7 +116,11 @@ data class SettingsBackup(
     val appLocale: String,
     val targetRetention: Double,
     val blocklist: List<String> = emptyList(),
-    val snoozeDurationMinutes: Int
+    val snoozeDurationMinutes: Int,
+    val flashcardFont: String = "DEFAULT",
+    val customFontName: String? = null,
+    val questionFontSize: Float = 17f,
+    val answerFontSize: Float = 17f,
 )
 
 /**
