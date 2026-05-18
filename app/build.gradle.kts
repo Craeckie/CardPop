@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.floflacards.app"
+    namespace = "com.cardpop.app"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.floflacards.app"
+        applicationId = "com.cardpop.app"
         minSdk = 24
         targetSdk = 36
         versionCode = 17

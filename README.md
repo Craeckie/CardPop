@@ -8,7 +8,7 @@
 
 <h3 align="center">Passive learning with your phone! 📱</h3>
 
-> **This is a fork of [FloFla Cards](https://github.com/flofladev/floflacards) by [flofladev](https://github.com/flofladev).**  
+> **This is a fork of [FloFla Cards](https://github.com/flofladev/cardpop) by [flofladev](https://github.com/flofladev).**  
 > The original idea and base implementation are theirs. Using Claude, I implemented significant new features on top of their work.
 
 ## What is CardPop?
@@ -59,5 +59,5 @@ This project is licensed under the GNU General Public License v3.0.
 <summary><b>Click here to see the license</b></summary>
 <br>
 
-[License](https://github.com/flofladev/floflacards/blob/main/LICENSE)
+[License](https://github.com/flofladev/cardpop/blob/main/LICENSE)
 </details>

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-anki_to_floflacards.py — Convert Anki .apkg to CSV for FloFlaCards import.
+anki_to_cardpop.py — Convert Anki .apkg to CSV for CardPop import.
 
 Usage:
-    python anki_to_floflacards.py my_deck.apkg
-    python anki_to_floflacards.py my_deck.apkg -o output.csv
-    python anki_to_floflacards.py my_deck.apkg --category "HSK 1"
+    python anki_to_cardpop.py my_deck.apkg
+    python anki_to_cardpop.py my_deck.apkg -o output.csv
+    python anki_to_cardpop.py my_deck.apkg --category "HSK 1"
 
-FloFlaCards CSV format: question,answer,category
+CardPop CSV format: question,answer,category
 """
 
 import argparse

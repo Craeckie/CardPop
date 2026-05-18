@@ -92,7 +92,7 @@ jobs:
         run: |
           BUILD_TOOLS=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n1)
           UNSIGNED=app/build/outputs/apk/release/app-release-unsigned.apk
-          SIGNED=app/build/outputs/apk/release/floflacards-${VERSION_NAME}.apk
+          SIGNED=app/build/outputs/apk/release/cardpop-${VERSION_NAME}.apk
           "${BUILD_TOOLS}apksigner" sign \
             --ks "$RUNNER_TEMP/release.jks" \
             --ks-key-alias "$KEY_ALIAS" \

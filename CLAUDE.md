@@ -34,7 +34,7 @@ FloFla Cards — offline, ad-free Android flashcard app (Kotlin, minSdk 24, targ
 ./gradlew assembleRelease
 ./gradlew test                      # all unit tests
 ./gradlew lint
-./gradlew :app:testDebugUnitTest --tests "com.floflacards.app.data.csv.CsvParserTest"
+./gradlew :app:testDebugUnitTest --tests "com.cardpop.app.data.csv.CsvParserTest"
 ```
 Prefer `./gradlew assembleRelease` over `assembleDebug` unless there is a specific reason to build a debug variant.
 
