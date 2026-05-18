@@ -73,7 +73,6 @@ fun AppSettingsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToBlocklist: () -> Unit
 ) {
-    var showDonationDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     
     // Get ViewModel with SettingsRepository
@@ -346,46 +345,9 @@ fun AppSettingsScreen(
                     title = stringResource(R.string.settings_support_title),
                     subtitle = stringResource(R.string.settings_support_subtitle)
                 ) {
-                    SupportSettingItem(
-                        title = stringResource(R.string.settings_support_development_title),
-                        subtitle = stringResource(R.string.settings_support_development_subtitle),
-                        icon = Icons.Default.Favorite,
-                        onClick = { showDonationDialog = true }
-                    )
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
                     ContactDeveloperItem(
                         title = stringResource(R.string.settings_support_contact_title),
-                        subtitle = stringResource(R.string.settings_support_contact_subtitle),
-                        email = "flofladev@gmail.com"
-                    )
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    val context = LocalContext.current
-                    RateAppItem(
-                        title = stringResource(R.string.settings_support_rate_title),
-                        subtitle = stringResource(R.string.settings_support_rate_subtitle),
-                        onClick = {
-                            val packageName = context.packageName
-                            try {
-                                val intent = Intent(Intent.ACTION_VIEW).apply {
-                                    data = Uri.parse("market://details?id=$packageName")
-                                }
-                                context.startActivity(intent)
-                            } catch (e: Exception) {
-                                // If Play Store app is not available, open in browser
-                                val webIntent = Intent(Intent.ACTION_VIEW).apply {
-                                    data = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
-                                }
-                                try {
-                                    context.startActivity(webIntent)
-                                } catch (e: Exception) {
-                                    // Handle case where no browser is available
-                                }
-                            }
-                        }
+                        subtitle = stringResource(R.string.settings_support_contact_subtitle)
                     )
                 }
             }
@@ -416,14 +378,7 @@ fun AppSettingsScreen(
             }
         }
     }
-    
-    // Donation Dialog
-    if (showDonationDialog) {
-        DonationDialog(
-            onDismiss = { showDonationDialog = false }
-        )
-    }
-    
+
     // Language Selection Dialog  
     if (showLanguageDialog) {
         LanguageSelectionDialog(
@@ -509,9 +464,9 @@ private fun SupportSettingItem(
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
@@ -519,14 +474,14 @@ private fun SupportSettingItem(
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
-                
+
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
                 )
             }
-            
+
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
@@ -581,27 +536,26 @@ private fun AboutSettingItem(
 
 /**
  * Interactive contact developer item.
- * Opens email client when clicked.
+ * Opens GitHub issues page when clicked.
  * Moved to Support section for better organization and user experience.
  */
 @Composable
 private fun ContactDeveloperItem(
     title: String,
-    subtitle: String,
-    email: String
+    subtitle: String
 ) {
     val context = LocalContext.current
-    
+    val githubRepoUrl = "https://github.com/Craeckie/CardPop"
+
     Card(
         onClick = {
-            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse("mailto:$email")
-                putExtra(Intent.EXTRA_SUBJECT, "Floating Learning - Feedback")
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("$githubRepoUrl/issues")
             }
             try {
                 context.startActivity(intent)
             } catch (e: Exception) {
-                // Handle case where no email client is available
+                // Handle case where no browser is available
             }
         },
         modifier = Modifier.fillMaxWidth(),
@@ -618,14 +572,14 @@ private fun ContactDeveloperItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.Email,
+                imageVector = Icons.Default.Build,
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.onTertiaryContainer
             )
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
@@ -633,20 +587,14 @@ private fun ContactDeveloperItem(
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onTertiaryContainer
                 )
-                
+
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
                 )
-                
-                Text(
-                    text = email,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
-                )
             }
-            
+
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
@@ -812,65 +760,6 @@ fun FlashcardFontPickerItem(
 
         OutlinedButton(onClick = onLoadFont) {
             Text(stringResource(R.string.flashcard_font_load_button))
-        }
-    }
-}
-
-/**
- * Rate app item that redirects to a random app on Play Store.
- * Temporary solution until our app is published on Play Store.
- */
-@Composable
-fun RateAppItem(
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit
-) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Star,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-                
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
-                )
-            }
-            
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)
-            )
         }
     }
 }
