@@ -23,6 +23,7 @@ import android.net.Uri
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -84,6 +85,26 @@ fun AppSettingsScreen(
     val currentFlashcardFont by viewModel.flashcardFont.collectAsState()
     val customFontName by viewModel.customFontName.collectAsState()
     val currentLanguage: Language by viewModel.appLocale.collectAsState()
+
+    val reviewLogMessage by viewModel.reviewLogMessage.collectAsState()
+    val context = LocalContext.current
+    LaunchedEffect(reviewLogMessage) {
+        reviewLogMessage?.let { msg ->
+            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+            viewModel.clearReviewLogMessage()
+        }
+    }
+
+    val reviewExportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/csv")
+    ) { uri -> uri?.let { viewModel.exportReviewLog(it) } }
+
+    val reviewImportMimeTypes = arrayOf(
+        "text/csv", "text/comma-separated-values", "text/*", "application/octet-stream"
+    )
+    val reviewImportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri -> uri?.let { viewModel.importReviewLog(it) } }
 
     val fontFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -323,6 +344,24 @@ fun AppSettingsScreen(
                         retention = currentTargetRetention,
                         actualRetention = currentActualRetention,
                         onRetentionChange = { viewModel.setTargetRetention(it) }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    SupportSettingItem(
+                        title = stringResource(R.string.review_export_title),
+                        subtitle = stringResource(R.string.review_export_subtitle),
+                        icon = Icons.Default.FileDownload,
+                        onClick = { reviewExportLauncher.launch("cardpop_reviews.csv") }
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    SupportSettingItem(
+                        title = stringResource(R.string.review_import_title),
+                        subtitle = stringResource(R.string.review_import_subtitle),
+                        icon = Icons.Default.FileUpload,
+                        onClick = { reviewImportLauncher.launch(reviewImportMimeTypes) }
                     )
                 }
             }

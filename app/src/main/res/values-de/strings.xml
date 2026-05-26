@@ -499,6 +499,16 @@
     <string name="settings_actual_retention_value">%1$d%% (aus %2$d Wiederholungen)</string>
     <string name="settings_actual_retention_empty">Noch nicht genug Wiederholungen</string>
 
+    <!-- Review log export/import -->
+    <string name="review_export_title">Wiederholungsverlauf exportieren</string>
+    <string name="review_export_subtitle">Deine Karten und Fortschritte sind bereits im normalen Backup gespeichert. Dies exportiert deinen detaillierten Wiederholungsverlauf (CSV) für die FSRS-Analyse.</string>
+    <string name="review_export_success">%1$d Wiederholungen exportiert</string>
+    <string name="review_export_failed">Export fehlgeschlagen: %1$s</string>
+    <string name="review_import_title">Wiederholungsverlauf importieren</string>
+    <string name="review_import_subtitle">Stelle einen zuvor exportierten Wiederholungsverlauf-CSV wieder her (z. B. nach Neuinstallation oder Gerätewechsel).</string>
+    <string name="review_import_success">%1$d Wiederholungen importiert</string>
+    <string name="review_import_failed">Import fehlgeschlagen: %1$s</string>
+
     <!-- Snooze feature - German -->
     <string name="settings_snooze_duration_title">Schlummerdauer</string>
     <string name="settings_snooze_duration_description">Wie lange Lernkarten pausiert werden, wenn du den Schlummer-Button auf einer Karte tippst</string>

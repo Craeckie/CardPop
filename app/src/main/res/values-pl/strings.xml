@@ -445,6 +445,16 @@
     <string name="settings_actual_retention_value">%1$d%% (z %2$d powtórek)</string>
     <string name="settings_actual_retention_empty">Za mało powtórek</string>
 
+    <!-- Review log export/import -->
+    <string name="review_export_title">Eksportuj historię powtórek</string>
+    <string name="review_export_subtitle">Twoje karty i postęp są już zapisane w zwykłej kopii zapasowej. To eksportuje szczegółową historię powtórek (CSV) do analizy FSRS.</string>
+    <string name="review_export_success">Wyeksportowano %1$d powtórek</string>
+    <string name="review_export_failed">Eksport nie powiódł się: %1$s</string>
+    <string name="review_import_title">Importuj historię powtórek</string>
+    <string name="review_import_subtitle">Przywróć CSV historii powtórek wyeksportowany wcześniej (np. po reinstalacji lub zmianie urządzenia).</string>
+    <string name="review_import_success">Zaimportowano %1$d powtórek</string>
+    <string name="review_import_failed">Import nie powiódł się: %1$s</string>
+
     <!-- Snooze feature - Polish -->
     <string name="settings_snooze_duration_title">Czas drzemki</string>
     <string name="settings_snooze_duration_description">Jak długo wstrzymać wyskakujące fiszki po naciśnięciu przycisku drzemki</string>

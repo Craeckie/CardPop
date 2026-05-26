@@ -188,6 +188,16 @@
     <string name="settings_actual_retention_value">%1$d%% (from %2$d reviews)</string>
     <string name="settings_actual_retention_empty">Not enough reviews yet</string>
 
+    <!-- Review log export/import -->
+    <string name="review_export_title">Export review history</string>
+    <string name="review_export_subtitle">Your cards and progress are already saved in the normal backup. This exports your detailed review history (CSV) for FSRS analysis.</string>
+    <string name="review_export_success">Exported %1$d reviews</string>
+    <string name="review_export_failed">Export failed: %1$s</string>
+    <string name="review_import_title">Import review history</string>
+    <string name="review_import_subtitle">Restore a review-history CSV exported earlier (e.g. after reinstalling or switching devices).</string>
+    <string name="review_import_success">Imported %1$d reviews</string>
+    <string name="review_import_failed">Import failed: %1$s</string>
+
     <!-- Overlay behavior section -->
     <string name="settings_overlay_behavior_title">Overlay behavior</string>
     <string name="settings_overlay_behavior_subtitle">Control when flashcards appear</string>

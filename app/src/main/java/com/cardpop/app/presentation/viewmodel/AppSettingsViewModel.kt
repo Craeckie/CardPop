@@ -24,6 +24,7 @@ import android.os.Build
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.util.Log
+import com.cardpop.app.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cardpop.app.data.repository.FlashcardRepository
@@ -34,6 +35,8 @@ import com.cardpop.app.data.model.FlashcardTheme
 import com.cardpop.app.data.model.Language
 import com.cardpop.app.domain.usecase.RetentionData
 import com.cardpop.app.domain.usecase.StatisticsUseCase
+import com.cardpop.app.domain.usecase.csv.ExportReviewLogUseCase
+import com.cardpop.app.domain.usecase.csv.ImportReviewLogUseCase
 import com.cardpop.app.service.OverlayService
 import com.cardpop.app.util.IntervalConstants
 import com.cardpop.app.util.PermissionHelper
@@ -62,8 +65,51 @@ class AppSettingsViewModel @Inject constructor(
     private val repository: FlashcardRepository,
     private val settingsManager: SettingsRepository,
     private val permissionHelper: PermissionHelper,
-    private val statisticsUseCase: StatisticsUseCase
+    private val statisticsUseCase: StatisticsUseCase,
+    private val exportReviewLogUseCase: ExportReviewLogUseCase,
+    private val importReviewLogUseCase: ImportReviewLogUseCase
 ) : ViewModel() {
+
+    private val _reviewLogMessage = MutableStateFlow<String?>(null)
+    val reviewLogMessage: StateFlow<String?> = _reviewLogMessage.asStateFlow()
+
+    fun clearReviewLogMessage() {
+        _reviewLogMessage.value = null
+    }
+
+    fun exportReviewLog(uri: Uri) {
+        viewModelScope.launch {
+            val result: Result<Int> = withContext(Dispatchers.IO) {
+                try {
+                    appContext.contentResolver.openOutputStream(uri)!!.use { out ->
+                        exportReviewLogUseCase(out)
+                    }
+                } catch (e: Exception) {
+                    Result.failure(e)
+                }
+            }
+            result
+                .onSuccess { count -> _reviewLogMessage.value = appContext.getString(R.string.review_export_success, count) }
+                .onFailure { e -> _reviewLogMessage.value = appContext.getString(R.string.review_export_failed, e.localizedMessage ?: e.javaClass.simpleName) }
+        }
+    }
+
+    fun importReviewLog(uri: Uri) {
+        viewModelScope.launch {
+            val result: Result<Int> = withContext(Dispatchers.IO) {
+                try {
+                    appContext.contentResolver.openInputStream(uri)!!.use { input ->
+                        importReviewLogUseCase(input)
+                    }
+                } catch (e: Exception) {
+                    Result.failure(e)
+                }
+            }
+            result
+                .onSuccess { count -> _reviewLogMessage.value = appContext.getString(R.string.review_import_success, count) }
+                .onFailure { e -> _reviewLogMessage.value = appContext.getString(R.string.review_import_failed, e.localizedMessage ?: e.javaClass.simpleName) }
+        }
+    }
 
     private val _hasNotificationPermission = MutableStateFlow(false)
     val hasNotificationPermission: StateFlow<Boolean> = _hasNotificationPermission.asStateFlow()
