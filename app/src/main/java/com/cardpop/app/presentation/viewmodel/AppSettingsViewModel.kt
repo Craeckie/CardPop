@@ -18,8 +18,11 @@
 package com.cardpop.app.presentation.viewmodel
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.OpenableColumns
+import android.provider.Settings
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -62,8 +65,30 @@ class AppSettingsViewModel @Inject constructor(
     private val statisticsUseCase: StatisticsUseCase
 ) : ViewModel() {
 
+    private val _hasNotificationPermission = MutableStateFlow(false)
+    val hasNotificationPermission: StateFlow<Boolean> = _hasNotificationPermission.asStateFlow()
+
+    private val _hasOverlayPermission = MutableStateFlow(false)
+    val hasOverlayPermission: StateFlow<Boolean> = _hasOverlayPermission.asStateFlow()
+
     init {
         refreshActualRetention()
+        refreshPermissions()
+    }
+
+    fun refreshPermissions() {
+        _hasNotificationPermission.value = permissionHelper.hasNotificationPermission()
+        _hasOverlayPermission.value = permissionHelper.hasOverlayPermission()
+    }
+
+    fun requestOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
+                data = Uri.parse("package:${appContext.packageName}")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            appContext.startActivity(intent)
+        }
     }
     
     /**

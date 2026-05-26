@@ -9,7 +9,7 @@
     <string name="welcome_intro_features_title">Was es besonders macht:</string>
     <string name="welcome_intro_feature_anki">📦 Beliebige Anki-Decks von AnkiWeb.net importieren</string>
     <string name="welcome_intro_feature_fsrs">🧠 FSRS v6 – modernster Spaced-Repetition-Algorithmus</string>
-    <string name="welcome_intro_button">Zeig mir, wie!</string>
+    <string name="welcome_intro_button">Sprache auswählen</string>
     
     <!-- Privacy Step -->
     <string name="welcome_privacy_title">Deine Daten. Deine Kontrolle. 🔒</string>
@@ -20,6 +20,7 @@
     <!-- Backup Folder Step -->
     <string name="welcome_backup_title">Backup-Ordner 📁</string>
     <string name="welcome_backup_description">Wähle einen Ordner für deine Backup-Dateien. So bleiben deine Daten auch bei einer Neuinstallation erhalten.</string>
+    <string name="welcome_backup_restore_hint">💡 Wähle den Ordner mit einem vorhandenen Backup, um deine Daten im nächsten Schritt wiederherzustellen.</string>
     <string name="welcome_backup_benefits_title">Die Vorteile:</string>
     <string name="welcome_backup_benefit_1">💾 Automatische Backup-Erstellung</string>
     <string name="welcome_backup_benefit_2">🔄 Daten überleben App-Neuinstallation</string>
@@ -88,7 +89,29 @@
     <string name="welcome_progress_overlay">Overlay</string>
     <string name="welcome_progress_battery">Akku</string>
     <string name="welcome_progress_backup_check">Backup</string>
-    
+    <string name="welcome_progress_permissions">Berechtigungen</string>
+    <string name="welcome_progress_usage">App-Zugriff</string>
+
+    <string name="welcome_button_back">Zurück</string>
+
+    <string name="welcome_permissions_title">Zuverlässige Popups 🔔⚡</string>
+    <string name="welcome_permissions_description">Zwei Berechtigungen sorgen dafür, dass Lernkarten-Popups zuverlässig erscheinen. Die Akku-Optimierung verhindert, dass die App im Hintergrund beendet wird; Benachrichtigungen ermöglichen die Anzeige der Popup-Karte.</string>
+    <string name="welcome_permissions_notification_granted">Benachrichtigungen aktiviert! ✅</string>
+    <string name="welcome_permissions_notification_required">Benachrichtigungen für zuverlässige Popups nötig 🔔</string>
+    <string name="welcome_permissions_button_battery">Akku-Optimierung deaktivieren</string>
+    <string name="welcome_permissions_button_notification">Benachrichtigungen erlauben</string>
+    <string name="welcome_permissions_button_continue">Weiter</string>
+    <string name="welcome_permissions_button_skip">Überspringen</string>
+
+    <string name="welcome_usage_title">App-Blockliste 🔍</string>
+    <string name="welcome_usage_description">Ermöglicht CardPop zu erkennen, welche App im Vordergrund ist, und Lernkarten-Popups zu unterdrücken, während bestimmte Apps geöffnet sind – ideal beim Spielen, in Videokonferenzen oder bei Präsentationen.</string>
+    <string name="welcome_usage_optional">Optional – du kannst dies später in Einstellungen → App-Blockliste aktivieren.</string>
+    <string name="welcome_usage_granted">Nutzungszugriff erteilt! ✅</string>
+    <string name="welcome_usage_required">Nutzungszugriff nicht erteilt 🔍</string>
+    <string name="welcome_usage_button_grant">Zugriff erteilen</string>
+    <string name="welcome_usage_button_continue">Weiter</string>
+    <string name="welcome_usage_button_skip">Überspringen</string>
+
     <!-- App Settings Screen - German (meaning-focused translations) -->
     <!-- Main sections -->
     <string name="settings_title">Einstellungen</string>
@@ -139,6 +162,13 @@
     <!-- Permissions section -->
     <string name="settings_permissions_title">Berechtigungen</string>
     <string name="settings_permissions_subtitle">App-Berechtigungen und -Optimierungen verwalten</string>
+    <string name="settings_notification_title">Benachrichtigungen</string>
+    <string name="settings_notification_granted">Erlaubt ✅</string>
+    <string name="settings_notification_required">Nicht erlaubt — du erhältst keine Hinweise 🔔</string>
+    <string name="settings_notification_button">Benachrichtigungen erlauben</string>
+    <string name="settings_overlay_permission_title">Overlay-Berechtigung</string>
+    <string name="settings_overlay_permission_subtitle">Erforderlich für Karten-Popups</string>
+    <string name="settings_overlay_permission_button">Berechtigung erteilen</string>
 
     <!-- Overlay behavior section -->
     <string name="settings_overlay_behavior_title">Overlay-Verhalten</string>

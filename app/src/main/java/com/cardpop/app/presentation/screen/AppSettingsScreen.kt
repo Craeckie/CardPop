@@ -17,6 +17,12 @@
 
 package com.cardpop.app.presentation.screen
 
+import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -42,10 +48,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.cardpop.app.domain.usecase.RetentionData
-import android.content.Intent
-import android.net.Uri
-import android.content.Context
-import android.content.pm.PackageManager
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import com.cardpop.app.data.model.AppTheme
@@ -86,6 +88,9 @@ fun AppSettingsScreen(
     val fontFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri -> uri?.let { viewModel.setCustomFont(it) } }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { viewModel.refreshPermissions() }
     val currentTargetRetention by viewModel.targetRetention.collectAsState()
     val currentActualRetention by viewModel.actualRetention.collectAsState()
     val currentFlashcardOpacity by viewModel.flashcardOpacity.collectAsState()
@@ -93,14 +98,16 @@ fun AppSettingsScreen(
     val currentAnswerFontSize by viewModel.answerFontSize.collectAsState()
     val currentSnoozeDuration by viewModel.snoozeDurationMinutes.collectAsState()
     val currentIntervalMinutes by viewModel.intervalMinutes.collectAsState()
+    val hasNotificationPermission by viewModel.hasNotificationPermission.collectAsState()
+    val hasOverlayPermission by viewModel.hasOverlayPermission.collectAsState()
 
-    // Refresh the actual-retention readout whenever the screen comes back into
-    // the foreground — the user may have rated cards via the overlay since the
-    // VM was created.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) viewModel.refreshActualRetention()
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshActualRetention()
+                viewModel.refreshPermissions()
+            }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
@@ -285,14 +292,23 @@ fun AppSettingsScreen(
                 }
             }
 
-            // Permissions section - SECOND section as requested
+            // Permissions section
             item {
                 AppSettingsSection(
                     title = stringResource(R.string.settings_permissions_title),
                     subtitle = stringResource(R.string.settings_permissions_subtitle)
                 ) {
-                    BatteryOptimizationSettingItem(
-                        viewModel = viewModel
+                    BatteryOptimizationSettingItem(viewModel = viewModel)
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    NotificationPermissionSettingItem(
+                        hasPermission = hasNotificationPermission,
+                        onRequestPermission = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                        }
                     )
                 }
             }
@@ -311,7 +327,7 @@ fun AppSettingsScreen(
                 }
             }
 
-            // Overlay behavior section — interval, snooze duration, test popup, app blocklist
+            // Overlay behavior section — interval, snooze duration, app blocklist
             item {
                 AppSettingsSection(
                     title = stringResource(R.string.settings_overlay_behavior_title),
@@ -331,12 +347,21 @@ fun AppSettingsScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    SupportSettingItem(
-                        title = stringResource(R.string.settings_blocklist_title),
-                        subtitle = stringResource(R.string.settings_blocklist_subtitle),
-                        icon = Icons.Default.Warning,
-                        onClick = onNavigateToBlocklist
-                    )
+                    if (hasOverlayPermission) {
+                        SupportSettingItem(
+                            title = stringResource(R.string.settings_blocklist_title),
+                            subtitle = stringResource(R.string.settings_blocklist_subtitle),
+                            icon = Icons.Default.Warning,
+                            onClick = onNavigateToBlocklist
+                        )
+                    } else {
+                        SupportSettingItem(
+                            title = stringResource(R.string.settings_overlay_permission_title),
+                            subtitle = stringResource(R.string.settings_overlay_permission_subtitle),
+                            icon = Icons.Default.Warning,
+                            onClick = { viewModel.requestOverlayPermission() }
+                        )
+                    }
                 }
             }
             
@@ -1124,11 +1149,60 @@ private fun SnoozeDurationSettingItem(
     }
 }
 
-/**
- * Get app version from PackageManager.
- * Follows SOLID principles - Single Responsibility for version retrieval.
- * Uses Android best practices for dynamic version access.
- */
+@Composable
+private fun NotificationPermissionSettingItem(
+    hasPermission: Boolean,
+    onRequestPermission: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.settings_notification_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = if (hasPermission) stringResource(R.string.settings_notification_granted)
+                               else stringResource(R.string.settings_notification_required),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            if (!hasPermission) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = onRequestPermission,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.settings_notification_button))
+                }
+            }
+        }
+    }
+}
+
 private fun getAppVersion(context: Context): String {
     return try {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)

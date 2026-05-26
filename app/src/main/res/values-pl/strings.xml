@@ -9,7 +9,7 @@
     <string name="welcome_intro_features_title">Co go wyróżnia:</string>
     <string name="welcome_intro_feature_anki">📦 Importuj dowolną talię Anki z AnkiWeb.net</string>
     <string name="welcome_intro_feature_fsrs">🧠 FSRS v6 — najnowocześniejszy algorytm powtórek</string>
-    <string name="welcome_intro_button">Pokaż mi jak!</string>
+    <string name="welcome_intro_button">Wybierz język</string>
     
     <!-- Privacy Step -->
     <string name="welcome_privacy_title">Twoje dane. Twoja kontrola. 🔒</string>
@@ -20,6 +20,7 @@
     <!-- Backup Folder Step -->
     <string name="welcome_backup_title">Folder kopii zapasowej 📁</string>
     <string name="welcome_backup_description">Wybierz folder, w którym będą przechowywane Twoje kopie zapasowe. Dzięki temu dane przetrwają nawet reinstalację aplikacji.</string>
+    <string name="welcome_backup_restore_hint">💡 Wybierz folder z istniejącą kopią zapasową, aby przywrócić poprzednie dane w następnym kroku.</string>
     <string name="welcome_backup_benefits_title">Główne korzyści:</string>
     <string name="welcome_backup_benefit_1">💾 Automatyczne tworzenie kopii zapasowych</string>
     <string name="welcome_backup_benefit_2">🔄 Dane przetrwają reinstalację aplikacji</string>
@@ -88,7 +89,29 @@
     <string name="welcome_progress_overlay">Nakładka</string>
     <string name="welcome_progress_battery">Bateria</string>
     <string name="welcome_progress_backup_check">Kopia zapasowa</string>
-    
+    <string name="welcome_progress_permissions">Uprawnienia</string>
+    <string name="welcome_progress_usage">Dostęp do aplikacji</string>
+
+    <string name="welcome_button_back">Wróć</string>
+
+    <string name="welcome_permissions_title">Niezawodne popupy 🔔⚡</string>
+    <string name="welcome_permissions_description">Dwa uprawnienia zapewniają niezawodne wyświetlanie fiszek. Wyłączenie optymalizacji baterii zapobiega zamykaniu aplikacji w tle; powiadomienia umożliwiają wyświetlanie karty popup.</string>
+    <string name="welcome_permissions_notification_granted">Powiadomienia włączone! ✅</string>
+    <string name="welcome_permissions_notification_required">Powiadomienia potrzebne dla niezawodnych popupów 🔔</string>
+    <string name="welcome_permissions_button_battery">Wyłącz optymalizację baterii</string>
+    <string name="welcome_permissions_button_notification">Zezwól na powiadomienia</string>
+    <string name="welcome_permissions_button_continue">Dalej</string>
+    <string name="welcome_permissions_button_skip">Pomiń</string>
+
+    <string name="welcome_usage_title">Dostęp do listy blokowanych 🔍</string>
+    <string name="welcome_usage_description">Pozwala CardPop wykrywać, która aplikacja jest na pierwszym planie i ukrywać popupy z fiszkami, gdy określone aplikacje są otwarte — idealne do gier, rozmów wideo czy prezentacji.</string>
+    <string name="welcome_usage_optional">Opcjonalne — możesz to włączyć później w Ustawienia → Lista blokowanych.</string>
+    <string name="welcome_usage_granted">Dostęp do użycia przyznany! ✅</string>
+    <string name="welcome_usage_required">Dostęp do użycia nieprzyznany 🔍</string>
+    <string name="welcome_usage_button_grant">Przyznaj dostęp</string>
+    <string name="welcome_usage_button_continue">Dalej</string>
+    <string name="welcome_usage_button_skip">Pomiń</string>
+
     <!-- App Settings Screen - Polish (natural and user-friendly) -->
     <!-- Main sections -->
     <string name="settings_title">Ustawienia</string>
@@ -139,6 +162,13 @@
     <!-- Permissions section -->
     <string name="settings_permissions_title">Uprawnienia</string>
     <string name="settings_permissions_subtitle">Zarządzaj uprawnieniami i optymalizacją aplikacji</string>
+    <string name="settings_notification_title">Powiadomienia</string>
+    <string name="settings_notification_granted">Dozwolone ✅</string>
+    <string name="settings_notification_required">Niedozwolone — nie otrzymasz alertów 🔔</string>
+    <string name="settings_notification_button">Zezwól na powiadomienia</string>
+    <string name="settings_overlay_permission_title">Uprawnienie nakładki</string>
+    <string name="settings_overlay_permission_subtitle">Wymagane do wyświetlania popupów z fiszkami</string>
+    <string name="settings_overlay_permission_button">Przyznaj uprawnienie</string>
 
     <!-- Overlay behavior section -->
     <string name="settings_overlay_behavior_title">Zachowanie nakładki</string>
