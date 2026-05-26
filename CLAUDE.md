@@ -19,7 +19,7 @@ When asked to create a release:
    - Smaller changes and bug fixes second
    - Use emojis to make entries engaging (e.g. ✨ for new features, 🐛 for bug fixes, 🎨 for visual changes, ⚡ for performance, 🌍 for translations, 🔧 for settings/config changes)
    - Omit anything invisible to users (refactors, CI, internal architecture)
-   - Note: `fastlane/metadata/android/de-DE/changelogs/` exists but is often outdated; ask the user whether to add a German changelog.
+   - Do not add a German changelog and do not ask about it.
 5. **Run the test suite** (`./gradlew test`) and fix any failures before proceeding.
 6. **Commit** both changed files (`app/build.gradle.kts` and the new changelog), then **tag** the commit: `git tag v{versionName}`.
 
