@@ -1,0 +1,6 @@
+Version 2.2.2
+
+🐛 Fix double popup when the interval fires while one is already showing
+🐛 Stable popup size and on-screen drag grip across orientation changes
+🔧 Font settings are now included in backup and restore
+🐛 Feedback link now points to GitHub Issues
