@@ -210,14 +210,19 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
         try {
             val flashcard = intent?.let { extractFlashcardFromIntent(it) }
             if (flashcard != null) {
+                if (::overlayManager.isInitialized && overlayManager.isOverlayActive()) {
+                    Log.d(TAG, "Overlay already showing; ignoring new flashcard request")
+                    return START_NOT_STICKY
+                }
+
                 this.flashcard = flashcard
-                
+
                 // Mark demo as running if this is a demo flashcard
                 if (flashcard.id == -1L) {
                     settingsManager.setDemoRunning(true)
                     Log.d(TAG, "Demo flashcard started, marked as running")
                 }
-                
+
                 showOverlay(flashcard)
             } else {
                 Log.e(TAG, "No flashcard data in intent")
