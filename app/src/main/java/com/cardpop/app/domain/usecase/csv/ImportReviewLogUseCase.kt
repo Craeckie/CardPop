@@ -27,7 +27,7 @@ class ImportReviewLogUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(input: InputStream): Result<Int> = runCatching {
         var text = input.bufferedReader(Charsets.UTF_8).readText()
-        if (text.startsWith("﻿")) text = text.substring(1)
+        if (text.startsWith("\uFEFF")) text = text.substring(1)
 
         val lines = text.lines().filter { it.isNotBlank() }
         val dataLines = if (lines.isNotEmpty() && !lines[0].first().isDigit()) {
