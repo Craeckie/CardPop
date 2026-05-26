@@ -1,0 +1,9 @@
+## ✨ New Features
+- 📊 Export your full review history as a CSV file compatible with the FSRS optimizer
+- 📥 Import a previously exported review log (duplicate entries are ignored)
+- ⏱️ Added 2, 3, and 4 minute options to the review interval slider
+
+## 🐛 Fixes
+- 🔒 Review log entries are now always saved, even when the app closes faster than the backup write completes
+
+**Full Changelog**: https://github.com/Craeckie/CardPop/compare/v2.3.0...v2.4.0
