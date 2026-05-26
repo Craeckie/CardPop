@@ -23,18 +23,21 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.cardpop.app.data.dao.CategoryDao
 import com.cardpop.app.data.dao.FlashcardDao
+import com.cardpop.app.data.dao.ReviewLogDao
 import com.cardpop.app.data.entity.CategoryEntity
 import com.cardpop.app.data.entity.FlashcardEntity
+import com.cardpop.app.data.entity.ReviewLogEntity
 
 @Database(
-    entities = [CategoryEntity::class, FlashcardEntity::class],
-    version = 8,
+    entities = [CategoryEntity::class, FlashcardEntity::class, ReviewLogEntity::class],
+    version = 9,
     exportSchema = true
 )
 abstract class FloatingLearningDatabase : RoomDatabase() {
-    
+
     abstract fun categoryDao(): CategoryDao
     abstract fun flashcardDao(): FlashcardDao
+    abstract fun reviewLogDao(): ReviewLogDao
     
     companion object {
         const val DATABASE_NAME = "floating_learning_database"
@@ -172,6 +175,30 @@ abstract class FloatingLearningDatabase : RoomDatabase() {
             }
         }
         
+        // Migration to add append-only review_log table for FSRS optimizer data capture.
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS review_log (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        flashcardId INTEGER NOT NULL,
+                        reviewedAt INTEGER NOT NULL,
+                        rating INTEGER NOT NULL,
+                        stateBefore INTEGER NOT NULL
+                    )
+                """)
+                database.execSQL("""
+                    CREATE UNIQUE INDEX IF NOT EXISTS
+                    index_review_log_flashcardId_reviewedAt_rating_stateBefore
+                    ON review_log(flashcardId, reviewedAt, rating, stateBefore)
+                """)
+                database.execSQL("""
+                    CREATE INDEX IF NOT EXISTS index_review_log_reviewedAt
+                    ON review_log(reviewedAt)
+                """)
+            }
+        }
+
         // Migration to clean up schema and remove old fields
         val MIGRATION_5_6 = object : Migration(5, 6) {
             override fun migrate(database: SupportSQLiteDatabase) {

@@ -17,7 +17,9 @@
 
 package com.cardpop.app.domain.usecase
 
+import com.cardpop.app.data.dao.ReviewLogDao
 import com.cardpop.app.data.entity.FlashcardEntity
+import com.cardpop.app.data.entity.ReviewLogEntity
 import com.cardpop.app.data.repository.FlashcardRepository
 import com.cardpop.app.data.repository.SettingsRepository
 import com.cardpop.app.data.source.ReviewHistoryPreferences
@@ -36,7 +38,8 @@ import javax.inject.Singleton
 class SrsUseCase @Inject constructor(
     private val repository: FlashcardRepository,
     private val settingsManager: SettingsRepository,
-    private val reviewHistory: ReviewHistoryPreferences
+    private val reviewHistory: ReviewHistoryPreferences,
+    private val reviewLogDao: ReviewLogDao
 ) {
     private fun fsrs(): Fsrs = Fsrs(
         requestRetention = settingsManager.getTargetRetention(),
@@ -84,6 +87,17 @@ class SrsUseCase @Inject constructor(
             )
 
             repository.updateFlashcard(updatedFlashcard)
+
+            if (flashcard.id > 0) {
+                reviewLogDao.insert(
+                    ReviewLogEntity(
+                        flashcardId = flashcard.id,
+                        reviewedAt = now,
+                        rating = fsrsRating.value,
+                        stateBefore = flashcard.state
+                    )
+                )
+            }
 
             // Record this review in the daily history so the Statistics chart
             // can plot reviews-per-day and the running mastered total. Snapshot

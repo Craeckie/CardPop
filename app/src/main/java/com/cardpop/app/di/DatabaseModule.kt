@@ -22,6 +22,7 @@ import android.content.SharedPreferences
 import androidx.room.Room
 import com.cardpop.app.data.dao.CategoryDao
 import com.cardpop.app.data.dao.FlashcardDao
+import com.cardpop.app.data.dao.ReviewLogDao
 import com.cardpop.app.data.database.FloatingLearningDatabase
 import com.cardpop.app.util.PermissionHelper
 import com.cardpop.app.data.source.ImageManager
@@ -51,7 +52,8 @@ object DatabaseModule {
             FloatingLearningDatabase.MIGRATION_4_5,
             FloatingLearningDatabase.MIGRATION_5_6,
             FloatingLearningDatabase.MIGRATION_6_7,
-            FloatingLearningDatabase.MIGRATION_7_8
+            FloatingLearningDatabase.MIGRATION_7_8,
+            FloatingLearningDatabase.MIGRATION_8_9
         )
         .build()
     }
@@ -64,6 +66,11 @@ object DatabaseModule {
     @Provides
     fun provideFlashcardDao(database: FloatingLearningDatabase): FlashcardDao {
         return database.flashcardDao()
+    }
+
+    @Provides
+    fun provideReviewLogDao(database: FloatingLearningDatabase): ReviewLogDao {
+        return database.reviewLogDao()
     }
     
     @Provides
