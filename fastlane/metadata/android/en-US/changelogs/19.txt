@@ -1,12 +1,15 @@
-Version 2.3.0
+## 🔐 Permissions
 
-✨ Onboarding wizard now includes notification permission and usage access steps
-🔧 Settings shows notification permission status with a quick grant button
-🔧 Settings shows overlay permission grant button when overlay access is missing
-🐛 Battery optimization setting now shows a check mark when disabled
+- 🧭 Onboarding wizard now guides you through notification and usage access permissions step by step
+- 🔔 Settings shows notification permission status with a quick **Allow** button
+- 🪟 Settings shows a **Grant Overlay Permission** button when overlay access is missing
 
-Also in this release (previously shipped as v2.2.2):
-🐛 Fix double popup when the interval fires while one is already showing
-🐛 Stable popup size and on-screen drag grip across orientation changes
-🔧 Font settings are now included in backup and restore
-🐛 Feedback link now points to GitHub Issues
+## 🐛 Fixes
+
+- ✅ Battery optimization setting now shows a check mark when disabled
+- 🔇 Fix double popup when the interval fires while one is already showing
+- 📐 Stable popup size and on-screen drag grip across orientation changes
+- 💾 Font settings are now included in backup and restore
+- 🔗 Feedback link now points to GitHub Issues
+
+**Full Changelog**: https://github.com/Craeckie/CardPop/compare/v2.2.2...v2.3.0

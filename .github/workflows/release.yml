@@ -106,10 +106,16 @@ jobs:
           "${BUILD_TOOLS}apksigner" verify "$SIGNED"
           echo "APK_PATH=$SIGNED" >> "$GITHUB_ENV"
 
+      - name: Resolve changelog
+        id: changelog
+        run: |
+          VERSION_CODE=$(grep 'versionCode' app/build.gradle.kts | grep -o '[0-9]*')
+          echo "path=fastlane/metadata/android/en-US/changelogs/${VERSION_CODE}.txt" >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           name: ${{ steps.version.outputs.tag }}
-          generate_release_notes: true
+          body_path: ${{ steps.changelog.outputs.path }}
           files: ${{ env.APK_PATH }}

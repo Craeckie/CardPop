@@ -13,12 +13,11 @@ When asked to create a release:
 1. **Find the last tag**: `git tag --sort=-version:refname | head -5`. Tags follow the format `v{versionName}` (e.g. `v2.1.0`).
 2. **Inspect commits since that tag**: `git log {last-tag}..HEAD --oneline`. Ignore `chore:` commits about CLAUDE.md, CI, dependency bumps, and internal refactors — only keep what users would notice.
 3. **Bump the version** in `app/build.gradle.kts` (both `versionCode` +1 and `versionName`). Never bump the major version unless explicitly instructed. Bump the minor version for new features or changes users would notice (new UI element, changed font, moved setting, new option). Bump the patch version for bug fixes and small tweaks (e.g. slightly adjusted font size, minor layout fix).
-4. **Write a changelog** at `fastlane/metadata/android/en-US/changelogs/{versionCode}.txt` in this order:
-   - Header line: `Version {versionName}`
-   - New features and major visible changes first (new screens, new settings, visual overhauls, changed fonts, moved controls)
-   - Smaller changes and bug fixes second
-   - Use emojis to make entries engaging (e.g. ✨ for new features, 🐛 for bug fixes, 🎨 for visual changes, ⚡ for performance, 🌍 for translations, 🔧 for settings/config changes)
-   - Omit anything invisible to users (refactors, CI, internal architecture)
+4. **Write a changelog** at `fastlane/metadata/android/en-US/changelogs/{versionCode}.txt` using markdown:
+   - Group changes under `## emoji Heading` sections (e.g. `## ✨ New Features`, `## 🐛 Fixes`, `## 🔧 Settings`). Pick headings that fit the actual changes — don't force a fixed set.
+   - Each entry is a bullet with an emoji prefix (✨ new feature, 🐛 fix, 🎨 visual, ⚡ performance, 🌍 translation, 🔧 config/settings, 📐 layout, 💾 data, 🔗 links, etc.)
+   - End with a `**Full Changelog**: https://github.com/Craeckie/CardPop/compare/{prev-tag}...{new-tag}` line.
+   - Omit anything invisible to users (refactors, CI, internal architecture).
    - Do not add a German changelog and do not ask about it.
 5. **Run the test suite** (`./gradlew test`) and fix any failures before proceeding.
 6. **Commit** both changed files (`app/build.gradle.kts` and the new changelog), then **tag** the commit: `git tag v{versionName}`.
