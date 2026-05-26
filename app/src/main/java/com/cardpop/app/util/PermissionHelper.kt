@@ -65,5 +65,9 @@ class PermissionHelper(private val context: Context) {
             context.startActivity(intent)
         }
     }
-    
+
+    fun hasUsageAccess(): Boolean = UsageStatsHelper.hasAccess(context)
+
+    fun requestUsageAccess() = UsageStatsHelper.requestAccess(context)
+
 }

@@ -89,7 +89,8 @@ fun LanguageButton(
 fun WelcomeLanguageSelectionDialog(
     currentLanguage: Language,
     onLanguageSelected: (Language) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    preselectCurrent: Boolean = true
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -106,7 +107,6 @@ fun WelcomeLanguageSelectionDialog(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Dialog title
                 Text(
                     text = stringResource(R.string.language_dialog_title),
                     style = MaterialTheme.typography.titleLarge,
@@ -114,19 +114,18 @@ fun WelcomeLanguageSelectionDialog(
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
-                
-                // Language options - SYSTEM is shown but with clearer description
+
                 Language.values().forEach { language ->
                     WelcomeLanguageOption(
                         language = language,
-                        isSelected = language.code == currentLanguage.code,
+                        isSelected = preselectCurrent && language.code == currentLanguage.code,
                         onLanguageClick = {
                             onLanguageSelected(language)
                             onDismiss()
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
+
                     if (language != Language.values().last()) {
                         Spacer(modifier = Modifier.height(8.dp))
                     }

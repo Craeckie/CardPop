@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## COMMIT RULE
+
+**ALWAYS COMMIT AFTER EVERY SINGLE CHANGE. NO EXCEPTIONS. DO NOT MAKE A SECOND CHANGE WITHOUT COMMITTING THE FIRST. COMMIT IMMEDIATELY AFTER EACH EDIT.**
+
+**IF THE PREVIOUS COMMIT IS RELATED TO THE CURRENT CHANGE AND HAS NOT BEEN PUSHED YET, AMEND IT INSTEAD OF CREATING A NEW COMMIT. IF THE PREVIOUS COMMIT HAS ALREADY BEEN PUSHED, ALWAYS CREATE A NEW COMMIT — NEVER AMEND A PUSHED COMMIT.**
+
 ## Releases
 When asked to create a release:
 1. **Find the last tag**: `git tag --sort=-version:refname | head -5`. Tags follow the format `v{versionName}` (e.g. `v2.1.0`).
