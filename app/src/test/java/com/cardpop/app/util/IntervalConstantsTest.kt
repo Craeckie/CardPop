@@ -102,7 +102,7 @@ class IntervalConstantsTest {
 
     @Test
     fun predefinedIntervals_containsExpectedValues() {
-        val expected = listOf(1, 5, 10, 15, 30)
+        val expected = listOf(1, 2, 3, 4, 5, 10, 15, 30)
         assertEquals(expected, IntervalConstants.PREDEFINED_INTERVALS)
     }
 
