@@ -32,7 +32,7 @@ object IntervalConstants {
     const val DEFAULT_INTERVAL_MINUTES = 5
     
     /** Predefined intervals for quick selection */
-    val PREDEFINED_INTERVALS = listOf(1, 5, 10, 15, 30)
+    val PREDEFINED_INTERVALS = listOf(1, 2, 3, 4, 5, 10, 15, 30)
     
     /**
      * Validates if the given interval is within acceptable range.

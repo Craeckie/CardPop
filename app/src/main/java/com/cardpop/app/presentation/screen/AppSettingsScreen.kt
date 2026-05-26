@@ -1052,7 +1052,7 @@ private fun FontSizeSliderRow(
 
 /**
  * Discrete slider for flashcard popup interval.
- * Options match IntervalConstants.PREDEFINED_INTERVALS: 1, 5, 10, 15, 30 minutes.
+ * Options match IntervalConstants.PREDEFINED_INTERVALS: 1, 2, 3, 4, 5, 10, 15, 30 minutes.
  */
 @Composable
 private fun IntervalSettingItem(
