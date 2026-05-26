@@ -29,7 +29,9 @@ import com.cardpop.app.domain.fsrs.FsrsCardState
 import com.cardpop.app.domain.fsrs.FsrsParameters
 import com.cardpop.app.domain.fsrs.FsrsRating
 import com.cardpop.app.domain.model.FlashcardRating
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -86,29 +88,35 @@ class SrsUseCase @Inject constructor(
                 updatedAt = now
             )
 
-            repository.updateFlashcard(updatedFlashcard)
-
-            if (flashcard.id > 0) {
-                reviewLogDao.insert(
-                    ReviewLogEntity(
-                        flashcardId = flashcard.id,
-                        reviewedAt = now,
-                        rating = fsrsRating.value,
-                        stateBefore = flashcard.state
+            // NonCancellable: the overlay service scope is cancelled ~300ms after the
+            // user rates a card (closeOverlay delay → stopSelf → onDestroy → scope.cancel).
+            // The SAF backup write inside updateFlashcard can take longer than that window,
+            // so without this guard the CancellationException propagates through runCatching
+            // and reviewLogDao.insert is never reached. All three writes must be atomic
+            // from the cancellation perspective.
+            withContext(NonCancellable) {
+                repository.updateFlashcard(updatedFlashcard)
+                if (flashcard.id > 0) {
+                    reviewLogDao.insert(
+                        ReviewLogEntity(
+                            flashcardId = flashcard.id,
+                            reviewedAt = now,
+                            rating = fsrsRating.value,
+                            stateBefore = flashcard.state
+                        )
                     )
+                }
+                reviewHistory.recordReview(
+                    masteredTotal = repository.getMasteredCount(),
+                    now = now
                 )
             }
 
-            // Record this review in the daily history so the Statistics chart
-            // can plot reviews-per-day and the running mastered total. Snapshot
-            // is taken AFTER the update so today's mastered count reflects any
-            // card that just crossed the threshold.
-            reviewHistory.recordReview(
-                masteredTotal = repository.getMasteredCount(),
-                now = now
-            )
-
             updatedFlashcard
+        }.also { result ->
+            // runCatching must not swallow CancellationException — re-throw so the
+            // coroutine machinery can propagate structured cancellation correctly.
+            result.exceptionOrNull()?.let { if (it is CancellationException) throw it }
         }
     }
 
