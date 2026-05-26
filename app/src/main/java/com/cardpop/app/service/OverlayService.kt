@@ -479,6 +479,13 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
         }
     }
     
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (::overlayManager.isInitialized && overlayManager.isOverlayActive()) {
+            overlayManager.relayoutForCurrentConfig()
+        }
+    }
+
     override fun onDestroy() {
         Log.d(TAG, "OverlayService onDestroy")
         try {

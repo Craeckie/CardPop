@@ -86,6 +86,15 @@ class FlashcardUiPreferences @Inject constructor(
         }
     }
 
+    // Orientation-invariant edges: width is always stored relative to the short edge,
+    // height relative to the long edge, so the popup keeps the same pixel size on rotation.
+    private fun getReferenceDimensions(): Pair<Int, Int> {
+        val (screenWidth, screenHeight) = getScreenDimensions()
+        val shortEdge = minOf(screenWidth, screenHeight)
+        val longEdge = maxOf(screenWidth, screenHeight)
+        return Pair(shortEdge, longEdge)
+    }
+
     private fun percentToPixels(percent: Float, dimension: Int): Int =
         (percent * dimension).toInt()
 
@@ -99,6 +108,7 @@ class FlashcardUiPreferences @Inject constructor(
 
     fun getFlashcardUiState(): FlashcardUiState {
         val (screenWidth, screenHeight) = getScreenDimensions()
+        val (refWidth, refHeight) = getReferenceDimensions()
 
         val xPercent = prefs.getFloat(KEY_POSITION_X_PERCENT, DEFAULT_POSITION_X_PERCENT)
         val yPercent = prefs.getFloat(KEY_POSITION_Y_PERCENT, DEFAULT_POSITION_Y_PERCENT)
@@ -107,8 +117,8 @@ class FlashcardUiPreferences @Inject constructor(
 
         val positionX = percentToPixels(xPercent, screenWidth)
         val positionY = percentToPixels(yPercent, screenHeight)
-        val width = percentToPixels(widthPercent, screenWidth)
-        val height = percentToPixels(heightPercent, screenHeight)
+        val width = percentToPixels(widthPercent, refWidth)
+        val height = percentToPixels(heightPercent, refHeight)
 
         val constrainedX = positionX.coerceIn(0, (screenWidth - width).coerceAtLeast(0))
         val constrainedY = positionY.coerceIn(0, (screenHeight - height).coerceAtLeast(0))
@@ -137,17 +147,20 @@ class FlashcardUiPreferences @Inject constructor(
 
     fun saveSize(width: Int, height: Int) {
         val (screenWidth, screenHeight) = getScreenDimensions()
+        val (refWidth, refHeight) = getReferenceDimensions()
 
         val minWidthPx = dpToPixels(MIN_WIDTH_DP)
         val minHeightPx = dpToPixels(MIN_HEIGHT_DP)
-        val maxWidthPx = percentToPixels(MAX_WIDTH_PERCENT, screenWidth)
-        val maxHeightPx = percentToPixels(MAX_HEIGHT_PERCENT, screenHeight)
+        val maxWidthPx = percentToPixels(MAX_WIDTH_PERCENT, refWidth)
+            .coerceAtMost(screenWidth).coerceAtLeast(minWidthPx)
+        val maxHeightPx = percentToPixels(MAX_HEIGHT_PERCENT, refHeight)
+            .coerceAtMost(screenHeight).coerceAtLeast(minHeightPx)
 
         val constrainedWidth = width.coerceIn(minWidthPx, maxWidthPx)
         val constrainedHeight = height.coerceIn(minHeightPx, maxHeightPx)
 
-        val widthPercent = pixelsToPercent(constrainedWidth, screenWidth)
-        val heightPercent = pixelsToPercent(constrainedHeight, screenHeight)
+        val widthPercent = pixelsToPercent(constrainedWidth, refWidth)
+        val heightPercent = pixelsToPercent(constrainedHeight, refHeight)
 
         prefs.edit()
             .putFloat(KEY_WIDTH_PERCENT, widthPercent)
@@ -161,10 +174,10 @@ class FlashcardUiPreferences @Inject constructor(
     )
 
     fun getMaxSize(): Pair<Int, Int> {
-        val (screenWidth, screenHeight) = getScreenDimensions()
+        val (refWidth, refHeight) = getReferenceDimensions()
         return Pair(
-            percentToPixels(MAX_WIDTH_PERCENT, screenWidth),
-            percentToPixels(MAX_HEIGHT_PERCENT, screenHeight)
+            percentToPixels(MAX_WIDTH_PERCENT, refWidth),
+            percentToPixels(MAX_HEIGHT_PERCENT, refHeight)
         )
     }
 
@@ -180,8 +193,11 @@ class FlashcardUiPreferences @Inject constructor(
         val (minWidth, minHeight) = getMinSize()
         val (maxWidth, maxHeight) = getMaxSize()
 
-        val constrainedWidth = width.coerceIn(minWidth, maxWidth.coerceAtMost(screenWidth))
-        val constrainedHeight = height.coerceIn(minHeight, maxHeight.coerceAtMost(screenHeight))
+        val effectiveMaxWidth = maxWidth.coerceAtMost(screenWidth).coerceAtLeast(minWidth)
+        val effectiveMaxHeight = maxHeight.coerceAtMost(screenHeight).coerceAtLeast(minHeight)
+
+        val constrainedWidth = width.coerceIn(minWidth, effectiveMaxWidth)
+        val constrainedHeight = height.coerceIn(minHeight, effectiveMaxHeight)
 
         val constrainedX = x.coerceIn(0, (screenWidth - constrainedWidth).coerceAtLeast(0))
         val constrainedY = y.coerceIn(0, (screenHeight - constrainedHeight).coerceAtLeast(0))

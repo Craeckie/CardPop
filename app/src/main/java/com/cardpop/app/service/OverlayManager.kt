@@ -153,6 +153,31 @@ class OverlayManager(
     }
     
     /**
+     * Re-clamps the live overlay to fit the new screen dimensions after a configuration
+     * change (e.g. rotation). Fetches current screen dims via FlashcardUiPreferences so
+     * size stays orientation-invariant and the popup stays fully on screen.
+     */
+    fun relayoutForCurrentConfig() {
+        overlayView?.let { view ->
+            try {
+                val params = view.layoutParams as WindowManager.LayoutParams
+                val constrained = flashcardUiPreferences.constrainToBounds(
+                    params.x, params.y, params.width, params.height
+                )
+                params.width = constrained.width
+                params.height = constrained.height
+                params.x = constrained.positionX
+                params.y = constrained.positionY
+                windowManager?.updateViewLayout(view, params)
+                flashcardUiPreferences.saveSize(params.width, params.height)
+                flashcardUiPreferences.savePosition(params.x, params.y)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to relayout for configuration change", e)
+            }
+        }
+    }
+
+    /**
      * Closes overlay window with proper cleanup timing.
      * Follows SOLID principles with single responsibility for cleanup.
      */
