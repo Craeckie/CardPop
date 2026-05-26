@@ -19,8 +19,7 @@ package com.cardpop.app.domain.fsrs
 
 object FsrsParameters {
     // FSRS-6 default weights (21 values). Same as fsrs4anki defaults and
-    // FSRS-Kotlin README. Do NOT change these values — the algorithm is
-    // calibrated around them.
+    // FSRS-Kotlin README.
     val DEFAULT: List<Double> = listOf(
         0.212, 1.2931, 2.3065, 8.2956, 6.4133, 0.8334, 3.0194, 0.001,
         1.8722, 0.1666, 0.796, 1.4835, 0.0614, 0.2629, 1.6483, 0.6014,
