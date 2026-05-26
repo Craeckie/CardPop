@@ -165,6 +165,11 @@
     <!-- Permissions section -->
     <string name="settings_permissions_title">Permissions</string>
     <string name="settings_permissions_subtitle">Manage app permissions and optimization</string>
+    <string name="settings_battery_title">Battery Optimization</string>
+    <string name="settings_battery_disabled">Disabled — app can run in background ✅</string>
+    <string name="settings_battery_skipped">Enabled — consider disabling for best performance</string>
+    <string name="settings_battery_enabled">Enabled — may affect performance ⚡</string>
+    <string name="settings_battery_button">Disable Optimization</string>
     <string name="settings_notification_title">Notifications</string>
     <string name="settings_notification_granted">Allowed ✅</string>
     <string name="settings_notification_required">Not allowed — you won\'t get alerts 🔔</string>

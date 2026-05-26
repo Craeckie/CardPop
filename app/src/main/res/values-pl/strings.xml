@@ -162,6 +162,11 @@
     <!-- Permissions section -->
     <string name="settings_permissions_title">Uprawnienia</string>
     <string name="settings_permissions_subtitle">Zarządzaj uprawnieniami i optymalizacją aplikacji</string>
+    <string name="settings_battery_title">Optymalizacja baterii</string>
+    <string name="settings_battery_disabled">Wyłączona — aplikacja może działać w tle ✅</string>
+    <string name="settings_battery_skipped">Włączona — rozważ wyłączenie dla lepszej wydajności</string>
+    <string name="settings_battery_enabled">Włączona — może wpłynąć na wydajność ⚡</string>
+    <string name="settings_battery_button">Wyłącz optymalizację</string>
     <string name="settings_notification_title">Powiadomienia</string>
     <string name="settings_notification_granted">Dozwolone ✅</string>
     <string name="settings_notification_required">Niedozwolone — nie otrzymasz alertów 🔔</string>

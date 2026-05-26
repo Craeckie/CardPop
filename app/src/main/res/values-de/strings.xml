@@ -162,6 +162,11 @@
     <!-- Permissions section -->
     <string name="settings_permissions_title">Berechtigungen</string>
     <string name="settings_permissions_subtitle">App-Berechtigungen und -Optimierungen verwalten</string>
+    <string name="settings_battery_title">Akkuoptimierung</string>
+    <string name="settings_battery_disabled">Deaktiviert — App kann im Hintergrund laufen ✅</string>
+    <string name="settings_battery_skipped">Aktiv — Deaktivieren für beste Leistung empfohlen</string>
+    <string name="settings_battery_enabled">Aktiv — kann die Leistung beeinträchtigen ⚡</string>
+    <string name="settings_battery_button">Optimierung deaktivieren</string>
     <string name="settings_notification_title">Benachrichtigungen</string>
     <string name="settings_notification_granted">Erlaubt ✅</string>
     <string name="settings_notification_required">Nicht erlaubt — du erhältst keine Hinweise 🔔</string>
