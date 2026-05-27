@@ -1,0 +1,10 @@
+## 👆 New Features
+
+- ✨ **Swipe to rate** — opt-in mode (Settings → Appearance) that replaces the four rating buttons with directional swipes: ← Again, → Easy, ↑ Good, ↓ Hard. The overlay fades to the rating colour as you pull; a one-time tutorial explains the directions on first use.
+- ✨ **Card maturity chart** — the Statistics screen now shows a New / Young / Mature breakdown of your deck instead of raw card states.
+
+## 🎨 Visual
+
+- 🎨 Fixed bar colours in the maturity and rating-distribution charts to match the Again / Hard / Good / Easy button colours consistently.
+
+**Full Changelog**: https://github.com/Craeckie/CardPop/compare/v2.4.0...v2.5.0
