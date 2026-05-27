@@ -115,6 +115,7 @@ fun AppSettingsScreen(
     val currentTargetRetention by viewModel.targetRetention.collectAsState()
     val currentActualRetention by viewModel.actualRetention.collectAsState()
     val currentFlashcardOpacity by viewModel.flashcardOpacity.collectAsState()
+    val swipeToRateEnabled by viewModel.swipeToRateEnabled.collectAsState()
     val currentQuestionFontSize by viewModel.questionFontSize.collectAsState()
     val currentAnswerFontSize by viewModel.answerFontSize.collectAsState()
     val currentSnoozeDuration by viewModel.snoozeDurationMinutes.collectAsState()
@@ -284,6 +285,22 @@ fun AppSettingsScreen(
                     FlashcardOpacitySettingItem(
                         opacity = currentFlashcardOpacity,
                         onOpacityChange = { viewModel.setFlashcardOpacity(it) }
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Swipe-to-rate subsection
+                    Text(
+                        text = stringResource(R.string.settings_swipe_to_rate_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    SwipeToRateSettingItem(
+                        enabled = swipeToRateEnabled,
+                        onToggle = { viewModel.setSwipeToRateEnabled(it) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -1248,5 +1265,35 @@ private fun getAppVersion(context: Context): String {
         packageInfo.versionName ?: "Unknown"
     } catch (e: PackageManager.NameNotFoundException) {
         "Unknown"
+    }
+}
+
+@Composable
+private fun SwipeToRateSettingItem(
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.settings_swipe_to_rate_title),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = stringResource(R.string.settings_swipe_to_rate_description),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+        Spacer(Modifier.width(12.dp))
+        Switch(
+            checked = enabled,
+            onCheckedChange = onToggle
+        )
     }
 }

@@ -128,6 +128,12 @@
     <string name="settings_flashcard_opacity_description">Stelle die Transparenz der Lernkarte ein. Mindestens 10%% sichert Sichtbarkeit.</string>
     <string name="settings_flashcard_opacity_value">%1$d%%</string>
 
+    <!-- Swipe-to-rate setting -->
+    <string name="settings_swipe_to_rate_title">Wischen zum Bewerten</string>
+    <string name="settings_swipe_to_rate_description">Ersetze die Bewertungsschaltflächen durch Wischgesten: ← Nochmal, → Einfach, ↑ Gut, ↓ Schwer</string>
+    <string name="swipe_onboarding_caption">Wischen zum Bewerten</string>
+    <string name="swipe_onboarding_dismiss">Tippen zum Schließen</string>
+
     <!-- Theme descriptions - natural German phrasing -->
     <string name="theme_light_description">Immer helles Design verwenden</string>
     <string name="theme_dark_description">Immer dunkles Design verwenden</string>

@@ -33,6 +33,21 @@ import androidx.compose.ui.unit.sp
 import com.cardpop.app.R
 import com.cardpop.app.domain.model.FlashcardRating
 
+object RatingColors {
+    val again = Color(0xFFD32F2F)
+    val hard  = Color(0xFFF57C00)
+    val good  = Color(0xFF388E3C)
+    val easy  = Color(0xFF1976D2)
+}
+
+fun FlashcardRating.ratingColor(): Color = when (this) {
+    FlashcardRating.WRONG  -> RatingColors.again
+    FlashcardRating.HARD   -> RatingColors.hard
+    FlashcardRating.GOOD   -> RatingColors.good
+    FlashcardRating.EASY   -> RatingColors.easy
+    FlashcardRating.CLOSED -> Color.Transparent
+}
+
 /**
  * Rating buttons: Again, Hard, Good, Easy.
  *
@@ -71,25 +86,25 @@ fun FlashcardControls(
 @Composable
 private fun AgainButton(onRating: (FlashcardRating) -> Unit, modifier: Modifier) =
     RatingButton(label = stringResource(R.string.rating_again),
-        containerColor = Color(0xFFD32F2F),
+        containerColor = RatingColors.again,
         onClick = { onRating(FlashcardRating.WRONG) }, modifier = modifier)
 
 @Composable
 private fun HardButton(onRating: (FlashcardRating) -> Unit, modifier: Modifier) =
     RatingButton(label = stringResource(R.string.rating_hard),
-        containerColor = Color(0xFFF57C00),
+        containerColor = RatingColors.hard,
         onClick = { onRating(FlashcardRating.HARD) }, modifier = modifier)
 
 @Composable
 private fun GoodButton(onRating: (FlashcardRating) -> Unit, modifier: Modifier) =
     RatingButton(label = stringResource(R.string.rating_good),
-        containerColor = Color(0xFF388E3C),
+        containerColor = RatingColors.good,
         onClick = { onRating(FlashcardRating.GOOD) }, modifier = modifier)
 
 @Composable
 private fun EasyButton(onRating: (FlashcardRating) -> Unit, modifier: Modifier) =
     RatingButton(label = stringResource(R.string.rating_easy),
-        containerColor = Color(0xFF1976D2),
+        containerColor = RatingColors.easy,
         onClick = { onRating(FlashcardRating.EASY) }, modifier = modifier)
 
 @Composable

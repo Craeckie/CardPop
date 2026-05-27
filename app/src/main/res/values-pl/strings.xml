@@ -128,6 +128,12 @@
     <string name="settings_flashcard_opacity_description">Dostosuj przezroczystość fiszki. Minimum 10%% zapewnia widoczność.</string>
     <string name="settings_flashcard_opacity_value">%1$d%%</string>
 
+    <!-- Swipe-to-rate setting -->
+    <string name="settings_swipe_to_rate_title">Oceń gestem</string>
+    <string name="settings_swipe_to_rate_description">Zastąp przyciski gestami: ← Jeszcze raz, → Łatwe, ↑ Dobrze, ↓ Trudne</string>
+    <string name="swipe_onboarding_caption">Oceń gestem</string>
+    <string name="swipe_onboarding_dismiss">Dotknij, aby zamknąć</string>
+
     <!-- Theme descriptions - natural Polish phrasing -->
     <string name="theme_light_description">Zawsze używaj jasnego motywu</string>
     <string name="theme_dark_description">Zawsze używaj ciemnego motywu</string>

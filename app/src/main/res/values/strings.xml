@@ -131,6 +131,12 @@
     <string name="settings_flashcard_opacity_description">Adjust the overlay\'s transparency. Minimum 10%% keeps the card visible.</string>
     <string name="settings_flashcard_opacity_value">%1$d%%</string>
 
+    <!-- Swipe-to-rate setting -->
+    <string name="settings_swipe_to_rate_title">Swipe to rate</string>
+    <string name="settings_swipe_to_rate_description">Replace the rating buttons with swipe gestures: ← Again, → Easy, ↑ Good, ↓ Hard</string>
+    <string name="swipe_onboarding_caption">Swipe to rate</string>
+    <string name="swipe_onboarding_dismiss">Tap to dismiss</string>
+
     <!-- Theme descriptions -->
     <string name="theme_light_description">Always use light theme</string>
     <string name="theme_dark_description">Always use dark theme</string>

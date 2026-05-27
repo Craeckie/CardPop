@@ -85,6 +85,7 @@ fun FlashcardContent(
     customFontFile: java.io.File? = null,
     questionFontSize: Float = 17f,
     answerFontSize: Float = 17f,
+    scrollEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -98,7 +99,7 @@ fun FlashcardContent(
         modifier = modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .verticalScroll(scrollState),
+            .then(if (scrollEnabled) Modifier.verticalScroll(scrollState) else Modifier),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {

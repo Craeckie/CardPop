@@ -45,6 +45,7 @@ CardPop helps you learn **passively** while using your phone. Flashcards will ap
 - 💾 **Backup includes settings** — every card change is immediately backed up as a JSON file (including app settings) via Android’s Storage Access Framework
 - 😴 **Snooze** — pause the overlay for a configurable number of minutes
 - 🚫 **App blocklist** — suppress the overlay while specific apps are in the foreground
+- 👆 **Swipe to rate** — opt-in mode (Settings → Appearance) that replaces the rating buttons with directional swipes: ← Again, → Easy, ↑ Good, ↓ Hard. The overlay fades to the rating colour as you pull; release past the threshold to submit.
 - 🔍 **Pleco lookup** — tap a button on the overlay to look up the front side in the Pleco dictionary app
 - 🖋️ **Custom question font** — load any TTF or OTF font file from your device (Settings → Flashcard Font → Load font file). Applied to the flashcard question only; the answer always uses the system font. Suggestions for Chinese study:
   - **LXGW WenKai** — open-source 楷书 font, available at [github.com/lxgw/LxgwWenKai](https://github.com/lxgw/LxgwWenKai/releases) (SIL OFL 1.1 license)

@@ -196,6 +196,13 @@ class AppSettingsViewModel @Inject constructor(
         settingsManager.setFlashcardOpacity(value)
     }
 
+    /** Swipe-to-rate mode: replaces the four buttons with directional gestures. */
+    val swipeToRateEnabled: StateFlow<Boolean> = settingsManager.swipeToRateEnabled
+
+    fun setSwipeToRateEnabled(enabled: Boolean) {
+        settingsManager.setSwipeToRateEnabled(enabled)
+    }
+
     /** Snooze duration in minutes (discrete: 5, 10, 30, 60, 120, 360, 1440). */
     val snoozeDurationMinutes: StateFlow<Int> = settingsManager.snoozeDurationMinutes
 

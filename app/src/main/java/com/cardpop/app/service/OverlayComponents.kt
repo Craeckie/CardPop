@@ -64,6 +64,8 @@ class OverlayComponents(
         val currentQuestionFontSize by settingsManager.questionFontSize.collectAsState()
         val currentAnswerFontSize by settingsManager.answerFontSize.collectAsState()
         val currentOpacity by settingsManager.flashcardOpacity.collectAsState()
+        val swipeEnabled by settingsManager.swipeToRateEnabled.collectAsState()
+        var onboardingPending by remember { mutableStateOf(!settingsManager.hasSeenSwipeOnboarding()) }
         LaunchedEffect(currentOpacity) {
             currentUiState = currentUiState.copy(opacity = currentOpacity)
         }
@@ -121,7 +123,13 @@ class OverlayComponents(
                 onSizeChange = handleSizeChange,
                 onRating = onRating,
                 onSnooze = onSnooze,
-                onClose = onClose
+                onClose = onClose,
+                swipeToRateEnabled = swipeEnabled,
+                showSwipeOnboarding = onboardingPending,
+                onSwipeOnboardingDismissed = {
+                    settingsManager.setSwipeOnboardingSeen()
+                    onboardingPending = false
+                }
             )
         }
     }

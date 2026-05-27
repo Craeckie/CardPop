@@ -97,6 +97,10 @@ class SettingsRepository @Inject constructor(
     private val _flashcardOpacity = MutableStateFlow(flashcardUiPreferences.getCurrentOpacity())
     val flashcardOpacity: StateFlow<Float> = _flashcardOpacity.asStateFlow()
 
+    // Swipe-to-rate mode: replaces the four rating buttons with directional swipe gestures.
+    private val _swipeToRateEnabled = MutableStateFlow(getSwipeToRateEnabled())
+    val swipeToRateEnabled: StateFlow<Boolean> = _swipeToRateEnabled.asStateFlow()
+
     // Snooze duration in minutes — observed by the settings slider
     private val _snoozeDurationMinutes = MutableStateFlow(getSnoozeDurationMinutes())
     val snoozeDurationMinutes: StateFlow<Int> = _snoozeDurationMinutes.asStateFlow()
@@ -125,6 +129,8 @@ class SettingsRepository @Inject constructor(
         private const val KEY_SNOOZE_DURATION_MINUTES = "snooze_duration_minutes"
         private const val KEY_PAUSED_UNTIL = "paused_until"
         private const val DEFAULT_SNOOZE_DURATION_MINUTES = 30
+        private const val KEY_SWIPE_TO_RATE = "swipe_to_rate_enabled"
+        private const val KEY_HAS_SEEN_SWIPE_ONBOARDING = "has_seen_swipe_onboarding"
         private const val DEFAULT_TARGET_RETENTION = 0.9f
         private const val MIN_TARGET_RETENTION = 0.80f
         private const val MAX_TARGET_RETENTION = 0.95f
@@ -368,6 +374,19 @@ class SettingsRepository @Inject constructor(
     fun setFlashcardOpacity(opacity: Float) {
         flashcardUiPreferences.saveOpacity(opacity)
         _flashcardOpacity.value = flashcardUiPreferences.getCurrentOpacity()
+    }
+
+    fun getSwipeToRateEnabled(): Boolean = prefs.getBoolean(KEY_SWIPE_TO_RATE, false)
+
+    fun setSwipeToRateEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SWIPE_TO_RATE, enabled).apply()
+        _swipeToRateEnabled.value = enabled
+    }
+
+    fun hasSeenSwipeOnboarding(): Boolean = prefs.getBoolean(KEY_HAS_SEEN_SWIPE_ONBOARDING, false)
+
+    fun setSwipeOnboardingSeen() {
+        prefs.edit().putBoolean(KEY_HAS_SEEN_SWIPE_ONBOARDING, true).apply()
     }
 
     fun getSnoozeDurationMinutes(): Int {

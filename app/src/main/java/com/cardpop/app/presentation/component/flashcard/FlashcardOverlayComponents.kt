@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +44,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.cardpop.app.data.entity.FlashcardEntity
 import com.cardpop.app.data.entity.CategoryEntity
@@ -55,6 +57,10 @@ import com.cardpop.app.data.model.FlashcardTheme
  * Flashcard overlay container. The header is always draggable; the bottom-right
  * corner carries an always-visible resize grip. Overlay alpha is driven by the
  * user's saved opacity (configured in the main app settings).
+ *
+ * When [swipeToRateEnabled] is true the four rating buttons are replaced by
+ * directional swipe gestures (← Again · → Easy · ↑ Good · ↓ Hard). A one-time
+ * [SwipeCoachmark] is shown while [showSwipeOnboarding] is true.
  */
 @Composable
 fun FlashcardContainer(
@@ -71,9 +77,17 @@ fun FlashcardContainer(
     onRating: (FlashcardRating) -> Unit,
     onSnooze: () -> Unit = { },
     onClose: () -> Unit,
+    swipeToRateEnabled: Boolean = false,
+    showSwipeOnboarding: Boolean = false,
+    onSwipeOnboardingDismissed: () -> Unit = { },
     modifier: Modifier = Modifier
 ) {
     var showAnswer by remember { mutableStateOf(false) }
+    val swipeActive = showAnswer && swipeToRateEnabled
+    val swipeState = rememberSwipeState()
+    val scope = rememberCoroutineScope()
+    val density = LocalDensity.current.density
+    val thresholdPx = 120f * density
 
     Box(modifier = modifier.fillMaxSize()) {
         Card(
@@ -99,35 +113,60 @@ fun FlashcardContainer(
                 )
 
                 // Content area, 3-sided border (left/right/bottom) — the top of
-                // the card is the title bar and gets no border.
-                Column(
+                // the card is the title bar and gets no border. Wrapped in a Box
+                // so swipe overlays can layer on top of the content column.
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
                         .then(contentBorder(FlashcardColors.getTextColor(theme).copy(alpha = 0.3f)))
                 ) {
-                    FlashcardContent(
-                        flashcard = flashcard,
-                        showAnswer = showAnswer,
-                        onShowAnswer = { showAnswer = true },
-                        theme = theme,
-                        font = font,
-                        customFontFile = customFontFile,
-                        questionFontSize = questionFontSize,
-                        answerFontSize = answerFontSize,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    if (showAnswer) {
-                        FlashcardControls(
-                            onRating = onRating,
-                            modifier = Modifier.padding(
-                                start = 18.dp,
-                                end = 18.dp,
-                                top = 6.dp,
-                                bottom = 18.dp
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .swipeToRateGesture(
+                                state = swipeState,
+                                scope = scope,
+                                thresholdPx = thresholdPx,
+                                enabled = swipeActive,
+                                onRating = onRating
                             )
+                    ) {
+                        FlashcardContent(
+                            flashcard = flashcard,
+                            showAnswer = showAnswer,
+                            onShowAnswer = { showAnswer = true },
+                            theme = theme,
+                            font = font,
+                            customFontFile = customFontFile,
+                            questionFontSize = questionFontSize,
+                            answerFontSize = answerFontSize,
+                            scrollEnabled = !swipeActive,
+                            modifier = Modifier.weight(1f)
                         )
+
+                        if (showAnswer && !swipeToRateEnabled) {
+                            FlashcardControls(
+                                onRating = onRating,
+                                modifier = Modifier.padding(
+                                    start = 18.dp,
+                                    end = 18.dp,
+                                    top = 6.dp,
+                                    bottom = 18.dp
+                                )
+                            )
+                        }
+                    }
+
+                    if (swipeActive) {
+                        SwipeTintOverlay(
+                            direction = swipeState.direction,
+                            fraction = swipeState.fraction
+                        )
+                    }
+
+                    if (swipeActive && showSwipeOnboarding) {
+                        SwipeCoachmark(onDismiss = onSwipeOnboardingDismissed)
                     }
                 }
             }
