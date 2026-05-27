@@ -157,9 +157,7 @@ fun StatisticsScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(
-                    color = AccentPurple
-                )
+                CircularProgressIndicator()
             }
         } else {
             Column(
