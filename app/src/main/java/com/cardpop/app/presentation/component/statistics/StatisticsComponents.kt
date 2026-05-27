@@ -449,7 +449,7 @@ private fun CardStatesCard(
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             val bars = listOf(
                 StateBar(stringResource(R.string.stats_state_new), newCount, Color(0xFFF57C00)),
-                StateBar(stringResource(R.string.stats_state_young), young, Color(0xFF388E3C)),
+                StateBar(stringResource(R.string.stats_state_young), young, AccentTeal),
                 StateBar(stringResource(R.string.stats_state_mature), mature, Color(0xFF1976D2)),
             )
             val maxCount = bars.maxOf { it.count }.coerceAtLeast(1)
