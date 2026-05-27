@@ -91,9 +91,8 @@ data class EnhancedOverallStats(
     val totalFlashcards: Int,
     val dueNowCount: Int,
     val newCount: Int,
-    val learningCount: Int,
-    val reviewCount: Int,
-    val relearningCount: Int
+    val youngCount: Int,
+    val matureCount: Int
 )
 
 data class RatingDistribution(
@@ -146,10 +145,15 @@ class StatisticsViewModel @Inject constructor(
                 val streakDays = currentStreakData.currentStreak
                 val highestStreak = currentStreakData.highestStreak
                 
-                // FSRS card-state breakdown — only enabled cards in enabled
-                // categories, mirroring what the overlay actually picks from.
+                // Maturity breakdown — only enabled cards in enabled categories.
+                // New = never reviewed (state 0); Mature = stability ≥ 21d and
+                // reps ≥ 3; Young = everything else (Learning/Relearning/Review-young).
                 val stateCounts = repository.getCardCountsByState().associate { it.state to it.count }
                 val dueNowCount = repository.getDueNowCount()
+                val newCount = stateCounts[0] ?: 0
+                val totalEnabled = stateCounts.values.sum()
+                val matureCount = repository.getEnabledMatureCount()
+                val youngCount = (totalEnabled - newCount - matureCount).coerceAtLeast(0)
 
                 val enhancedOverallStats = EnhancedOverallStats(
                     streakDays = streakDays,
@@ -157,10 +161,9 @@ class StatisticsViewModel @Inject constructor(
                     masteredFlashcards = masteredFlashcards,
                     totalFlashcards = totalFlashcards,
                     dueNowCount = dueNowCount,
-                    newCount = stateCounts[0] ?: 0,
-                    learningCount = stateCounts[1] ?: 0,
-                    reviewCount = stateCounts[2] ?: 0,
-                    relearningCount = stateCounts[3] ?: 0
+                    newCount = newCount,
+                    youngCount = youngCount,
+                    matureCount = matureCount
                 )
                 
                 // Last 30 days of activity for the over-time chart. Reading

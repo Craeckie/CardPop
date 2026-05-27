@@ -140,6 +140,13 @@ interface FlashcardDao {
     @Query("SELECT COUNT(*) FROM flashcards WHERE stability >= 21.0 AND reps >= 3")
     suspend fun getMasteredCount(): Int
 
+    @Query("""
+        SELECT COUNT(*) FROM flashcards f
+        INNER JOIN categories c ON f.categoryId = c.id
+        WHERE f.isEnabled = 1 AND c.isEnabled = 1 AND f.stability >= 21.0 AND f.reps >= 3
+    """)
+    suspend fun getEnabledMatureCount(): Int
+
     data class StateCount(val state: Int, val count: Int)
     
     @Query("SELECT COUNT(*) FROM flashcards WHERE categoryId = :categoryId")

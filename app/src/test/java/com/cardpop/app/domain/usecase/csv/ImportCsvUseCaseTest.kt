@@ -293,6 +293,7 @@ class FakeFlashcardDao : FlashcardDao {
         }
     override suspend fun getDueNowCount(now: Long) = cards.count { it.dueAt <= now }
     override suspend fun getMasteredCount() = cards.count { it.stability >= 21.0 && it.reps >= 3 }
+    override suspend fun getEnabledMatureCount() = cards.count { it.stability >= 21.0 && it.reps >= 3 }
     override suspend fun getFlashcardCountByCategory(categoryId: Long) =
         cards.count { it.categoryId == categoryId }
     override suspend fun insertFlashcard(flashcard: FlashcardEntity) = nextId++

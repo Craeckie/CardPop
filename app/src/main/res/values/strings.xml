@@ -340,9 +340,8 @@
     <string name="stats_card_states_title">Card States</string>
     <string name="stats_due_now">%1$d due now</string>
     <string name="stats_state_new">New</string>
-    <string name="stats_state_learning">Learning</string>
-    <string name="stats_state_review">Review</string>
-    <string name="stats_state_relearning">Relearning</string>
+    <string name="stats_state_young">Young</string>
+    <string name="stats_state_mature">Mature</string>
     <string name="stats_categories_count">Categories</string>
     <string name="stats_average_difficulty">Avg. Difficulty</string>
     <string name="stats_days_suffix">days</string>

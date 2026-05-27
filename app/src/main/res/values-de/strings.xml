@@ -328,9 +328,8 @@
     <string name="stats_history_mastered">Gemeistert (gesamt)</string>
     <string name="stats_history_empty">Bewertet ein paar Karten, um deinen Fortschritt hier zu verfolgen.</string>
     <string name="stats_state_new">Neu</string>
-    <string name="stats_state_learning">Lernen</string>
-    <string name="stats_state_review">Wiederholung</string>
-    <string name="stats_state_relearning">Erneut lernen</string>
+    <string name="stats_state_young">Jung</string>
+    <string name="stats_state_mature">Reif</string>
 
     <!-- Statistics Reset Dialogs - careful German phrasing -->
     <string name="reset_all_stats_title">Alle Statistiken zurücksetzen</string>

@@ -88,9 +88,8 @@ fun ModernStatsCardGrid(stats: EnhancedOverallStats, retentionData: RetentionDat
         CardStatesCard(
             dueNow = stats.dueNowCount,
             newCount = stats.newCount,
-            learning = stats.learningCount,
-            review = stats.reviewCount,
-            relearning = stats.relearningCount,
+            young = stats.youngCount,
+            mature = stats.matureCount,
         )
     }
 }
@@ -427,19 +426,18 @@ private fun HighestStreakCard(
 /**
  * Wider tile that shows the FSRS card-state breakdown for enabled cards.
  * Headline: how many cards are due now (the most actionable number — what the
- * overlay would pick from). Below: small color-coded counts per state so the
- * user can see how their deck is shaped (still mostly New vs. mostly Review).
- *
- * Uses the same color language as the rating buttons / per-card chips:
- * Relearning red, Learning amber, Review green, New gray.
+ * overlay would pick from). Below: color-coded maturity bars so the user can
+ * see how their deck is shaped across three buckets:
+ * New (never reviewed) → Young (reviewed but not yet established) → Mature
+ * (stability ≥ 21 days and reps ≥ 3). Every enabled card falls into exactly
+ * one bucket, so the bars sum to the enabled deck size.
  */
 @Composable
 private fun CardStatesCard(
     dueNow: Int,
     newCount: Int,
-    learning: Int,
-    review: Int,
-    relearning: Int,
+    young: Int,
+    mature: Int,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -451,9 +449,8 @@ private fun CardStatesCard(
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             val bars = listOf(
                 StateBar(stringResource(R.string.stats_state_new), newCount, getStatisticsOnSurfaceVariant()),
-                StateBar(stringResource(R.string.stats_state_learning), learning, AccentAmber),
-                StateBar(stringResource(R.string.stats_state_review), review, AccentGreen),
-                StateBar(stringResource(R.string.stats_state_relearning), relearning, AccentRed),
+                StateBar(stringResource(R.string.stats_state_young), young, AccentAmber),
+                StateBar(stringResource(R.string.stats_state_mature), mature, AccentGreen),
             )
             val maxCount = bars.maxOf { it.count }.coerceAtLeast(1)
 

@@ -94,6 +94,8 @@ class FlashcardRepository @Inject constructor(
     suspend fun getDueNowCount(): Int = flashcardDao.getDueNowCount()
 
     suspend fun getMasteredCount(): Int = flashcardDao.getMasteredCount()
+
+    suspend fun getEnabledMatureCount(): Int = flashcardDao.getEnabledMatureCount()
     
     suspend fun getFlashcardCountByCategory(categoryId: Long): Int = flashcardDao.getFlashcardCountByCategory(categoryId)
     

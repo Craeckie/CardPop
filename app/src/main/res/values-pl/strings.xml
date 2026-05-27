@@ -328,9 +328,8 @@
     <string name="stats_history_mastered">Opanowane (łącznie)</string>
     <string name="stats_history_empty">Oceń kilka kart, aby zacząć śledzić tutaj swój postęp.</string>
     <string name="stats_state_new">Nowe</string>
-    <string name="stats_state_learning">Nauka</string>
-    <string name="stats_state_review">Powtórka</string>
-    <string name="stats_state_relearning">Ponowna nauka</string>
+    <string name="stats_state_young">Młode</string>
+    <string name="stats_state_mature">Dojrzałe</string>
 
     <!-- Statistics Reset Dialogs - careful Polish phrasing -->
     <string name="reset_all_stats_title">Resetuj wszystkie statystyki</string>
