@@ -1,0 +1,5 @@
+## 📊 Statistics
+
+- 📊 New "Stability Distribution" chart on the statistics screen: Review cards bucketed by FSRS stability (0–3d, 3–7d, 7–14d, 14–21d, 21–30d, 30d+). Bars before the 21-day mature threshold shown in blue; mature bars in green — see at a glance how many cards are early-stage vs. established.
+
+**Full Changelog**: https://github.com/Craeckie/CardPop/compare/v2.5.0...v2.6.0
