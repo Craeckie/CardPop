@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cardpop.app.data.entity.FlashcardEntity
 import com.cardpop.app.data.repository.FlashcardRepository
+import com.cardpop.app.domain.fsrs.FsrsCardState
 import com.cardpop.app.data.source.ReviewHistoryPreferences
 import com.cardpop.app.data.source.ReviewHistoryEntry
 import com.cardpop.app.domain.usecase.RetentionData
@@ -104,12 +105,24 @@ data class RatingDistribution(
     val total: Int get() = wrong + hard + good + easy
 }
 
+data class StabilityDistribution(
+    val b0to3: Int,
+    val b3to7: Int,
+    val b7to14: Int,
+    val b14to21: Int,
+    val b21to30: Int,
+    val b30plus: Int
+) {
+    val total: Int get() = b0to3 + b3to7 + b7to14 + b14to21 + b21to30 + b30plus
+}
+
 data class ModernStatisticsUiState(
     val isLoading: Boolean = false,
     val overallStats: EnhancedOverallStats? = null,
     val categoryStats: List<CategoryStats> = emptyList(),
     val reviewHistory: List<ReviewHistoryEntry> = emptyList(),
     val ratingDistribution: RatingDistribution? = null,
+    val stabilityDistribution: StabilityDistribution? = null,
     val retentionData: RetentionData? = null,
     val searchQuery: String = ""
 )
@@ -225,6 +238,16 @@ class StatisticsViewModel @Inject constructor(
                         easy  = allFlashcards.sumOf { it.easyCount }
                     )
 
+                    val reviewCards = allFlashcards.filter { it.state == FsrsCardState.Review.value }
+                    val stabilityDist = StabilityDistribution(
+                        b0to3   = reviewCards.count { it.stability < 3.0 },
+                        b3to7   = reviewCards.count { it.stability >= 3.0  && it.stability < 7.0 },
+                        b7to14  = reviewCards.count { it.stability >= 7.0  && it.stability < 14.0 },
+                        b14to21 = reviewCards.count { it.stability >= 14.0 && it.stability < 21.0 },
+                        b21to30 = reviewCards.count { it.stability >= 21.0 && it.stability < 30.0 },
+                        b30plus = reviewCards.count { it.stability >= 30.0 }
+                    )
+
                     val remembered = allFlashcards.sumOf { it.correctCount + it.easyCount + it.hardCount }
                     val forgotten  = allFlashcards.sumOf { it.incorrectCount }
                     val totalRev   = remembered + forgotten
@@ -239,6 +262,7 @@ class StatisticsViewModel @Inject constructor(
                         categoryStats = categoryStatsList,
                         reviewHistory = historySeries,
                         ratingDistribution = dist.takeIf { it.total > 0 },
+                        stabilityDistribution = stabilityDist.takeIf { it.total > 0 },
                         retentionData = retentionData
                     )
                 }

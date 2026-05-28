@@ -211,6 +211,13 @@ fun StatisticsScreen(
                                     Spacer(modifier = Modifier.height(16.dp))
                                 }
                             }
+
+                            item {
+                                uiState.stabilityDistribution?.let { dist ->
+                                    StabilityDistributionChart(distribution = dist)
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+                            }
                         }
                         
                         // Category Cards - use filtered stats
