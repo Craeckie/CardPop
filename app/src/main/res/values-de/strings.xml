@@ -531,4 +531,23 @@
     <string name="morning_reminder_text_no_session">Deine Karteikarten-Sitzung hat heute noch nicht begonnen.</string>
     <string name="morning_reminder_title_add_cards">Leg los mit deinem Stapel!</string>
     <string name="morning_reminder_text_add_cards">Füge deine ersten Karteikarten hinzu und fang an zu lernen.</string>
+
+    <!-- Study Health card -->
+    <string name="study_health_title">Lernzustand</string>
+    <string name="study_health_status_on_track">Auf Kurs</string>
+    <string name="study_health_status_good">Läuft gut</string>
+    <string name="study_health_status_needs_attention">Handlungsbedarf</string>
+    <string name="study_health_status_getting_started">Erste Schritte</string>
+    <string name="study_tip_catch_up_backlog">Rückstand aufholen, bevor du neue Karten hinzufügst</string>
+    <string name="study_tip_low_accuracy">Trefferquote unter Ziel — weniger neue Karten hinzufügen</string>
+    <string name="study_tip_low_stability_churn">Karten bleiben nicht haften — lass den Stapel konsolidieren</string>
+    <string name="study_tip_hold_off_new_cards">Stapel konsolidiert noch — keine neuen Karten jetzt</string>
+    <string name="study_tip_leeches">%1$d Karten bereiten ständig Probleme — umformulieren oder aussetzen</string>
+    <string name="study_tip_deck_too_hard">Viele Karten sind schwer — vereinfachen oder aufteilen</string>
+    <string name="study_tip_study_daily">Lernpausen schaden dem Abstand — täglich üben</string>
+    <string name="study_tip_add_more_cards">Guter Zeitpunkt für neue Karten!</string>
+    <string name="study_tip_retention_high">Du übertriffst dein Ziel — Platz für mehr Karten</string>
+    <string name="study_tip_keep_going">Weiter so — du bist auf dem richtigen Weg!</string>
+    <string name="study_health_filter_leeches">Problemkarten angezeigt</string>
+    <string name="study_health_filter_clear">Filter löschen</string>
 </resources>

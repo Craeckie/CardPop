@@ -537,4 +537,23 @@
     <string name="morning_reminder_text_no_session">Your flashcard session hasn\'t started today.</string>
     <string name="morning_reminder_title_add_cards">Start building your deck!</string>
     <string name="morning_reminder_text_add_cards">Add your first flashcards and begin learning.</string>
+
+    <!-- Study Health card -->
+    <string name="study_health_title">Study Health</string>
+    <string name="study_health_status_on_track">On Track</string>
+    <string name="study_health_status_good">Looking Good</string>
+    <string name="study_health_status_needs_attention">Needs Attention</string>
+    <string name="study_health_status_getting_started">Getting Started</string>
+    <string name="study_tip_catch_up_backlog">Clear your backlog before adding new cards</string>
+    <string name="study_tip_low_accuracy">Accuracy is below your target — slow down on new cards</string>
+    <string name="study_tip_low_stability_churn">Cards aren\'t sticking — let your deck consolidate</string>
+    <string name="study_tip_hold_off_new_cards">Deck is still consolidating — hold off on new cards</string>
+    <string name="study_tip_leeches">%1$d cards keep failing — consider rewording or suspending them</string>
+    <string name="study_tip_deck_too_hard">Many cards are hard — try splitting or simplifying them</string>
+    <string name="study_tip_study_daily">Study gaps hurt spacing — try to review every day</string>
+    <string name="study_tip_add_more_cards">Great time to add more cards!</string>
+    <string name="study_tip_retention_high">You\'re exceeding your target — room to add more cards</string>
+    <string name="study_tip_keep_going">Keep going — you\'re on track!</string>
+    <string name="study_health_filter_leeches">Showing leech cards</string>
+    <string name="study_health_filter_clear">Clear filter</string>
 </resources>

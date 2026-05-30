@@ -23,10 +23,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -64,10 +66,11 @@ fun StatisticsScreen(
     var showFlashcardResetDialog by remember { mutableStateOf<FlashcardStats?>(null) }
     var showCategoryResetDialog by remember { mutableStateOf<CategoryStats?>(null) }
     
-    // Get filtered category stats based on search query
+    // Get filtered category stats based on the active filter (text search or leech filter)
     val filteredCategoryStats = viewModel.getFilteredCategoryStats()
     val hasSearchResults = filteredCategoryStats.isNotEmpty()
     val isSearching = uiState.searchQuery.isNotBlank()
+    val isFiltering = isSearching || uiState.leechFilter
     
     LaunchedEffect(Unit) {
         viewModel.loadStatistics()
@@ -172,30 +175,63 @@ fun StatisticsScreen(
                 )
                 
                 // Content - check for search results
-                if (isSearching && !hasSearchResults) {
-                    // No search results found
+                if (isFiltering && !hasSearchResults) {
+                    // No filter results found
                     EmptyStateCard(
                         title = stringResource(R.string.search_no_results),
                         description = stringResource(R.string.search_no_results_description),
                         buttonText = stringResource(R.string.search_clear),
-                        onButtonClick = { viewModel.updateSearchQuery("") },
+                        onButtonClick = {
+                            viewModel.updateSearchQuery("")
+                            viewModel.setLeechFilter(false)
+                        },
                         icon = Icons.Default.Search,
                         modifier = Modifier.padding(16.dp)
                     )
                 } else {
+                    // Leech filter chip — shown above the list when the leech filter is active
+                    if (uiState.leechFilter) {
+                        FilterChip(
+                            selected = true,
+                            onClick = { viewModel.setLeechFilter(false) },
+                            label = { Text(stringResource(R.string.study_health_filter_leeches)) },
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = stringResource(R.string.study_health_filter_clear),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            },
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                        )
+                    }
+
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // Modern Statistics Card Grid - only show when not searching
-                        if (!isSearching) {
+                        // Modern Statistics Card Grid - only show when not filtering
+                        if (!isFiltering) {
                             item {
                                 uiState.overallStats?.let { stats ->
                                     ModernStatsCardGrid(stats, uiState.retentionData)
 
                                     // Add some space between the cards and category list
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+                            }
+
+                            item {
+                                // Study Health card — interpretation layer below the summary badges
+                                uiState.studyHealth?.let { health ->
+                                    StudyHealthCard(
+                                        health = health,
+                                        onLeechTipClick = if (health.leechCount > 0)
+                                            ({ viewModel.setLeechFilter(true) })
+                                        else null
+                                    )
                                     Spacer(modifier = Modifier.height(16.dp))
                                 }
                             }
@@ -219,7 +255,7 @@ fun StatisticsScreen(
                                 }
                             }
                         }
-                        
+
                         // Category Cards - use filtered stats
                         items(filteredCategoryStats) { categoryStats ->
                             ModernCategoryCard(

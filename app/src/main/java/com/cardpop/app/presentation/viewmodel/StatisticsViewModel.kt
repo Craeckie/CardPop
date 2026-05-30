@@ -24,9 +24,12 @@ import com.cardpop.app.data.repository.FlashcardRepository
 import com.cardpop.app.domain.fsrs.FsrsCardState
 import com.cardpop.app.data.source.ReviewHistoryPreferences
 import com.cardpop.app.data.source.ReviewHistoryEntry
+import com.cardpop.app.data.repository.SettingsRepository
+import com.cardpop.app.domain.model.StudyHealth
 import com.cardpop.app.domain.usecase.RetentionData
 import com.cardpop.app.domain.usecase.StatisticsUseCase
 import com.cardpop.app.domain.usecase.SimpleStreakUseCase
+import com.cardpop.app.domain.usecase.StudyHealthUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,6 +49,7 @@ data class FlashcardStats(
     val successRate: Float,
     val lastSeenTimestamp: Long,
     val reviewCount: Int,
+    val lapses: Int,
     val isEnabled: Boolean,
     val isMastered: Boolean
 ) {
@@ -124,7 +128,10 @@ data class ModernStatisticsUiState(
     val ratingDistribution: RatingDistribution? = null,
     val stabilityDistribution: StabilityDistribution? = null,
     val retentionData: RetentionData? = null,
-    val searchQuery: String = ""
+    val studyHealth: StudyHealth? = null,
+    val searchQuery: String = "",
+    /** When true, the category list is filtered to cards with lapses ≥ LEECH_LAPSES. */
+    val leechFilter: Boolean = false
 )
 
 @HiltViewModel
@@ -132,7 +139,9 @@ class StatisticsViewModel @Inject constructor(
     private val statisticsUseCase: StatisticsUseCase,
     private val repository: FlashcardRepository,
     private val simpleStreakUseCase: SimpleStreakUseCase,
-    private val reviewHistory: ReviewHistoryPreferences
+    private val reviewHistory: ReviewHistoryPreferences,
+    private val settingsRepository: SettingsRepository,
+    private val studyHealthUseCase: StudyHealthUseCase
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(ModernStatisticsUiState())
@@ -207,6 +216,7 @@ class StatisticsViewModel @Inject constructor(
                                     successRate = weightedSuccessRate(flashcard) * 100f,
                                     lastSeenTimestamp = flashcard.dueAt,
                                     reviewCount = flashcard.reps,
+                                    lapses = flashcard.lapses,
                                     isEnabled = flashcard.isEnabled,
                                     isMastered = isMastered
                                 )
@@ -256,6 +266,30 @@ class StatisticsViewModel @Inject constructor(
                         totalReviews = totalRev
                     ).takeIf { totalRev >= 10 }
 
+                    // recallRate = (good+easy+hard)/total — matches FSRS "not-Again" semantics
+                    // so it can be compared directly against targetRetention. Note: this differs
+                    // from weightedSuccessRate, which counts Hard as 0.5.
+                    val recallRate = if (totalRev > 0) remembered.toFloat() / totalRev else 0f
+                    val now7DaysAgo = System.currentTimeMillis() - 7L * 86_400_000L
+                    val studyHealth = studyHealthUseCase.evaluate(
+                        StudyHealthUseCase.Input(
+                            activeTotal              = totalEnabled,
+                            newCount                 = newCount,
+                            youngCount               = youngCount,
+                            matureCount              = matureCount,
+                            dueNowCount              = dueNowCount,
+                            totalReviews             = totalRev,
+                            recallRate               = recallRate,
+                            targetRetention          = settingsRepository.getTargetRetention(),
+                            leechCount               = allFlashcards.count { it.lapses >= StudyHealthUseCase.LEECH_LAPSES },
+                            reviewCardCount          = reviewCards.size,
+                            hardDifficultyCount      = reviewCards.count { it.difficulty > StudyHealthUseCase.HARD_DIFF_THRESHOLD },
+                            lowStabilityReviewCount  = stabilityDist.b0to3 + stabilityDist.b3to7,
+                            cardsAddedLast7Days      = allFlashcards.count { it.createdAt >= now7DaysAgo },
+                            zeroReviewDaysLast7      = historySeries.takeLast(7).count { it.reviews == 0 }
+                        )
+                    )
+
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         overallStats = enhancedOverallStats,
@@ -263,7 +297,8 @@ class StatisticsViewModel @Inject constructor(
                         reviewHistory = historySeries,
                         ratingDistribution = dist.takeIf { it.total > 0 },
                         stabilityDistribution = stabilityDist.takeIf { it.total > 0 },
-                        retentionData = retentionData
+                        retentionData = retentionData,
+                        studyHealth = studyHealth
                     )
                 }
             } catch (e: Exception) {
@@ -287,31 +322,57 @@ class StatisticsViewModel @Inject constructor(
     
     // Search functionality
     fun updateSearchQuery(query: String) {
-        _uiState.value = _uiState.value.copy(searchQuery = query.trim())
+        // Activating text search clears the leech filter (they're mutually exclusive)
+        _uiState.value = _uiState.value.copy(searchQuery = query.trim(), leechFilter = false)
     }
-    
+
+    /** Activates or clears the leech filter. Clears text search when activating. */
+    fun setLeechFilter(enabled: Boolean) {
+        _uiState.value = _uiState.value.copy(
+            leechFilter = enabled,
+            searchQuery = if (enabled) "" else _uiState.value.searchQuery
+        )
+    }
+
     /**
-     * Returns filtered category stats based on search query.
-     * Searches both category names and flashcard content (questions/answers).
+     * Returns filtered category stats based on the active filter.
+     *
+     * Leech filter: shows only flashcards with lapses ≥ [StudyHealthUseCase.LEECH_LAPSES],
+     * auto-expanding categories that have matching cards.
+     *
+     * Text search: searches both category names and flashcard content (questions/answers).
      * Categories are included if:
      * - The category name matches the query, OR
      * - Any flashcard within the category matches the query
+     *
+     * The two modes are mutually exclusive; activating one clears the other.
      */
     fun getFilteredCategoryStats(): List<CategoryStats> {
-        val query = _uiState.value.searchQuery
-        if (query.isBlank()) {
-            return _uiState.value.categoryStats
+        val state = _uiState.value
+
+        // Leech filter overrides text search
+        if (state.leechFilter) {
+            return state.categoryStats.mapNotNull { category ->
+                val leeches = category.flashcards.filter { it.lapses >= StudyHealthUseCase.LEECH_LAPSES }
+                if (leeches.isEmpty()) null
+                else category.copy(flashcards = leeches, isExpanded = true)
+            }
         }
-        
-        return _uiState.value.categoryStats.mapNotNull { category ->
+
+        val query = state.searchQuery
+        if (query.isBlank()) {
+            return state.categoryStats
+        }
+
+        return state.categoryStats.mapNotNull { category ->
             val categoryNameMatches = category.categoryName.contains(query, ignoreCase = true)
-            
+
             // Filter flashcards within the category
             val matchingFlashcards = category.flashcards.filter { flashcard ->
                 flashcard.question.contains(query, ignoreCase = true) ||
                 flashcard.answer.contains(query, ignoreCase = true)
             }
-            
+
             when {
                 // Category name matches - include with all flashcards
                 categoryNameMatches -> category

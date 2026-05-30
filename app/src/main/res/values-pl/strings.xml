@@ -531,4 +531,23 @@
     <string name="morning_reminder_text_no_session">Twoja sesja z fiszkami nie została jeszcze rozpoczęta.</string>
     <string name="morning_reminder_title_add_cards">Zacznij budować swoją talię!</string>
     <string name="morning_reminder_text_add_cards">Dodaj pierwsze fiszki i zacznij się uczyć.</string>
+
+    <!-- Study Health card -->
+    <string name="study_health_title">Stan nauki</string>
+    <string name="study_health_status_on_track">Na dobrej drodze</string>
+    <string name="study_health_status_good">Dobrze idzie</string>
+    <string name="study_health_status_needs_attention">Wymaga uwagi</string>
+    <string name="study_health_status_getting_started">Zaczynasz</string>
+    <string name="study_tip_catch_up_backlog">Nadróbaj zaległości przed dodaniem nowych kart</string>
+    <string name="study_tip_low_accuracy">Skuteczność poniżej celu — zwolnij z nowymi kartami</string>
+    <string name="study_tip_low_stability_churn">Karty nie utrwalają się — daj talii czas na konsolidację</string>
+    <string name="study_tip_hold_off_new_cards">Talia się konsoliduje — wstrzymaj się z nowymi kartami</string>
+    <string name="study_tip_leeches">%1$d kart ciągle sprawia trudności — przemyśl ich przeformułowanie lub zawieszenie</string>
+    <string name="study_tip_deck_too_hard">Wiele kart jest trudnych — spróbuj je uprościć lub podzielić</string>
+    <string name="study_tip_study_daily">Przerwy szkodzą powtórkom — staraj się ćwiczyć codziennie</string>
+    <string name="study_tip_add_more_cards">Świetny moment na dodanie nowych kart!</string>
+    <string name="study_tip_retention_high">Przekraczasz swój cel — jest miejsce na więcej kart</string>
+    <string name="study_tip_keep_going">Tak trzymaj — jesteś na dobrej drodze!</string>
+    <string name="study_health_filter_leeches">Widok kart problematycznych</string>
+    <string name="study_health_filter_clear">Wyczyść filtr</string>
 </resources>
