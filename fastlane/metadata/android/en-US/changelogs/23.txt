@@ -1,0 +1,13 @@
+## ✨ New Features
+
+- 📊 Added **Study Health** card to the Statistics screen — shows an overall assessment of your study habits (On Track / Good / Needs Attention) with actionable tips such as catching up a backlog, reducing new cards, or flagging leeches
+
+## 🎨 Visual
+
+- 📐 Reordered Statistics screen sections for a better reading flow
+
+## 🐛 Fixes
+
+- 🐛 Removed stray status badge from the Study Health card
+
+**Full Changelog**: https://github.com/Craeckie/CardPop/compare/v2.6.0...v2.7.0
