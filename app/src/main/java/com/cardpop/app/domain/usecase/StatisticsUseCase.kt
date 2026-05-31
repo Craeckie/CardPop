@@ -17,6 +17,7 @@
 
 package com.cardpop.app.domain.usecase
 
+import com.cardpop.app.data.entity.FlashcardEntity
 import com.cardpop.app.data.repository.FlashcardRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -48,46 +49,66 @@ data class RetentionData(
 // StreakCalculator object removed - replaced with SimpleStreakUseCase for better UX
 // Old complex historical calculation replaced with simple, predictable streak tracking
 
+/**
+ * Pure, stateless arithmetic extracted from [StatisticsUseCase] so it can be
+ * unit-tested without any Android dependencies (no Context, no Repository).
+ */
+internal object StatisticsCalculator {
+
+    /**
+     * Computes [SimpleStatistics] from a list of cards and the current streak.
+     *
+     * Mastered heuristic: `stability >= 21.0 && reps >= 3` (same as StatisticsViewModel).
+     * Accuracy: Good + Easy = 1.0 credit; Hard = 0.5 credit; Wrong = 0.
+     */
+    fun computeStatistics(cards: List<FlashcardEntity>, streakDays: Int): SimpleStatistics {
+        val totalCards = cards.size
+        val studiedCards = cards.count { it.reps > 0 }
+        val masteredCards = cards.count { it.stability >= 21.0 && it.reps >= 3 }
+
+        val totalGood = cards.sumOf { it.correctCount }
+        val totalEasy = cards.sumOf { it.easyCount }
+        val totalHard = cards.sumOf { it.hardCount }
+        val totalWrong = cards.sumOf { it.incorrectCount }
+        val totalAttempts = totalGood + totalEasy + totalHard + totalWrong
+        val accuracyRate = if (totalAttempts > 0) {
+            (totalGood + totalEasy + totalHard * 0.5f) / totalAttempts.toFloat()
+        } else 0f
+
+        return SimpleStatistics(
+            totalCards = totalCards,
+            studiedCards = studiedCards,
+            masteredCards = masteredCards,
+            accuracyRate = accuracyRate,
+            streakDays = streakDays
+        )
+    }
+
+    /**
+     * Computes [RetentionData] from a list of cards.
+     *
+     * Remembered = correctCount + easyCount + hardCount; Forgotten = incorrectCount.
+     */
+    fun computeRetention(cards: List<FlashcardEntity>): RetentionData {
+        val remembered = cards.sumOf { it.correctCount + it.easyCount + it.hardCount }
+        val forgotten = cards.sumOf { it.incorrectCount }
+        val total = remembered + forgotten
+        val rate = if (total > 0) remembered.toFloat() / total.toFloat() else 0f
+        return RetentionData(rate = rate, totalReviews = total)
+    }
+}
+
 @Singleton
 class StatisticsUseCase @Inject constructor(
     private val repository: FlashcardRepository,
     private val simpleStreakUseCase: SimpleStreakUseCase
 ) {
-    
+
     suspend fun getSimpleStatistics(): Result<SimpleStatistics> {
         return try {
-            // Get enabled flashcards for regular statistics (total cards, studied cards, etc.)
             val enabledFlashcards = repository.getAllFlashcards()
-            
-            val totalCards = enabledFlashcards.size
-            val studiedCards = enabledFlashcards.count { it.reps > 0 }
-            // Mastered heuristic mirrors StatisticsViewModel: stable for ~3 weeks after 3+ reviews.
-            val masteredCards = enabledFlashcards.count { it.stability >= 21.0 && it.reps >= 3 }
-            
-            // Treat Good + Easy as correct; Hard counts as half-credit; Wrong is zero.
-            // Same weighting as the per-card success rate in StatisticsViewModel.
-            val totalGood = enabledFlashcards.sumOf { it.correctCount }
-            val totalEasy = enabledFlashcards.sumOf { it.easyCount }
-            val totalHard = enabledFlashcards.sumOf { it.hardCount }
-            val totalWrong = enabledFlashcards.sumOf { it.incorrectCount }
-            val totalAttempts = totalGood + totalEasy + totalHard + totalWrong
-            val accuracyRate = if (totalAttempts > 0) {
-                (totalGood + totalEasy + totalHard * 0.5f) / totalAttempts.toFloat()
-            } else 0f
-            
-            // Use new simple streak system instead of complex historical calculation
-            val currentStreakData = simpleStreakUseCase.getCurrentStreakData()
-            val streakDays = currentStreakData.currentStreak
-            
-            val stats = SimpleStatistics(
-                totalCards = totalCards,
-                studiedCards = studiedCards,
-                masteredCards = masteredCards,
-                accuracyRate = accuracyRate,
-                streakDays = streakDays
-            )
-            
-            Result.success(stats)
+            val streakDays = simpleStreakUseCase.getCurrentStreakData().currentStreak
+            Result.success(StatisticsCalculator.computeStatistics(enabledFlashcards, streakDays))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -95,10 +116,6 @@ class StatisticsUseCase @Inject constructor(
 
     suspend fun getRetention(): RetentionData {
         val cards = repository.getAllFlashcardsForStatistics()
-        val remembered = cards.sumOf { it.correctCount + it.easyCount + it.hardCount }
-        val forgotten = cards.sumOf { it.incorrectCount }
-        val total = remembered + forgotten
-        val rate = if (total > 0) remembered.toFloat() / total.toFloat() else 0f
-        return RetentionData(rate = rate, totalReviews = total)
+        return StatisticsCalculator.computeRetention(cards)
     }
 }
