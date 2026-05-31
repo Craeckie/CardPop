@@ -57,41 +57,40 @@ import kotlin.math.roundToInt
 private data class StateBar(val label: String, val count: Int, val color: Color)
 
 @Composable
-fun ModernStatsCardGrid(stats: EnhancedOverallStats, retentionData: RetentionData? = null) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+fun ModernStatsBadgesRow(stats: EnhancedOverallStats, retentionData: RetentionData? = null) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            CurrentStreakCard(
-                streakDays = stats.streakDays,
-                modifier = Modifier.weight(1f)
-            )
-            HighestStreakCard(
-                highestStreak = stats.highestStreak,
-                modifier = Modifier.weight(1f)
-            )
-            MasteredCard(
-                mastered = stats.masteredFlashcards,
-                total = stats.totalFlashcards,
-                modifier = Modifier.weight(1f)
-            )
-            retentionData?.let {
-                RetentionCard(retentionData = it, modifier = Modifier.weight(1f))
-            }
-        }
-        CardStatesCard(
-            dueNow = stats.dueNowCount,
-            newCount = stats.newCount,
-            young = stats.youngCount,
-            mature = stats.matureCount,
+        CurrentStreakCard(
+            streakDays = stats.streakDays,
+            modifier = Modifier.weight(1f)
         )
+        HighestStreakCard(
+            highestStreak = stats.highestStreak,
+            modifier = Modifier.weight(1f)
+        )
+        MasteredCard(
+            mastered = stats.masteredFlashcards,
+            total = stats.totalFlashcards,
+            modifier = Modifier.weight(1f)
+        )
+        retentionData?.let {
+            RetentionCard(retentionData = it, modifier = Modifier.weight(1f))
+        }
     }
+}
+
+@Composable
+fun ModernCardStatesCard(stats: EnhancedOverallStats) {
+    CardStatesCard(
+        dueNow = stats.dueNowCount,
+        newCount = stats.newCount,
+        young = stats.youngCount,
+        mature = stats.matureCount,
+    )
 }
 
 

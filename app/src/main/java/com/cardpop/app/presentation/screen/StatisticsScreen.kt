@@ -163,34 +163,74 @@ fun StatisticsScreen(
                 CircularProgressIndicator()
             }
         } else {
-            Column(
-                modifier = Modifier.fillMaxSize()
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Search bar - only show when statistics exist
-                SearchBar(
-                    query = uiState.searchQuery,
-                    onQueryChange = { viewModel.updateSearchQuery(it) },
-                    placeholder = stringResource(R.string.search_statistics),
-                    visible = uiState.categoryStats.isNotEmpty()
-                )
-                
-                // Content - check for search results
-                if (isFiltering && !hasSearchResults) {
-                    // No filter results found
-                    EmptyStateCard(
-                        title = stringResource(R.string.search_no_results),
-                        description = stringResource(R.string.search_no_results_description),
-                        buttonText = stringResource(R.string.search_clear),
-                        onButtonClick = {
-                            viewModel.updateSearchQuery("")
-                            viewModel.setLeechFilter(false)
-                        },
-                        icon = Icons.Default.Search,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                } else {
-                    // Leech filter chip — shown above the list when the leech filter is active
-                    if (uiState.leechFilter) {
+                // Statistics sections — hidden while a filter is active
+                if (!isFiltering) {
+                    item {
+                        uiState.overallStats?.let { stats ->
+                            ModernStatsBadgesRow(stats, uiState.retentionData)
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+
+                    item {
+                        uiState.studyHealth?.let { health ->
+                            StudyHealthCard(
+                                health = health,
+                                onLeechTipClick = if (health.leechCount > 0)
+                                    ({ viewModel.setLeechFilter(true) })
+                                else null
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+
+                    item {
+                        uiState.stabilityDistribution?.let { dist ->
+                            StabilityDistributionChart(distribution = dist)
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+
+                    item {
+                        ReviewHistoryChart(history = uiState.reviewHistory)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    item {
+                        uiState.overallStats?.let { stats ->
+                            ModernCardStatesCard(stats)
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+
+                    item {
+                        uiState.ratingDistribution?.let { dist ->
+                            RatingDistributionChart(distribution = dist)
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                }
+
+                // Search bar — between rating and decks
+                if (uiState.categoryStats.isNotEmpty()) {
+                    item {
+                        SearchBar(
+                            query = uiState.searchQuery,
+                            onQueryChange = { viewModel.updateSearchQuery(it) },
+                            placeholder = stringResource(R.string.search_statistics),
+                        )
+                    }
+                }
+
+                // Leech filter chip
+                if (uiState.leechFilter) {
+                    item {
                         FilterChip(
                             selected = true,
                             onClick = { viewModel.setLeechFilter(false) },
@@ -202,69 +242,34 @@ fun StatisticsScreen(
                                     modifier = Modifier.size(16.dp)
                                 )
                             },
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                            modifier = Modifier.padding(horizontal = 0.dp, vertical = 4.dp)
                         )
                     }
+                }
 
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        // Modern Statistics Card Grid - only show when not filtering
-                        if (!isFiltering) {
-                            item {
-                                uiState.overallStats?.let { stats ->
-                                    ModernStatsCardGrid(stats, uiState.retentionData)
-
-                                    // Add some space between the cards and category list
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                }
-                            }
-
-                            item {
-                                // Study Health card — interpretation layer below the summary badges
-                                uiState.studyHealth?.let { health ->
-                                    StudyHealthCard(
-                                        health = health,
-                                        onLeechTipClick = if (health.leechCount > 0)
-                                            ({ viewModel.setLeechFilter(true) })
-                                        else null
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                }
-                            }
-
-                            item {
-                                ReviewHistoryChart(history = uiState.reviewHistory)
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-
-                            item {
-                                uiState.ratingDistribution?.let { dist ->
-                                    RatingDistributionChart(distribution = dist)
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                }
-                            }
-
-                            item {
-                                uiState.stabilityDistribution?.let { dist ->
-                                    StabilityDistributionChart(distribution = dist)
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                }
-                            }
-                        }
-
-                        // Category Cards - use filtered stats
-                        items(filteredCategoryStats) { categoryStats ->
-                            ModernCategoryCard(
-                                categoryStats = categoryStats,
-                                onToggleExpansion = { viewModel.toggleCategoryExpansion(categoryStats.categoryId) },
-                                onFlashcardResetClick = { flashcard -> showFlashcardResetDialog = flashcard },
-                                onCategoryResetClick = { showCategoryResetDialog = categoryStats }
-                            )
-                        }
+                // Decks — filtered category cards or no-results state
+                if (isFiltering && !hasSearchResults) {
+                    item {
+                        EmptyStateCard(
+                            title = stringResource(R.string.search_no_results),
+                            description = stringResource(R.string.search_no_results_description),
+                            buttonText = stringResource(R.string.search_clear),
+                            onButtonClick = {
+                                viewModel.updateSearchQuery("")
+                                viewModel.setLeechFilter(false)
+                            },
+                            icon = Icons.Default.Search,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                } else {
+                    items(filteredCategoryStats) { categoryStats ->
+                        ModernCategoryCard(
+                            categoryStats = categoryStats,
+                            onToggleExpansion = { viewModel.toggleCategoryExpansion(categoryStats.categoryId) },
+                            onFlashcardResetClick = { flashcard -> showFlashcardResetDialog = flashcard },
+                            onCategoryResetClick = { showCategoryResetDialog = categoryStats }
+                        )
                     }
                 }
             }
