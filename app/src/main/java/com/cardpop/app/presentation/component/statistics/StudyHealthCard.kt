@@ -21,24 +21,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.cardpop.app.R
 import com.cardpop.app.domain.model.StudyHealth
-import com.cardpop.app.domain.model.StudyHealthStatus
 import com.cardpop.app.domain.model.StudyTip
 
 /**
@@ -62,20 +55,13 @@ fun StudyHealthCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Header row: title + status chip
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.study_health_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = getStatisticsOnSurface()
-                )
-                StatusChip(status = health.status)
-            }
+            // Header row: title
+            Text(
+                text = stringResource(R.string.study_health_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = getStatisticsOnSurface()
+            )
 
             // Tips — show top two
             val shownTips = health.tips.take(2)
@@ -97,35 +83,6 @@ fun StudyHealthCard(
 }
 
 // ── Internal composables ───────────────────────────────────────────────────────
-
-@Composable
-private fun StatusChip(status: StudyHealthStatus) {
-    val (icon, color, label) = statusAttributes(status)
-    Surface(
-        shape = RoundedCornerShape(20.dp),
-        color = color.copy(alpha = 0.15f),
-        tonalElevation = 0.dp
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(14.dp)
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = color
-            )
-        }
-    }
-}
 
 @Composable
 private fun TipRow(
@@ -164,20 +121,6 @@ private fun TipRow(
 }
 
 // ── String / color helpers (enum → UI, keeps domain free of R) ────────────────
-
-private data class StatusAttrs(val icon: ImageVector, val color: Color, val label: String)
-
-@Composable
-private fun statusAttributes(status: StudyHealthStatus): StatusAttrs = when (status) {
-    StudyHealthStatus.ON_TRACK        -> StatusAttrs(Icons.Filled.CheckCircle, AccentGreen,
-                                            stringResource(R.string.study_health_status_on_track))
-    StudyHealthStatus.GOOD            -> StatusAttrs(Icons.Filled.Info, AccentAmber,
-                                            stringResource(R.string.study_health_status_good))
-    StudyHealthStatus.NEEDS_ATTENTION -> StatusAttrs(Icons.Filled.Warning, AccentRed,
-                                            stringResource(R.string.study_health_status_needs_attention))
-    StudyHealthStatus.GETTING_STARTED -> StatusAttrs(Icons.Filled.Star, AccentTeal,
-                                            stringResource(R.string.study_health_status_getting_started))
-}
 
 @Composable
 private fun tipText(tip: StudyTip, leechCount: Int): String = when (tip) {
