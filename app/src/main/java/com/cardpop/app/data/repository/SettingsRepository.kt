@@ -109,6 +109,18 @@ class SettingsRepository @Inject constructor(
     private val _pausedUntilMs = MutableStateFlow(getPausedUntil())
     val pausedUntilMs: StateFlow<Long> = _pausedUntilMs.asStateFlow()
 
+    // Max brand-new cards introduced per day. -1 = unlimited, 0 = never, N = that many.
+    private val _newCardLimitPerDay = MutableStateFlow(getNewCardLimitPerDay())
+    val newCardLimitPerDay: StateFlow<Int> = _newCardLimitPerDay.asStateFlow()
+
+    // When enabled, new cards are front-loaded before the cutoff hour and suppressed after it.
+    private val _newCardCutoffEnabled = MutableStateFlow(getNewCardCutoffEnabled())
+    val newCardCutoffEnabled: StateFlow<Boolean> = _newCardCutoffEnabled.asStateFlow()
+
+    // Hour of day (0..23) after which new cards are suppressed (reviews only).
+    private val _newCardCutoffHour = MutableStateFlow(getNewCardCutoffHour())
+    val newCardCutoffHour: StateFlow<Int> = _newCardCutoffHour.asStateFlow()
+
     companion object {
         private const val KEY_INTERVAL_MINUTES = "interval_minutes"
         private const val KEY_IS_LEARNING_ACTIVE = "is_learning_active"
@@ -134,6 +146,13 @@ class SettingsRepository @Inject constructor(
         private const val DEFAULT_TARGET_RETENTION = 0.9f
         private const val MIN_TARGET_RETENTION = 0.80f
         private const val MAX_TARGET_RETENTION = 0.95f
+        private const val KEY_NEW_CARD_LIMIT = "new_card_limit_per_day"
+        private const val KEY_NEW_CARD_CUTOFF_ENABLED = "new_card_cutoff_enabled"
+        private const val KEY_NEW_CARD_CUTOFF_HOUR = "new_card_cutoff_hour"
+        const val NEW_CARD_LIMIT_UNLIMITED = -1
+        private const val DEFAULT_NEW_CARD_LIMIT = 10
+        private const val DEFAULT_NEW_CARD_CUTOFF_ENABLED = true
+        private const val DEFAULT_NEW_CARD_CUTOFF_HOUR = 18
     }
 
     fun getTargetRetention(): Double =
@@ -409,5 +428,41 @@ class SettingsRepository @Inject constructor(
             .putLong(KEY_PAUSED_UNTIL, epochMs)
             .apply()
         _pausedUntilMs.value = epochMs
+    }
+
+    fun getNewCardLimitPerDay(): Int {
+        return prefs.getInt(KEY_NEW_CARD_LIMIT, DEFAULT_NEW_CARD_LIMIT)
+    }
+
+    fun setNewCardLimitPerDay(limit: Int) {
+        val sanitized = if (limit < 0) NEW_CARD_LIMIT_UNLIMITED else limit
+        prefs.edit()
+            .putInt(KEY_NEW_CARD_LIMIT, sanitized)
+            .apply()
+        _newCardLimitPerDay.value = sanitized
+    }
+
+    fun getNewCardCutoffEnabled(): Boolean {
+        return prefs.getBoolean(KEY_NEW_CARD_CUTOFF_ENABLED, DEFAULT_NEW_CARD_CUTOFF_ENABLED)
+    }
+
+    fun setNewCardCutoffEnabled(enabled: Boolean) {
+        prefs.edit()
+            .putBoolean(KEY_NEW_CARD_CUTOFF_ENABLED, enabled)
+            .apply()
+        _newCardCutoffEnabled.value = enabled
+    }
+
+    fun getNewCardCutoffHour(): Int {
+        return prefs.getInt(KEY_NEW_CARD_CUTOFF_HOUR, DEFAULT_NEW_CARD_CUTOFF_HOUR)
+            .coerceIn(0, 23)
+    }
+
+    fun setNewCardCutoffHour(hour: Int) {
+        val clamped = hour.coerceIn(0, 23)
+        prefs.edit()
+            .putInt(KEY_NEW_CARD_CUTOFF_HOUR, clamped)
+            .apply()
+        _newCardCutoffHour.value = clamped
     }
 }
