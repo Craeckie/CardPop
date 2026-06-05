@@ -496,13 +496,13 @@
 
     <!-- CSV import - Polish -->
     <string name="csv_import_title">Importuj karty</string>
-    <string name="csv_import_formats_hint">CSV · TSV · Anki (.apkg)</string>
+    <string name="csv_import_formats_hint">CSV · TSV · Anki (.apkg) · Pleco (.xml)</string>
     <string name="csv_import_back">Wróć</string>
     <string name="csv_import_select_file">Wybierz plik</string>
-    <string name="csv_import_file_description">Wybierz plik CSV/TSV lub Anki (.apkg) do importu. Pliki CSV/TSV powinny mieć co najmniej dwie kolumny: pytanie i odpowiedź.</string>
+    <string name="csv_import_file_description">Wybierz plik CSV/TSV, Anki (.apkg) lub Pleco (.xml) do importu. Pliki CSV/TSV powinny mieć co najmniej dwie kolumny: pytanie i odpowiedź.</string>
     <string name="csv_import_pick_file_button">Wybierz plik</string>
     <string name="csv_import_pick_another">Wybierz inny plik</string>
-    <string name="csv_import_supported_formats">Obsługiwane: CSV, TSV z nagłówkami jak question/answer, front/back, term/definition; oraz talie Anki (.apkg)</string>
+    <string name="csv_import_supported_formats">Obsługiwane: CSV, TSV z nagłówkami jak question/answer, front/back, term/definition; talie Anki (.apkg); oraz eksporty Pleco (.xml)</string>
     <string name="csv_import_parsing_file">Parsowanie pliku…</string>
     <string name="csv_import_preview_title">Podgląd</string>
     <string name="csv_import_preview_label">Podgląd (pierwsze %1$d z %2$d):</string>

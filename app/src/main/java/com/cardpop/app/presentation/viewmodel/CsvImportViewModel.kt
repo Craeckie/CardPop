@@ -22,6 +22,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cardpop.app.data.anki.AnkiParser
+import com.cardpop.app.data.pleco.PlecoXmlParser
 import com.cardpop.app.data.csv.CsvImportResult
 import com.cardpop.app.data.csv.CsvParseResult
 import com.cardpop.app.domain.usecase.csv.ImportCsvUseCase
@@ -45,6 +46,7 @@ import javax.inject.Inject
 class CsvImportViewModel @Inject constructor(
     private val importCsvUseCase: ImportCsvUseCase,
     private val ankiParser: AnkiParser,
+    private val plecoXmlParser: PlecoXmlParser,
     private val application: Application
 ) : ViewModel() {
 
@@ -81,7 +83,7 @@ class CsvImportViewModel @Inject constructor(
 
     /**
      * Parses the file for preview.
-     * Detects file type by extension: .apkg files are parsed as Anki decks,
+     * Detects file type by extension: .apkg → Anki deck, .xml → Pleco XML,
      * all other files are parsed as CSV.
      * Caches the result for later use in [executeImport].
      */
@@ -91,7 +93,9 @@ class CsvImportViewModel @Inject constructor(
             return
         }
 
-        val isAnkiFile = pendingFileName?.lowercase()?.endsWith(".apkg") == true
+        val name = pendingFileName?.lowercase().orEmpty()
+        val isAnkiFile = name.endsWith(".apkg")
+        val isPlecoFile = name.endsWith(".xml")
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
@@ -101,12 +105,14 @@ class CsvImportViewModel @Inject constructor(
 
             try {
                 contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val result = if (isAnkiFile) {
-                        withContext(Dispatchers.IO) {
+                    val result = when {
+                        isAnkiFile -> withContext(Dispatchers.IO) {
                             ankiParser.parse(inputStream, application.cacheDir)
                         }
-                    } else {
-                        importCsvUseCase.parseForPreview(inputStream)
+                        isPlecoFile -> withContext(Dispatchers.IO) {
+                            plecoXmlParser.parse(inputStream)
+                        }
+                        else -> importCsvUseCase.parseForPreview(inputStream)
                     }
                     cachedParseResult = result
 
@@ -132,7 +138,11 @@ class CsvImportViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                val fileType = if (isAnkiFile) "Anki deck" else "CSV"
+                val fileType = when {
+                    isAnkiFile -> "Anki deck"
+                    isPlecoFile -> "Pleco XML"
+                    else -> "CSV"
+                }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = "Failed to parse $fileType: ${e.message}",

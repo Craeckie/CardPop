@@ -18,6 +18,7 @@
 package com.cardpop.app.di
 
 import com.cardpop.app.data.anki.AnkiParser
+import com.cardpop.app.data.pleco.PlecoXmlParser
 import com.cardpop.app.data.csv.CsvExporter
 import com.cardpop.app.data.csv.CsvParser
 import com.cardpop.app.data.dao.CategoryDao
@@ -42,6 +43,12 @@ object CsvModule {
     @Singleton
     fun provideAnkiParser(): AnkiParser {
         return AnkiParser()
+    }
+
+    @Provides
+    @Singleton
+    fun providePlecoXmlParser(): PlecoXmlParser {
+        return PlecoXmlParser()
     }
 
     @Provides
