@@ -22,7 +22,9 @@ import com.cardpop.app.data.entity.FlashcardEntity
 import com.cardpop.app.data.entity.ReviewLogEntity
 import com.cardpop.app.data.repository.FlashcardRepository
 import com.cardpop.app.data.repository.SettingsRepository
+import com.cardpop.app.data.source.NewCardPreferences
 import com.cardpop.app.data.source.ReviewHistoryPreferences
+import com.cardpop.app.domain.fsrs.FsrsCardState
 import com.cardpop.app.domain.fsrs.FsrsRating
 import com.cardpop.app.domain.model.FlashcardRating
 import kotlinx.coroutines.CancellationException
@@ -37,6 +39,7 @@ class SrsUseCase @Inject constructor(
     private val repository: FlashcardRepository,
     private val settingsManager: SettingsRepository,
     private val reviewHistory: ReviewHistoryPreferences,
+    private val newCardPrefs: NewCardPreferences,
     private val reviewLogDao: ReviewLogDao
 ) {
     /**
@@ -83,6 +86,12 @@ class SrsUseCase @Inject constructor(
                     masteredTotal = repository.getMasteredCount(),
                     now = now
                 )
+                // Count a brand-new card the moment it leaves the New state, so the
+                // overlay's daily new-card cap reflects real introductions. CLOSED
+                // ratings return early above and never reach here.
+                if (flashcard.id > 0 && flashcard.state == FsrsCardState.New.value) {
+                    newCardPrefs.increment(now)
+                }
             }
 
             updatedFlashcard
