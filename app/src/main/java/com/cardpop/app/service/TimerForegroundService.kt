@@ -37,10 +37,13 @@ import com.cardpop.app.R
 import com.cardpop.app.presentation.screen.MainActivity
 import com.cardpop.app.data.repository.FlashcardRepository
 import com.cardpop.app.data.repository.SettingsRepository
+import com.cardpop.app.data.source.NewCardPreferences
 import com.cardpop.app.domain.manager.ServiceStateManager
+import com.cardpop.app.domain.usecase.NewCardGating
 import com.cardpop.app.util.UsageStatsHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import java.util.Calendar
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -88,7 +91,10 @@ class TimerForegroundService : Service() {
     
     @Inject
     lateinit var settingsManager: SettingsRepository
-    
+
+    @Inject
+    lateinit var newCardPrefs: NewCardPreferences
+
     @Inject
     lateinit var serviceCommunicationManager: ServiceStateManager
     
@@ -426,7 +432,21 @@ class TimerForegroundService : Service() {
                 return
             }
 
-            val nextFlashcard = flashcardRepository.getNextAvailableFlashcard()
+            // Time-of-day new-card biasing: front-load new cards earlier in the day
+            // and suppress them once the daily cap is reached or past the cutoff hour.
+            val now = System.currentTimeMillis()
+            val decision = NewCardGating.decide(
+                hourOfDay = Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+                newCardsToday = newCardPrefs.getCountToday(now),
+                limitPerDay = settingsManager.getNewCardLimitPerDay(),
+                cutoffEnabled = settingsManager.getNewCardCutoffEnabled(),
+                cutoffHour = settingsManager.getNewCardCutoffHour()
+            )
+            val nextFlashcard = flashcardRepository.getNextAvailableFlashcard(
+                allowNew = decision.allowNew,
+                prioritizeNew = decision.prioritizeNew,
+                now = now
+            )
 
             // Always show flashcard - repository now guarantees a result (regular or empty state)
             Log.d(TAG, "Showing flashcard: ${nextFlashcard.id}")
