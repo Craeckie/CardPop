@@ -503,6 +503,12 @@
     <string name="settings_actual_retention_label">Deine Behaltensrate</string>
     <string name="settings_actual_retention_value">%1$d%% (aus %2$d Wiederholungen)</string>
     <string name="settings_actual_retention_empty">Noch nicht genug Wiederholungen</string>
+    <string name="settings_new_card_limit_title">Neue Karten pro Tag</string>
+    <string name="settings_new_card_limit_description">Begrenzt, wie viele brandneue Karten täglich eingeführt werden. Ein gleichmäßiges Limit verhindert einen Wiederholungsstau und verbessert das langfristige Behalten.</string>
+    <string name="settings_new_card_limit_unlimited">∞</string>
+    <string name="settings_new_card_cutoff_title">Neue Karten zuerst</string>
+    <string name="settings_new_card_cutoff_description">Zeige neue Karten früher am Tag; nach der Grenzstunde werden nur vorhandene Karten wiederholt.</string>
+    <string name="settings_new_card_cutoff_hour_label">Neue Karten bis</string>
 
     <!-- Review log export/import -->
     <string name="review_export_title">Wiederholungsverlauf exportieren</string>

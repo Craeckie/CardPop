@@ -210,6 +210,27 @@ class AppSettingsViewModel @Inject constructor(
         settingsManager.setSnoozeDurationMinutes(minutes)
     }
 
+    /** Daily new-card limit (-1 = unlimited, 0 = never, N = that many). */
+    val newCardLimitPerDay: StateFlow<Int> = settingsManager.newCardLimitPerDay
+
+    fun setNewCardLimitPerDay(limit: Int) {
+        settingsManager.setNewCardLimitPerDay(limit)
+    }
+
+    /** When enabled, new cards are front-loaded before the cutoff hour and suppressed after. */
+    val newCardCutoffEnabled: StateFlow<Boolean> = settingsManager.newCardCutoffEnabled
+
+    fun setNewCardCutoffEnabled(enabled: Boolean) {
+        settingsManager.setNewCardCutoffEnabled(enabled)
+    }
+
+    /** Hour of day (0..23) after which new cards are suppressed. */
+    val newCardCutoffHour: StateFlow<Int> = settingsManager.newCardCutoffHour
+
+    fun setNewCardCutoffHour(hour: Int) {
+        settingsManager.setNewCardCutoffHour(hour)
+    }
+
     /** Flashcard interval in minutes (from PREDEFINED_INTERVALS). */
     val intervalMinutes: StateFlow<Int> = settingsManager.intervalMinutes
 

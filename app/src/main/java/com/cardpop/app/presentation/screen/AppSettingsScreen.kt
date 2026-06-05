@@ -52,6 +52,7 @@ import com.cardpop.app.domain.usecase.RetentionData
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import com.cardpop.app.data.model.AppTheme
+import com.cardpop.app.data.repository.SettingsRepository
 import com.cardpop.app.util.IntervalConstants
 import com.cardpop.app.data.model.FlashcardFont
 import com.cardpop.app.data.model.FlashcardTheme
@@ -120,6 +121,9 @@ fun AppSettingsScreen(
     val currentAnswerFontSize by viewModel.answerFontSize.collectAsState()
     val currentSnoozeDuration by viewModel.snoozeDurationMinutes.collectAsState()
     val currentIntervalMinutes by viewModel.intervalMinutes.collectAsState()
+    val newCardLimit by viewModel.newCardLimitPerDay.collectAsState()
+    val newCardCutoffEnabled by viewModel.newCardCutoffEnabled.collectAsState()
+    val newCardCutoffHour by viewModel.newCardCutoffHour.collectAsState()
     val hasNotificationPermission by viewModel.hasNotificationPermission.collectAsState()
     val hasOverlayPermission by viewModel.hasOverlayPermission.collectAsState()
 
@@ -361,6 +365,22 @@ fun AppSettingsScreen(
                         retention = currentTargetRetention,
                         actualRetention = currentActualRetention,
                         onRetentionChange = { viewModel.setTargetRetention(it) }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    NewCardLimitSettingItem(
+                        limit = newCardLimit,
+                        onLimitChange = { viewModel.setNewCardLimitPerDay(it) }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    NewCardCutoffSettingItem(
+                        enabled = newCardCutoffEnabled,
+                        hour = newCardCutoffHour,
+                        onEnabledChange = { viewModel.setNewCardCutoffEnabled(it) },
+                        onHourChange = { viewModel.setNewCardCutoffHour(it) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -1202,6 +1222,124 @@ private fun SnoozeDurationSettingItem(
             valueRange = 0f..6f,
             steps = 5 // 5 intermediate stops → 7 total positions
         )
+    }
+}
+
+/**
+ * Discrete selector for the daily new-card limit. Caps how many brand-new cards
+ * the overlay introduces per day to prevent review pile-up. Last position (∞) maps
+ * to the unlimited sentinel; the first (0) disables new cards entirely.
+ */
+@Composable
+private fun NewCardLimitSettingItem(
+    limit: Int,
+    onLimitChange: (Int) -> Unit
+) {
+    val options = listOf(0, 5, 10, 15, 20, 30, 50, SettingsRepository.NEW_CARD_LIMIT_UNLIMITED)
+    val currentIndex = options.indexOf(limit).let { if (it >= 0) it else options.indexOf(10) }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.settings_new_card_limit_title),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = if (options[currentIndex] < 0) {
+                    stringResource(R.string.settings_new_card_limit_unlimited)
+                } else {
+                    options[currentIndex].toString()
+                },
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Text(
+            text = stringResource(R.string.settings_new_card_limit_description),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
+        )
+        Slider(
+            value = currentIndex.toFloat(),
+            onValueChange = { sliderValue ->
+                val index = sliderValue.roundToInt().coerceIn(0, options.lastIndex)
+                onLimitChange(options[index])
+            },
+            valueRange = 0f..(options.lastIndex.toFloat()),
+            steps = options.size - 2 // intermediate stops between the endpoints
+        )
+    }
+}
+
+/**
+ * Toggle + hour selector for time-of-day new-card biasing. When enabled, new cards
+ * are front-loaded before [hour] and suppressed afterwards (reviews only). When
+ * disabled, only the daily limit applies and new cards keep their default priority.
+ */
+@Composable
+private fun NewCardCutoffSettingItem(
+    enabled: Boolean,
+    hour: Int,
+    onEnabledChange: (Boolean) -> Unit,
+    onHourChange: (Int) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.settings_new_card_cutoff_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = stringResource(R.string.settings_new_card_cutoff_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Switch(
+                checked = enabled,
+                onCheckedChange = onEnabledChange
+            )
+        }
+        if (enabled) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_new_card_cutoff_hour_label),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "%02d:00".format(hour),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            Slider(
+                value = hour.toFloat(),
+                onValueChange = { onHourChange(it.roundToInt().coerceIn(0, 23)) },
+                valueRange = 0f..23f,
+                steps = 22 // 24 hour positions (0..23)
+            )
+        }
     }
 }
 

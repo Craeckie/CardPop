@@ -449,6 +449,12 @@
     <string name="settings_actual_retention_label">Twoje zapamiętywanie</string>
     <string name="settings_actual_retention_value">%1$d%% (z %2$d powtórek)</string>
     <string name="settings_actual_retention_empty">Za mało powtórek</string>
+    <string name="settings_new_card_limit_title">Nowych fiszek dziennie</string>
+    <string name="settings_new_card_limit_description">Ogranicza liczbę nowych fiszek wprowadzanych każdego dnia. Stały limit zapobiega nawarstwianiu się powtórek i poprawia długotrwałe zapamiętywanie.</string>
+    <string name="settings_new_card_limit_unlimited">∞</string>
+    <string name="settings_new_card_cutoff_title">Nowe fiszki najpierw</string>
+    <string name="settings_new_card_cutoff_description">Pokazuj nowe fiszki wcześniej w ciągu dnia; po godzinie granicznej tylko powtarzaj istniejące fiszki.</string>
+    <string name="settings_new_card_cutoff_hour_label">Nowe fiszki do</string>
 
     <!-- Review log export/import -->
     <string name="review_export_title">Eksportuj historię powtórek</string>

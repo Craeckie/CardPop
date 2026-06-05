@@ -193,6 +193,12 @@
     <string name="settings_actual_retention_label">Your retention</string>
     <string name="settings_actual_retention_value">%1$d%% (from %2$d reviews)</string>
     <string name="settings_actual_retention_empty">Not enough reviews yet</string>
+    <string name="settings_new_card_limit_title">New cards per day</string>
+    <string name="settings_new_card_limit_description">Caps how many brand-new cards are introduced each day. A steady limit prevents review pile-up and improves long-term retention.</string>
+    <string name="settings_new_card_limit_unlimited">∞</string>
+    <string name="settings_new_card_cutoff_title">Front-load new cards</string>
+    <string name="settings_new_card_cutoff_description">Show new cards earlier in the day; after the cutoff hour, only review existing cards.</string>
+    <string name="settings_new_card_cutoff_hour_label">New cards until</string>
 
     <!-- Review log export/import -->
     <string name="review_export_title">Export review history</string>
