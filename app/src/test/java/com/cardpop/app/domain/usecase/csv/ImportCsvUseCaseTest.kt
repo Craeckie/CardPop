@@ -283,9 +283,9 @@ class FakeFlashcardDao : FlashcardDao {
     override suspend fun getAllFlashcards() = cards
     override suspend fun getAllFlashcardsForStatistics() = cards
     override suspend fun getFlashcardById(id: Long) = cards.find { it.id == id }
-    override suspend fun getNextDueFlashcard(now: Long) = throw NotImplementedError()
-    override suspend fun getNearestDueFlashcard() = throw NotImplementedError()
-    override suspend fun getNextAvailableFlashcard(now: Long) = throw NotImplementedError()
+    override suspend fun getNextDueFlashcard(now: Long, allowNew: Boolean, prioritizeNew: Boolean) =
+        throw NotImplementedError()
+    override suspend fun getNearestDueFlashcard(allowNew: Boolean) = throw NotImplementedError()
     override suspend fun getActiveFlashcardCount() = cards.size
     override suspend fun getCardCountsByState(): List<FlashcardDao.StateCount> =
         cards.groupingBy { it.state }.eachCount().map { (state, count) ->

@@ -77,9 +77,18 @@ class FlashcardRepository @Inject constructor(
      * Gets the next available flashcard with guaranteed result.
      * Returns empty state flashcard when no cards are available instead of null.
      * This ensures the timer service never gets stuck and provides clear user feedback.
+     *
+     * [allowNew]/[prioritizeNew] implement time-of-day new-card biasing (computed by
+     * the timer service via [com.cardpop.app.domain.usecase.NewCardGating]). The
+     * defaults preserve the original behaviour for any non-overlay callers.
      */
-    suspend fun getNextAvailableFlashcard(): FlashcardEntity {
-        val regularFlashcard = flashcardDao.getNextAvailableFlashcard()
+    suspend fun getNextAvailableFlashcard(
+        allowNew: Boolean = true,
+        prioritizeNew: Boolean = false,
+        now: Long = System.currentTimeMillis()
+    ): FlashcardEntity {
+        val regularFlashcard = flashcardDao.getNextDueFlashcard(now, allowNew, prioritizeNew)
+            ?: flashcardDao.getNearestDueFlashcard(allowNew)
         return regularFlashcard ?: com.cardpop.app.domain.util.EmptyStateFlashcard.create()
     }
 

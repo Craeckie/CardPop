@@ -49,54 +49,61 @@ interface FlashcardDao {
     suspend fun getFlashcardById(id: Long): FlashcardEntity?
     
     /**
-     * Picks the highest-priority due card. State priority puts Relearning first
-     * (fix lapses ASAP), then Learning, then Review, then New (introduce new
-     * material last so overdue reviews always win). Within a state, oldest
-     * dueAt wins; ties broken by higher difficulty, then RANDOM() so a stale
-     * tie doesn't always show the same card.
+     * Picks the highest-priority due card. State priority normally puts Relearning
+     * first (fix lapses ASAP), then Learning, then Review, then New (introduce new
+     * material last so overdue reviews always win). Within a state, oldest dueAt
+     * wins; ties broken by higher difficulty, then RANDOM() so a stale tie doesn't
+     * always show the same card.
+     *
+     * Time-of-day new-card biasing (see [com.cardpop.app.domain.usecase.NewCardGating]):
+     *  - [allowNew] = false excludes New cards entirely (daily cap reached or past
+     *    the user's new-card cutoff hour).
+     *  - [prioritizeNew] = true lifts New above Review (but still below in-flight
+     *    Relearning/Learning) so new material is front-loaded earlier in the day.
+     *
+     * Defaults preserve the original behaviour (New allowed, lowest priority).
      */
     @Query("""
         SELECT f.* FROM flashcards f
         INNER JOIN categories c ON f.categoryId = c.id
         WHERE f.isEnabled = 1 AND c.isEnabled = 1
         AND f.dueAt <= :now
+        AND (f.state != 0 OR :allowNew = 1)
         ORDER BY
-            CASE f.state
-                WHEN 3 THEN 0
-                WHEN 1 THEN 1
-                WHEN 2 THEN 2
-                WHEN 0 THEN 3
+            CASE
+                WHEN f.state = 3 THEN 0
+                WHEN f.state = 1 THEN 1
+                WHEN f.state = 0 AND :prioritizeNew = 1 THEN 2
+                WHEN f.state = 2 THEN 3
+                WHEN f.state = 0 THEN 4
             END ASC,
             f.dueAt ASC,
             f.difficulty DESC,
             RANDOM()
         LIMIT 1
     """)
-    suspend fun getNextDueFlashcard(now: Long = System.currentTimeMillis()): FlashcardEntity?
+    suspend fun getNextDueFlashcard(
+        now: Long = System.currentTimeMillis(),
+        allowNew: Boolean = true,
+        prioritizeNew: Boolean = false
+    ): FlashcardEntity?
 
     /**
      * Fallback when nothing is due: pick the card whose dueAt is closest to now.
      * Used so the overlay tick never returns null while there are any enabled cards.
+     * Respects [allowNew] so New cards stay suppressed even in the fallback when
+     * the cap is reached or it is past the cutoff hour.
      */
     @Query("""
         SELECT f.* FROM flashcards f
         INNER JOIN categories c ON f.categoryId = c.id
         WHERE f.isEnabled = 1 AND c.isEnabled = 1
+        AND (f.state != 0 OR :allowNew = 1)
         ORDER BY f.dueAt ASC, f.difficulty DESC, RANDOM()
         LIMIT 1
     """)
-    suspend fun getNearestDueFlashcard(): FlashcardEntity?
+    suspend fun getNearestDueFlashcard(allowNew: Boolean = true): FlashcardEntity?
 
-    /**
-     * Gets the next available flashcard, guaranteeing a result if any cards exist.
-     * First tries to get a card whose FSRS due-date has passed, then falls back to
-     * the card whose due-date is nearest.
-     */
-    suspend fun getNextAvailableFlashcard(now: Long = System.currentTimeMillis()): FlashcardEntity? {
-        getNextDueFlashcard(now)?.let { return it }
-        return getNearestDueFlashcard()
-    }
-    
     @Query("""
         SELECT COUNT(*) FROM flashcards f
         INNER JOIN categories c ON f.categoryId = c.id
