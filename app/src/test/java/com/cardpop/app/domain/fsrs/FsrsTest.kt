@@ -343,18 +343,90 @@ class FsrsTest {
     }
 
     @Test
+    fun relearning_card_with_zero_stability_does_not_crash_and_is_clamped() {
+        // Regression for the "same card forever, never logged" bug: card 497 (赦免)
+        // had lapsed to Relearning with stability rounded down to exactly 0.0 while
+        // keeping a real difficulty (9.97). Every rating then computed
+        // 0.0.pow(-w19) = +Infinity -> 0.0 * Infinity = NaN, and nextInterval's
+        // roundToInt(NaN) threw IllegalArgumentException. That exception was
+        // swallowed by runCatching in SrsUseCase, so the rating was never persisted
+        // nor written to review_log, and the card kept resurfacing.
+        val corrupt = FsrsCard(
+            state = FsrsCardState.Relearning,
+            stability = 0.0,
+            difficulty = 9.97,
+            scheduledDays = 1,
+            reps = 10,
+            lapses = 1
+        )
+
+        for (rating in FsrsRating.entries) {
+            // Must not throw, and must produce a finite, positive, due interval.
+            val grades = fsrs().calculate(corrupt)
+            val grade = grades.first { it.rating == rating }
+            assertTrue(
+                "stability must be finite for rating=$rating, was ${grade.stability}",
+                grade.stability.isFinite()
+            )
+            assertTrue(
+                "stability must be >= STABILITY_MIN for rating=$rating, was ${grade.stability}",
+                grade.stability >= 0.001
+            )
+            assertTrue(
+                "duration must be positive for rating=$rating, was ${grade.durationMillis}",
+                grade.durationMillis > 0L
+            )
+
+            val updated = fsrs().apply(corrupt, rating, now)
+            assertTrue(
+                "applied stability must be finite for rating=$rating, was ${updated.stability}",
+                updated.stability.isFinite()
+            )
+            assertTrue(
+                "applied stability must be >= STABILITY_MIN for rating=$rating, was ${updated.stability}",
+                updated.stability >= 0.001
+            )
+        }
+
+        // Good must actually graduate the card back to Review, which is the
+        // transition that lets it escape the relearning loop.
+        val recovered = fsrs().apply(corrupt, FsrsRating.Good, now)
+        assertEquals(FsrsCardState.Review, recovered.state)
+    }
+
+    @Test
+    fun stability_never_drops_below_min_across_long_lapse_heavy_sequence() {
+        // Walk a long sequence dominated by Again ratings (which drive stability
+        // down) and assert the FSRS S_MIN invariant holds after every update.
+        var card = FsrsCard(state = FsrsCardState.Review, stability = 0.2, difficulty = 9.5, elapsedDays = 1)
+        val ratings = listOf(
+            FsrsRating.Again, FsrsRating.Again, FsrsRating.Hard, FsrsRating.Again,
+            FsrsRating.Good, FsrsRating.Again, FsrsRating.Again
+        )
+        repeat(60) { i ->
+            val elapsed = if (card.state == FsrsCardState.Review) card.scheduledDays else 0
+            card = fsrs().apply(card.copy(elapsedDays = elapsed), ratings[i % ratings.size], now)
+            assertTrue(
+                "stability must stay finite, was ${card.stability} at step $i (state ${card.state})",
+                card.stability.isFinite()
+            )
+            assertTrue(
+                "stability must stay >= STABILITY_MIN, was ${card.stability} at step $i",
+                card.stability >= 0.001
+            )
+        }
+    }
+
+    @Test
     fun difficulty_stays_within_bounds_driven_to_max_with_repeated_again() {
         // Drive difficulty toward 10 (hard end) with repeated Again ratings.
-        // We reset stability to a known safe value after each iteration so that
-        // the stability-decay path in Relearning state (which can round to 0 and
-        // cause NaN in the short-term algebra) doesn't interfere with the
-        // difficulty-clamping assertion we're actually testing here.
+        // (The stability→0 / NaN edge case that used to force a stability re-pin
+        // here is now handled by the STABILITY_MIN clamp, so we let stability
+        // evolve naturally.)
         var card = FsrsCard(state = FsrsCardState.Review, stability = 5.0, difficulty = 8.0, elapsedDays = 4)
         repeat(20) {
-            card = fsrs().apply(card, FsrsRating.Again, now)
-            // Re-pin stability so we can keep exercising the difficulty update
-            // without triggering the stability→0 edge case in the short-term scheduler.
-            card = card.copy(state = FsrsCardState.Review, stability = 5.0, elapsedDays = 4)
+            val elapsed = if (card.state == FsrsCardState.Review) card.scheduledDays else 0
+            card = fsrs().apply(card.copy(elapsedDays = elapsed), FsrsRating.Again, now)
             assertTrue("difficulty must be <= 10.0, was ${card.difficulty}", card.difficulty <= 10.0)
             assertTrue("difficulty must be >= 1.0, was ${card.difficulty}", card.difficulty >= 1.0)
         }

@@ -30,7 +30,6 @@
 
 package com.cardpop.app.domain.fsrs
 
-import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.floor
 import kotlin.math.max
@@ -99,7 +98,7 @@ class Fsrs(
                     stateEasy = initState(FsrsRating.Easy)
                 } else {
                     val lastD = card.difficulty
-                    val lastS = card.stability
+                    val lastS = clampStability(card.stability)
 
                     stateAgain = InitState(
                         difficulty = nextDifficulty(lastD, FsrsRating.Again),
@@ -136,7 +135,7 @@ class Fsrs(
             FsrsCardState.Review -> {
                 val interval = card.elapsedDays
                 val lastD = card.difficulty
-                val lastS = card.stability
+                val lastS = clampStability(card.stability)
 
                 val retrievability = forgettingCurve(interval.toDouble(), lastS)
 
@@ -291,9 +290,23 @@ class Fsrs(
 
     private fun initStability(rating: FsrsRating): Double {
         val index = rating.value - 1
-        val value = params.getOrElse(index) { 0.1 }
-        return round2(max(value, 0.1))
+        val value = params.getOrElse(index) { STABILITY_MIN }
+        return clampStability(value)
     }
+
+    /**
+     * Enforces the FSRS invariant that stability is always a finite value of at
+     * least [STABILITY_MIN]. The reference implementation (py-fsrs / fsrs-rs)
+     * applies this clamp to the output of *every* stability update — initial,
+     * short-term, recall and forget — which is what keeps a stability of 0 from
+     * ever being stored. The NaN guard additionally rescues already-corrupt cards
+     * (e.g. a legacy `stability = 0.0` produced by an earlier rounding bug):
+     * `0.0.pow(-w19)` is `+Infinity` and `0.0 * Infinity` is `NaN`, which would
+     * otherwise crash `nextInterval`'s `roundToInt`. Clamping the stability
+     * everywhere it is read or produced keeps that NaN from being generated.
+     */
+    private fun clampStability(stability: Double): Double =
+        if (stability.isNaN()) STABILITY_MIN else max(stability, STABILITY_MIN)
 
     private fun initState(rating: FsrsRating): InitState =
         InitState(
@@ -327,11 +340,12 @@ class Fsrs(
     }
 
     private fun nextShortTermStability(currentS: Double, rating: FsrsRating): Double {
-        var sinc = exp(params[17] * (rating.value - 3 + params[18])) * currentS.pow(-params[19])
+        val s = clampStability(currentS)
+        var sinc = exp(params[17] * (rating.value - 3 + params[18])) * s.pow(-params[19])
         if (rating.value >= 3) {
             sinc = max(sinc, 1.0)
         }
-        return round2(abs(currentS * sinc))
+        return clampStability(s * sinc)
     }
 
     private fun nextForgetStability(
@@ -346,7 +360,7 @@ class Fsrs(
             ((stability + 1).pow(params[13]) - 1) *
             exp((1 - retrievability) * params[14])
 
-        return round2(min(result, sMin))
+        return clampStability(min(result, sMin))
     }
 
     private fun nextRecallStability(d: Double, s: Double, r: Double, rating: FsrsRating): Double {
@@ -360,7 +374,7 @@ class Fsrs(
             hardPenalty *
             easyBonus
 
-        return round2(s * (1 + growth))
+        return clampStability(s * (1 + growth))
     }
 
     private fun round2(value: Double): Double =
@@ -372,6 +386,9 @@ class Fsrs(
         // ratings that don't graduate the card to Review. Tunable but deliberately
         // not user-facing for now; kept in one place so the SrsUseCase can rely on
         // a single source of truth.
+        // FSRS invariant: stability is clamped to this lower bound after every
+        // update (matches STABILITY_MIN in the py-fsrs / fsrs-rs reference).
+        private const val STABILITY_MIN: Double = 0.001
         private const val AGAIN_SHORT_TERM_MS: Long = 3 * 60 * 1000L
         private const val HARD_SHORT_TERM_MS: Long = 5 * 60 * 1000L
         private const val GOOD_SHORT_TERM_MS: Long = 10 * 60 * 1000L
