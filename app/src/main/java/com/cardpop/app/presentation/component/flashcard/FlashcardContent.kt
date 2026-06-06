@@ -38,6 +38,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,6 +60,7 @@ import com.cardpop.app.data.entity.FlashcardEntity
 import com.cardpop.app.data.model.FlashcardFont
 import com.cardpop.app.data.model.FlashcardTheme
 import com.cardpop.app.presentation.component.flashcard.FlashcardFonts
+import com.cardpop.app.util.FlashcardTts
 import com.cardpop.app.util.PlecoLauncher
 import java.io.File
 
@@ -94,6 +96,9 @@ fun FlashcardContent(
     val clipboardManager = LocalClipboardManager.current
     val questionFontFamily = remember(font, customFontFile) { FlashcardFonts.resolve(font, customFontFile) }
     val questionLetterSpacing = font.letterSpacingEm.em
+
+    // Warm the TTS engine so the first 🔊 tap doesn't pay init latency.
+    LaunchedEffect(Unit) { FlashcardTts.init(context) }
 
     Column(
         modifier = modifier
@@ -176,17 +181,43 @@ fun FlashcardContent(
                 }
             }
         } else {
-            if (plecoAvailable) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 TextButton(
-                    onClick = { PlecoLauncher.lookup(context, flashcard.question) },
+                    onClick = {
+                        if (!FlashcardTts.languageSupported) {
+                            android.widget.Toast.makeText(
+                                context,
+                                context.getString(R.string.tts_language_unavailable),
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        FlashcardTts.speak(context, flashcard.question)
+                    },
                     modifier = Modifier.height(32.dp)
                 ) {
                     Text(
-                        text = "📖 Pleco",
+                        text = "🔊",
                         color = FlashcardColors.getQuestionTextColor(theme),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )
+                }
+
+                if (plecoAvailable) {
+                    TextButton(
+                        onClick = { PlecoLauncher.lookup(context, flashcard.question) },
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        Text(
+                            text = "📖 Pleco",
+                            color = FlashcardColors.getQuestionTextColor(theme),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
 

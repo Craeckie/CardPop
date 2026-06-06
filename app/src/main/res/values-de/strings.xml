@@ -531,6 +531,7 @@
     <string name="rating_good">Gut</string>
     <string name="rating_easy">Leicht</string>
     <string name="copied_to_clipboard">In die Zwischenablage kopiert</string>
+    <string name="tts_language_unavailable">Chinesische Sprachausgabe-Daten sind auf diesem Gerät nicht installiert</string>
     <string name="morning_reminder_channel_name">Morgenerinnerung</string>
     <string name="morning_reminder_channel_description">Tägliche Erinnerung, die Lernsitzung zu starten</string>
     <string name="morning_reminder_title_study">Zeit zum Lernen!</string>

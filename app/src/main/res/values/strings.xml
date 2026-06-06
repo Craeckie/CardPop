@@ -537,6 +537,7 @@
     <string name="rating_good">Good</string>
     <string name="rating_easy">Easy</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="tts_language_unavailable">Chinese text-to-speech voice data is not installed on this device</string>
     <string name="morning_reminder_channel_name">Morning Reminder</string>
     <string name="morning_reminder_channel_description">Daily reminder to start your learning session</string>
     <string name="morning_reminder_title_study">Time to study!</string>

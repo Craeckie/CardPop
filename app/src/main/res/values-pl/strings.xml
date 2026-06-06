@@ -477,6 +477,7 @@
     <string name="rating_good">Dobre</string>
     <string name="rating_easy">Łatwe</string>
     <string name="copied_to_clipboard">Skopiowano do schowka</string>
+    <string name="tts_language_unavailable">Dane głosowe chińskiej syntezy mowy nie są zainstalowane na tym urządzeniu</string>
 
     <!-- Category CSV menu items - Polish -->
     <string name="category_export_csv">Eksportuj jako CSV</string>
