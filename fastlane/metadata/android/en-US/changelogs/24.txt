@@ -1,0 +1,16 @@
+## ✨ New Features
+
+- 🔊 Added an on-the-fly **pronunciation button** to the overlay — tap to hear the card read aloud via text-to-speech
+- 🎚️ Added a **daily new-card limit** with optional **front-loading** — introduce new cards earlier in the day and stop once you hit your cap, configurable in Settings
+- 📥 Added **Pleco XML import** for flashcards exported from Pleco
+
+## 🎨 Visual
+
+- 🈷️ Numbered pinyin from imports (e.g. "lian4jie1") now displays with tone marks ("liànjiē")
+
+## 🐛 Fixes
+
+- 🐛 Fixed a card that could get stuck repeating forever and never record its reviews, caused by a scheduling edge case after a lapse
+- 🐛 Fixed ratings occasionally not being saved when the overlay closed immediately after you tapped
+
+**Full Changelog**: https://github.com/Craeckie/CardPop/compare/v2.7.0...v2.8.0
