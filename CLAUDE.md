@@ -74,7 +74,7 @@ Unit tests are JVM-only (Robolectric). No instrumented tests are run in CI. FSRS
 
 **Guaranteed overlay flashcard**: `FlashcardRepository.getNextAvailableFlashcard()` never returns null. When no cards are available/due it returns `EmptyStateFlashcard.create()` so `TimerForegroundService` always has something to display and the overlay shows an empty-state prompt.
 
-**Flashcard passed via Intent extras**: `TimerForegroundService` → `OverlayService` passes all `FlashcardEntity` fields as extras (not just an ID). `OverlayService.handleFlashcardRating()` re-fetches from DB by ID before writing to avoid stale data races.
+**Flashcard passed via Intent extras**: `TimerForegroundService` → `OverlayService` passes all `FlashcardEntity` fields as extras (not just an ID). `SrsUseCase.updateFlashcardRating()` re-fetches from DB by ID (inside its `NonCancellable` block) before writing, to avoid stale-data races. The rating write is launched on an injected `@ApplicationScope` coroutine (`di/CoroutineModule`), **not** the service scope, so it survives `OverlayService` closing the overlay (`closeOverlay → stopSelf → onDestroy → serviceScope.cancel`, ~300ms after rating).
 
 **Screen-off postpone**: If the interval alarm fires while `PowerManager.isInteractive == false`, `TimerForegroundService` sets `postponePending = true` instead of showing the overlay. The `ACTION_SCREEN_ON` receiver then waits 60 s before surfacing the card. If the screen goes off again during that wait, `postponePending` is re-armed.
 

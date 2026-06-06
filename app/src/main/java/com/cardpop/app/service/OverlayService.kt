@@ -37,9 +37,9 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.cardpop.app.R
 import com.cardpop.app.data.entity.FlashcardEntity
 import com.cardpop.app.domain.model.FlashcardRating
+import com.cardpop.app.di.ApplicationScope
 import com.cardpop.app.domain.usecase.SrsUseCase
 import com.cardpop.app.domain.usecase.SimpleStreakUseCase
-import com.cardpop.app.data.repository.FlashcardRepository
 import com.cardpop.app.data.dao.CategoryDao
 import com.cardpop.app.data.repository.SettingsRepository
 import com.cardpop.app.data.source.FlashcardUiPreferences
@@ -149,10 +149,16 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
     
     @Inject
     lateinit var simpleStreakUseCase: SimpleStreakUseCase
-    
+
+    /**
+     * Process-lifetime scope for persisting a rating. The rating write must outlive
+     * [closeOverlay] → [stopSelf] → [onDestroy] (which cancels [serviceScope] ~300ms
+     * after the user rates), so it is launched here instead of on [serviceScope].
+     */
     @Inject
-    lateinit var flashcardRepository: FlashcardRepository
-    
+    @ApplicationScope
+    lateinit var applicationScope: CoroutineScope
+
     @Inject
     lateinit var categoryDao: CategoryDao
     
@@ -307,22 +313,18 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
             Log.d(TAG, "Demo flashcard completed, not updating SRS data")
             handleDemoCompletion()
         } else {
-            // Regular flashcard - update SRS data
-            serviceScope.launch(Dispatchers.IO) {
+            // Regular flashcard - update SRS data on the process-lifetime application
+            // scope so the write survives the overlay closing (which cancels
+            // serviceScope). updateFlashcardRating re-fetches the latest row by id
+            // inside its NonCancellable block to avoid stale-data races.
+            applicationScope.launch {
                 try {
-                    // Fetch the latest flashcard data from database to avoid stale data
-                    val latestFlashcard = flashcardRepository.getFlashcardById(flashcard.id)
-                    if (latestFlashcard != null) {
-                        srsUseCase.updateFlashcardRating(latestFlashcard, rating)
-                    } else {
-                        Log.w(TAG, "Could not find flashcard with id=${flashcard.id}, using original")
-                        srsUseCase.updateFlashcardRating(flashcard, rating)
-                    }
+                    srsUseCase.updateFlashcardRating(flashcard, rating)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error updating flashcard rating", e)
                 }
             }
-            
+
             // Close overlay and resume timer for regular flashcards
             closeOverlay()
             resumeTimerAfterInteraction()

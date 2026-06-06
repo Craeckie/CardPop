@@ -54,31 +54,34 @@ class SrsUseCase @Inject constructor(
         runCatching {
             val now = System.currentTimeMillis()
 
-            // Pure scheduling math lives in SrsScheduler so it can be unit-tested
-            // without Android dependencies. Returns null for CLOSED (no-op).
-            val updatedFlashcard = SrsScheduler.project(
-                flashcard = flashcard,
-                rating = rating,
-                now = now,
-                requestRetention = settingsManager.getTargetRetention()
-            ) ?: return@runCatching flashcard
-
-            // NonCancellable: the overlay service scope is cancelled ~300ms after the
-            // user rates a card (closeOverlay delay → stopSelf → onDestroy → scope.cancel).
-            // The SAF backup write inside updateFlashcard can take longer than that window,
-            // so without this guard the CancellationException propagates through runCatching
-            // and reviewLogDao.insert is never reached. All three writes must be atomic
-            // from the cancellation perspective.
-            val fsrsRating = rating.toFsrsRating()!! // null case already handled above
+            // NonCancellable: the caller launches this on the process-lifetime application
+            // scope (so the overlay closing no longer cancels it), but we still guard the
+            // whole critical section so a future cancellation can't interrupt it mid-write.
+            // The re-fetch lives inside the guard too — re-fetching by id avoids stale-data
+            // races (the entity arrives via Intent extras), and keeping it here makes
+            // re-fetch → project → updateFlashcard → reviewLogDao.insert → recordReview one
+            // atomic unit. Returns the (re-fetched) card unchanged for CLOSED (no-op).
             withContext(NonCancellable) {
+                val current = repository.getFlashcardById(flashcard.id) ?: flashcard
+
+                // Pure scheduling math lives in SrsScheduler so it can be unit-tested
+                // without Android dependencies. Returns null for CLOSED (no-op).
+                val updatedFlashcard = SrsScheduler.project(
+                    flashcard = current,
+                    rating = rating,
+                    now = now,
+                    requestRetention = settingsManager.getTargetRetention()
+                ) ?: return@withContext current
+
+                val fsrsRating = rating.toFsrsRating()!! // null case already handled above
                 repository.updateFlashcard(updatedFlashcard)
-                if (flashcard.id > 0) {
+                if (current.id > 0) {
                     reviewLogDao.insert(
                         ReviewLogEntity(
-                            flashcardId = flashcard.id,
+                            flashcardId = current.id,
                             reviewedAt = now,
                             rating = fsrsRating.value,
-                            stateBefore = flashcard.state
+                            stateBefore = current.state
                         )
                     )
                 }
@@ -89,12 +92,12 @@ class SrsUseCase @Inject constructor(
                 // Count a brand-new card the moment it leaves the New state, so the
                 // overlay's daily new-card cap reflects real introductions. CLOSED
                 // ratings return early above and never reach here.
-                if (flashcard.id > 0 && flashcard.state == FsrsCardState.New.value) {
+                if (current.id > 0 && current.state == FsrsCardState.New.value) {
                     newCardPrefs.increment(now)
                 }
-            }
 
-            updatedFlashcard
+                updatedFlashcard
+            }
         }.also { result ->
             // runCatching must not swallow CancellationException — re-throw so the
             // coroutine machinery can propagate structured cancellation correctly.
