@@ -206,9 +206,10 @@ class StatisticsViewModel @Inject constructor(
 
                 allCategories.collect { categories ->
                     val categoryStatsList = categories
+                        .filter { it.isEnabled }
                         .sortedBy { it.createdAt } // Sort categories by creation date
                         .map { category ->
-                            val categoryFlashcards = allFlashcards.filter { it.categoryId == category.id }
+                            val categoryFlashcards = allFlashcards.filter { it.categoryId == category.id && it.isEnabled }
                             val studiedCards = categoryFlashcards.count { it.reps > 0 }
                             val masteredCards = categoryFlashcards.count { it.stability >= 21.0 && it.reps >= 3 }
 

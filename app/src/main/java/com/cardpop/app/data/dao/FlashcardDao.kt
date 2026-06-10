@@ -39,8 +39,9 @@ interface FlashcardDao {
     suspend fun getAllFlashcards(): List<FlashcardEntity>
     
     @Query("""
-        SELECT f.* FROM flashcards f 
-        INNER JOIN categories c ON f.categoryId = c.id 
+        SELECT f.* FROM flashcards f
+        INNER JOIN categories c ON f.categoryId = c.id
+        WHERE f.isEnabled = 1 AND c.isEnabled = 1
         ORDER BY f.createdAt ASC
     """)
     suspend fun getAllFlashcardsForStatistics(): List<FlashcardEntity>
