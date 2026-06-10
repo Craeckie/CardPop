@@ -291,45 +291,63 @@ fun FlashcardStatItem(
             }
             
             Spacer(modifier = Modifier.height(8.dp))
-            
-            // Compact stats row
-            Row(
+
+            // FSRS metrics row — wraps on narrow screens
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // Compact chips: Wrong / Hard / Good / Easy — same order as the
-                // overlay rating buttons so the colors line up with the buttons users tap.
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CompactStatChip(
-                        count = flashcard.incorrectCount,
-                        backgroundColor = AccentRed,
-                        textColor = Color.White
-                    )
-                    CompactStatChip(
-                        count = flashcard.hardCount,
-                        backgroundColor = AccentAmber,
-                        textColor = Color.Black
-                    )
-                    CompactStatChip(
-                        count = flashcard.correctCount,
-                        backgroundColor = AccentGreen,
-                        textColor = Color.White
-                    )
-                    CompactStatChip(
-                        count = flashcard.easyCount,
-                        backgroundColor = AccentBlue,
-                        textColor = Color.White
+                // Maturity state badge
+                MaturityBadge(state = flashcard.state, isMastered = flashcard.isMastered)
+
+                val metricColor = getStatisticsOnSurfaceVariant()
+
+                // Stability
+                if (flashcard.stability > 0.0) {
+                    Text(
+                        text = stringResource(R.string.stats_metric_stability, flashcard.stability.roundToInt()),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = metricColor
                     )
                 }
-                
-                // Success rate and mastery
+
+                // Retrievability (only for reviewed cards)
+                flashcard.retrievability?.let { r ->
+                    Text(
+                        text = stringResource(R.string.stats_metric_recall, r.toInt()),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = metricColor
+                    )
+                }
+
+                // Difficulty
+                if (flashcard.difficultyScore > 0f) {
+                    val diffPct = (flashcard.difficultyScore * 10).roundToInt().coerceIn(0, 100)
+                    Text(
+                        text = stringResource(R.string.stats_metric_difficulty, diffPct),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = metricColor
+                    )
+                }
+
+                // Lapses (only when non-zero)
+                if (flashcard.lapses > 0) {
+                    Text(
+                        text = stringResource(R.string.stats_metric_lapses, flashcard.lapses),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = metricColor
+                    )
+                }
+
+                // Success rate and mastery dot
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Text(
                         text = "${flashcard.successRate.toInt()}%",
@@ -337,7 +355,6 @@ fun FlashcardStatItem(
                         color = AccentTeal,
                         fontWeight = FontWeight.Medium
                     )
-                    
                     if (flashcard.isMastered) {
                         Box(
                             modifier = Modifier
@@ -361,18 +378,19 @@ fun FlashcardStatItem(
 }
 
 @Composable
-private fun CompactStatChip(
-    count: Int,
-    backgroundColor: Color,
-    textColor: Color
-) {
+private fun MaturityBadge(state: Int, isMastered: Boolean) {
+    val (labelRes, bgColor, textColor) = when {
+        state == 0  -> Triple(R.string.stats_state_new,    AccentAmber, Color.Black)
+        isMastered  -> Triple(R.string.stats_state_mature, AccentBlue,  Color.White)
+        else        -> Triple(R.string.stats_state_young,  AccentTeal,  Color.White)
+    }
     Box(
         modifier = Modifier
-            .background(backgroundColor, RoundedCornerShape(8.dp))
+            .background(bgColor, RoundedCornerShape(8.dp))
             .padding(horizontal = 6.dp, vertical = 2.dp)
     ) {
         Text(
-            text = count.toString(),
+            text = stringResource(labelRes),
             fontSize = 10.sp,
             fontWeight = FontWeight.Medium,
             color = textColor

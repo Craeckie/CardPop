@@ -336,6 +336,10 @@
     <string name="stats_state_new">Nowe</string>
     <string name="stats_state_young">Młode</string>
     <string name="stats_state_mature">Dojrzałe</string>
+    <string name="stats_metric_stability">Stab %1$dd</string>
+    <string name="stats_metric_recall">R %1$d%%</string>
+    <string name="stats_metric_difficulty">D %1$d%%</string>
+    <string name="stats_metric_lapses">%1$d wpadki</string>
 
     <!-- Statistics Reset Dialogs - careful Polish phrasing -->
     <string name="reset_all_stats_title">Resetuj wszystkie statystyki</string>

@@ -276,6 +276,10 @@ class Fsrs(
         return floor(fuzzFactor * (maxIvl - minIvl + 1) + minIvl)
     }
 
+    /** Predicted recall probability (0..1) after [elapsedDays] given memory [stability]. */
+    fun retrievability(elapsedDays: Double, stability: Double): Double =
+        forgettingCurve(elapsedDays, stability)
+
     private fun forgettingCurve(interval: Double, stability: Double): Double =
         if (stability <= 0.0) 1.0 else (1.0 + factor * interval / stability).pow(decay)
 

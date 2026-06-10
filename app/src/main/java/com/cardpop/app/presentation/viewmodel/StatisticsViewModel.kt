@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cardpop.app.data.entity.FlashcardEntity
 import com.cardpop.app.data.repository.FlashcardRepository
+import com.cardpop.app.domain.fsrs.Fsrs
 import com.cardpop.app.domain.fsrs.FsrsCardState
 import com.cardpop.app.data.source.ReviewHistoryPreferences
 import com.cardpop.app.data.source.ReviewHistoryEntry
@@ -51,7 +52,11 @@ data class FlashcardStats(
     val reviewCount: Int,
     val lapses: Int,
     val isEnabled: Boolean,
-    val isMastered: Boolean
+    val isMastered: Boolean,
+    val state: Int,
+    val stability: Double,
+    /** Current predicted recall probability 0..100, null if card was never reviewed. */
+    val retrievability: Float?
 ) {
     val lastSeenText: String = when {
         lastSeenTimestamp == 0L -> "⏰ Not scheduled yet"
@@ -193,6 +198,12 @@ class StatisticsViewModel @Inject constructor(
                 // but we're already off-main here so it's free.
                 val historySeries = reviewHistory.getHistory(days = HISTORY_DAYS)
 
+                val fsrs = Fsrs(
+                    requestRetention = settingsRepository.getTargetRetention(),
+                    params = settingsRepository.getFsrsParameters()
+                )
+                val now = System.currentTimeMillis()
+
                 allCategories.collect { categories ->
                     val categoryStatsList = categories
                         .sortedBy { it.createdAt } // Sort categories by creation date
@@ -200,9 +211,17 @@ class StatisticsViewModel @Inject constructor(
                             val categoryFlashcards = allFlashcards.filter { it.categoryId == category.id }
                             val studiedCards = categoryFlashcards.count { it.reps > 0 }
                             val masteredCards = categoryFlashcards.count { it.stability >= 21.0 && it.reps >= 3 }
-                            
+
                             val flashcardStats = categoryFlashcards.map { flashcard ->
                                 val isMastered = flashcard.stability >= 21.0 && flashcard.reps >= 3
+                                val retrievability = if (
+                                    flashcard.reps > 0 &&
+                                    flashcard.stability > 0.0 &&
+                                    flashcard.lastReviewedAt > 0L
+                                ) {
+                                    val elapsedDays = (now - flashcard.lastReviewedAt) / 86_400_000.0
+                                    (fsrs.retrievability(elapsedDays, flashcard.stability) * 100.0).toFloat()
+                                } else null
 
                                 FlashcardStats(
                                     id = flashcard.id,
@@ -218,7 +237,10 @@ class StatisticsViewModel @Inject constructor(
                                     reviewCount = flashcard.reps,
                                     lapses = flashcard.lapses,
                                     isEnabled = flashcard.isEnabled,
-                                    isMastered = isMastered
+                                    isMastered = isMastered,
+                                    state = flashcard.state,
+                                    stability = flashcard.stability,
+                                    retrievability = retrievability
                                 )
                             }.sortedWith(
                                 compareByDescending<FlashcardStats> { it.successRate } // Best success rate first

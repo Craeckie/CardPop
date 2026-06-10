@@ -376,6 +376,10 @@
     <string name="stats_state_new">New</string>
     <string name="stats_state_young">Young</string>
     <string name="stats_state_mature">Mature</string>
+    <string name="stats_metric_stability">Stab %1$dd</string>
+    <string name="stats_metric_recall">R %1$d%%</string>
+    <string name="stats_metric_difficulty">D %1$d%%</string>
+    <string name="stats_metric_lapses">%1$d lapses</string>
     <string name="stats_categories_count">Categories</string>
     <string name="stats_average_difficulty">Avg. Difficulty</string>
     <string name="stats_days_suffix">days</string>
