@@ -336,10 +336,12 @@
     <string name="stats_state_new">Neu</string>
     <string name="stats_state_young">Jung</string>
     <string name="stats_state_mature">Reif</string>
-    <string name="stats_metric_stability">Stab %1$dd</string>
-    <string name="stats_metric_recall">R %1$d%%</string>
-    <string name="stats_metric_difficulty">D %1$d%%</string>
-    <string name="stats_metric_lapses">%1$d Patzer</string>
+    <string name="stats_metric_label_stability">Stabilität</string>
+    <string name="stats_metric_label_recall">Erinnerung</string>
+    <string name="stats_metric_label_difficulty">Schwierigkeit</string>
+    <string name="stats_metric_label_lapses">Aussetzer</string>
+    <string name="stats_metric_value_days">%1$dd</string>
+    <string name="stats_metric_value_percent">%1$d%%</string>
 
     <!-- Statistics Reset Dialogs - careful German phrasing -->
     <string name="reset_all_stats_title">Alle Statistiken zurücksetzen</string>

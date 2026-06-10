@@ -243,7 +243,7 @@ class StatisticsViewModel @Inject constructor(
                                     retrievability = retrievability
                                 )
                             }.sortedWith(
-                                compareByDescending<FlashcardStats> { it.successRate } // Best success rate first
+                                compareByDescending<FlashcardStats> { it.difficultyScore } // Hardest first
                                     .thenByDescending { it.reviewCount } // Most reviewed first
                                     .thenBy { if (it.lastSeenTimestamp == 0L) Long.MAX_VALUE else -it.lastSeenTimestamp } // Never seen at bottom
                             )

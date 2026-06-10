@@ -240,6 +240,11 @@ fun FlashcardStatItem(
     flashcard: FlashcardStats,
     onResetClick: () -> Unit
 ) {
+    val hasMetrics = flashcard.stability > 0.0 ||
+        flashcard.retrievability != null ||
+        flashcard.difficultyScore > 0f ||
+        flashcard.lapses > 0
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = getStatisticsSurfaceVariant()),
@@ -247,35 +252,27 @@ fun FlashcardStatItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            // Header row with question and reset button
+            // Header row: question, maturity badge, reset button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = flashcard.question,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = getStatisticsOnSurface(),
-                        lineHeight = 18.sp,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = flashcard.answer,
-                        fontSize = 13.sp,
-                        color = getStatisticsOnSurfaceVariant(),
-                        lineHeight = 16.sp,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                
+                Text(
+                    text = flashcard.question,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = getStatisticsOnSurface(),
+                    lineHeight = 18.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                MaturityBadge(state = flashcard.state, isMastered = flashcard.isMastered)
                 // Only show reset button if the flashcard has statistics to reset
                 if (flashcard.totalAttempts > 0) {
+                    Spacer(modifier = Modifier.width(4.dp))
                     IconButton(
                         onClick = onResetClick,
                         modifier = Modifier.size(32.dp)
@@ -289,91 +286,73 @@ fun FlashcardStatItem(
                     }
                 }
             }
-            
-            Spacer(modifier = Modifier.height(8.dp))
 
-            // FSRS metrics row — wraps on narrow screens
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                // Maturity state badge
-                MaturityBadge(state = flashcard.state, isMastered = flashcard.isMastered)
-
-                val metricColor = getStatisticsOnSurfaceVariant()
-
-                // Stability
-                if (flashcard.stability > 0.0) {
-                    Text(
-                        text = stringResource(R.string.stats_metric_stability, flashcard.stability.roundToInt()),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = metricColor
-                    )
-                }
-
-                // Retrievability (only for reviewed cards)
-                flashcard.retrievability?.let { r ->
-                    Text(
-                        text = stringResource(R.string.stats_metric_recall, r.toInt()),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = metricColor
-                    )
-                }
-
-                // Difficulty
-                if (flashcard.difficultyScore > 0f) {
-                    val diffPct = (flashcard.difficultyScore * 10).roundToInt().coerceIn(0, 100)
-                    Text(
-                        text = stringResource(R.string.stats_metric_difficulty, diffPct),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = metricColor
-                    )
-                }
-
-                // Lapses (only when non-zero)
-                if (flashcard.lapses > 0) {
-                    Text(
-                        text = stringResource(R.string.stats_metric_lapses, flashcard.lapses),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = metricColor
-                    )
-                }
-
-                // Success rate and mastery dot
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        text = "${flashcard.successRate.toInt()}%",
-                        fontSize = 12.sp,
-                        color = AccentTeal,
-                        fontWeight = FontWeight.Medium
-                    )
-                    if (flashcard.isMastered) {
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .background(AccentGreen, RoundedCornerShape(2.dp))
+            // Metrics block — hidden for brand-new unreviewed cards
+            if (hasMetrics) {
+                Spacer(modifier = Modifier.height(8.dp))
+                androidx.compose.material3.HorizontalDivider(color = getStatisticsCardBorder())
+                Spacer(modifier = Modifier.height(6.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (flashcard.stability > 0.0) {
+                        MetricRow(
+                            label = stringResource(R.string.stats_metric_label_stability),
+                            value = stringResource(R.string.stats_metric_value_days, flashcard.stability.roundToInt())
+                        )
+                    }
+                    flashcard.retrievability?.let { r ->
+                        MetricRow(
+                            label = stringResource(R.string.stats_metric_label_recall),
+                            value = stringResource(R.string.stats_metric_value_percent, r.toInt())
+                        )
+                    }
+                    if (flashcard.difficultyScore > 0f) {
+                        val diffPct = (flashcard.difficultyScore * 10).roundToInt().coerceIn(0, 100)
+                        MetricRow(
+                            label = stringResource(R.string.stats_metric_label_difficulty),
+                            value = stringResource(R.string.stats_metric_value_percent, diffPct)
+                        )
+                    }
+                    if (flashcard.lapses > 0) {
+                        MetricRow(
+                            label = stringResource(R.string.stats_metric_label_lapses),
+                            value = flashcard.lapses.toString()
                         )
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(6.dp))
-            
-            // Last seen in smaller text
+            androidx.compose.material3.HorizontalDivider(color = getStatisticsCardBorder())
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Due date
             Text(
                 text = flashcard.lastSeenText,
                 fontSize = 11.sp,
                 color = getStatisticsOnSurfaceVariant()
             )
         }
+    }
+}
+
+@Composable
+private fun MetricRow(label: String, value: String, valueColor: Color = getStatisticsOnSurface()) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            fontSize = 13.sp,
+            color = getStatisticsOnSurfaceVariant()
+        )
+        Text(
+            text = value,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            color = valueColor
+        )
     }
 }
 
