@@ -33,6 +33,7 @@ import com.cardpop.app.data.model.AppTheme
 import com.cardpop.app.data.model.FlashcardFont
 import com.cardpop.app.data.model.FlashcardTheme
 import com.cardpop.app.data.model.Language
+import com.cardpop.app.domain.fsrs.FsrsParameterParser
 import com.cardpop.app.domain.usecase.RetentionData
 import com.cardpop.app.domain.usecase.StatisticsUseCase
 import com.cardpop.app.domain.usecase.csv.ExportReviewLogUseCase
@@ -75,6 +76,83 @@ class AppSettingsViewModel @Inject constructor(
 
     fun clearReviewLogMessage() {
         _reviewLogMessage.value = null
+    }
+
+    // ── FSRS parameter import ─────────────────────────────────────────────────
+
+    private val _fsrsParamsMessage = MutableStateFlow<String?>(null)
+    val fsrsParamsMessage: StateFlow<String?> = _fsrsParamsMessage.asStateFlow()
+
+    fun clearFsrsParamsMessage() {
+        _fsrsParamsMessage.value = null
+    }
+
+    /** Active FSRS weight array (custom or default). */
+    val fsrsParameters: StateFlow<List<Double>> = settingsManager.fsrsParameters
+
+    /** True when the user has saved custom weights (i.e. not using built-in defaults). */
+    private val _hasFsrsCustomParameters = MutableStateFlow(settingsManager.hasCustomFsrsParameters())
+    val hasFsrsCustomParameters: StateFlow<Boolean> = _hasFsrsCustomParameters.asStateFlow()
+
+    /**
+     * Parses [weightsText] as a 21-value FSRS weight array and, if valid,
+     * persists it. If [retentionText] is non-null and non-blank it is also
+     * parsed and applied as the target-retention setting.
+     *
+     * Emits a success or error message via [fsrsParamsMessage].
+     */
+    fun applyFsrsParametersText(weightsText: String, retentionText: String?) {
+        val parseResult = FsrsParameterParser.parse(weightsText)
+        if (parseResult.isFailure) {
+            _fsrsParamsMessage.value = appContext.getString(
+                R.string.settings_fsrs_params_apply_failed,
+                parseResult.exceptionOrNull()?.message ?: weightsText
+            )
+            return
+        }
+        settingsManager.setFsrsParameters(parseResult.getOrThrow())
+        // Optionally update retention at the same time.
+        val retDouble = retentionText?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?.toDoubleOrNull()
+            ?.coerceIn(0.80, 0.95)
+        if (retDouble != null) settingsManager.setTargetRetention(retDouble)
+        _fsrsParamsMessage.value = appContext.getString(R.string.settings_fsrs_params_apply_success)
+    }
+
+    /**
+     * Reads a text or JSON file from [uri] via SAF and applies it as FSRS parameters.
+     * The file may contain bare comma-separated numbers, a bracketed array, or a
+     * JSON object with a `w` key — all handled by [FsrsParameterParser].
+     */
+    fun importFsrsParameters(uri: Uri) {
+        viewModelScope.launch {
+            val result: Result<Unit> = withContext(Dispatchers.IO) {
+                runCatching {
+                    val text = appContext.contentResolver.openInputStream(uri)!!.use {
+                        it.bufferedReader(Charsets.UTF_8).readText()
+                    }
+                    val params = FsrsParameterParser.parse(text).getOrElse { throw it }
+                    settingsManager.setFsrsParameters(params)
+                }
+            }
+            result
+                .onSuccess {
+                    _fsrsParamsMessage.value = appContext.getString(R.string.settings_fsrs_params_import_success)
+                }
+                .onFailure { e ->
+                    _fsrsParamsMessage.value = appContext.getString(
+                        R.string.settings_fsrs_params_import_failed,
+                        e.localizedMessage ?: e.javaClass.simpleName
+                    )
+                }
+        }
+    }
+
+    /** Reverts FSRS weights to the built-in defaults. */
+    fun resetFsrsParameters() {
+        settingsManager.resetFsrsParameters()
+        _fsrsParamsMessage.value = appContext.getString(R.string.settings_fsrs_params_reset_done)
     }
 
     fun exportReviewLog(uri: Uri) {
@@ -120,6 +198,12 @@ class AppSettingsViewModel @Inject constructor(
     init {
         refreshActualRetention()
         refreshPermissions()
+        // Keep hasFsrsCustomParameters in sync whenever the weight array changes.
+        viewModelScope.launch {
+            settingsManager.fsrsParameters.collect {
+                _hasFsrsCustomParameters.value = settingsManager.hasCustomFsrsParameters()
+            }
+        }
     }
 
     fun refreshPermissions() {

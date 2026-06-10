@@ -70,7 +70,8 @@ class SrsUseCase @Inject constructor(
                     flashcard = current,
                     rating = rating,
                     now = now,
-                    requestRetention = settingsManager.getTargetRetention()
+                    requestRetention = settingsManager.getTargetRetention(),
+                    params = settingsManager.getFsrsParameters()
                 ) ?: return@withContext current
 
                 val fsrsRating = rating.toFsrsRating()!! // null case already handled above

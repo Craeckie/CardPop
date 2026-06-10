@@ -339,6 +339,9 @@ class BackupManager @Inject constructor(
                 customFontName = settingsRepository.customFontName.value,
                 questionFontSize = settingsRepository.questionFontSize.value,
                 answerFontSize = settingsRepository.answerFontSize.value,
+                // Only include custom weights — null means "use built-in defaults" on restore.
+                fsrsParameters = if (settingsRepository.hasCustomFsrsParameters())
+                    settingsRepository.getFsrsParameters() else null,
             )
 
             val uiSnapshot = flashcardUiPreferences.getPercentSnapshot()
@@ -546,6 +549,13 @@ class BackupManager @Inject constructor(
                 settingsRepository.setCustomFontName(s.customFontName)
                 settingsRepository.setQuestionFontSize(s.questionFontSize)
                 settingsRepository.setAnswerFontSize(s.answerFontSize)
+                // v4+: restore custom FSRS weights; null means use defaults.
+                val restoredParams = s.fsrsParameters
+                if (restoredParams != null) {
+                    settingsRepository.setFsrsParameters(restoredParams)
+                } else {
+                    settingsRepository.resetFsrsParameters()
+                }
             }
 
             backupData.flashcardUi?.let { ui ->

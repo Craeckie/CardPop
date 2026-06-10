@@ -210,6 +210,28 @@
     <string name="review_import_success">Imported %1$d reviews</string>
     <string name="review_import_failed">Import failed: %1$s</string>
 
+    <!-- FSRS parameter import -->
+    <string name="settings_fsrs_params_title">FSRS parameters</string>
+    <string name="settings_fsrs_params_description">Personalized weights for the spaced repetition algorithm. Paste the result from the FSRS optimizer to improve scheduling based on your review history.</string>
+    <string name="settings_fsrs_params_status_default">Default</string>
+    <string name="settings_fsrs_params_status_custom">Custom</string>
+    <string name="settings_fsrs_params_paste">Paste…</string>
+    <string name="settings_fsrs_params_import_file">Import from file</string>
+    <string name="settings_fsrs_params_reset">Reset to defaults</string>
+    <string name="settings_fsrs_params_paste_title">Paste FSRS parameters</string>
+    <string name="settings_fsrs_params_paste_body">Paste the 21-value weight array from the FSRS optimizer. Supported formats: plain numbers, [bracketed], or w: [array].</string>
+    <string name="settings_fsrs_params_paste_weights_label">Weights (21 values)</string>
+    <string name="settings_fsrs_params_paste_weights_hint">0.212, 1.293, 2.307, …</string>
+    <string name="settings_fsrs_params_paste_retention_label">Target retention (optional)</string>
+    <string name="settings_fsrs_params_paste_retention_hint">0.80 – 0.95</string>
+    <string name="settings_fsrs_params_paste_retention_error">Enter a number between 0.80 and 0.95</string>
+    <string name="settings_fsrs_params_paste_confirm">Apply</string>
+    <string name="settings_fsrs_params_apply_success">FSRS parameters applied</string>
+    <string name="settings_fsrs_params_apply_failed">Invalid parameters: %1$s</string>
+    <string name="settings_fsrs_params_import_success">FSRS parameters loaded from file</string>
+    <string name="settings_fsrs_params_import_failed">Could not read parameters: %1$s</string>
+    <string name="settings_fsrs_params_reset_done">Reset to default FSRS parameters</string>
+
     <!-- Overlay behavior section -->
     <string name="settings_overlay_behavior_title">Overlay behavior</string>
     <string name="settings_overlay_behavior_subtitle">Control when flashcards appear</string>

@@ -40,7 +40,8 @@ internal object SrsScheduler {
     private const val DAY_MS: Long = 24L * 60 * 60 * 1000
 
     /**
-     * Projects [rating] onto [flashcard] at timestamp [now] using [requestRetention].
+     * Projects [rating] onto [flashcard] at timestamp [now] using [requestRetention]
+     * and the given [params] weight array.
      *
      * @return the updated [FlashcardEntity], or `null` if [rating] is [FlashcardRating.CLOSED].
      */
@@ -48,12 +49,13 @@ internal object SrsScheduler {
         flashcard: FlashcardEntity,
         rating: FlashcardRating,
         now: Long,
-        requestRetention: Double = FsrsParameters.DEFAULT_RETENTION
+        requestRetention: Double = FsrsParameters.DEFAULT_RETENTION,
+        params: List<Double> = FsrsParameters.DEFAULT
     ): FlashcardEntity? {
         val fsrsRating = rating.toFsrsRating() ?: return null
 
         val card = flashcard.toFsrsCard(now)
-        val scheduler = Fsrs(requestRetention = requestRetention, params = FsrsParameters.DEFAULT)
+        val scheduler = Fsrs(requestRetention = requestRetention, params = params)
 
         val grade = scheduler.calculate(card).first { it.rating == fsrsRating }
         val updatedFsrs = scheduler.apply(card, fsrsRating, now)

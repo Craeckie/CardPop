@@ -48,7 +48,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.cardpop.app.domain.fsrs.FsrsParameterParser
 import com.cardpop.app.domain.usecase.RetentionData
+import androidx.compose.ui.text.font.FontFamily
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import com.cardpop.app.data.model.AppTheme
@@ -96,6 +98,19 @@ fun AppSettingsScreen(
         }
     }
 
+    val fsrsParamsMessage by viewModel.fsrsParamsMessage.collectAsState()
+    LaunchedEffect(fsrsParamsMessage) {
+        fsrsParamsMessage?.let { msg ->
+            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+            viewModel.clearFsrsParamsMessage()
+        }
+    }
+
+    val fsrsParamImportMimeTypes = arrayOf("text/plain", "application/json", "text/*", "application/octet-stream")
+    val fsrsParamImportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri -> uri?.let { viewModel.importFsrsParameters(it) } }
+
     val reviewExportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("text/csv")
     ) { uri -> uri?.let { viewModel.exportReviewLog(it) } }
@@ -115,6 +130,8 @@ fun AppSettingsScreen(
     ) { viewModel.refreshPermissions() }
     val currentTargetRetention by viewModel.targetRetention.collectAsState()
     val currentActualRetention by viewModel.actualRetention.collectAsState()
+    val currentFsrsParameters by viewModel.fsrsParameters.collectAsState()
+    val hasFsrsCustomParameters by viewModel.hasFsrsCustomParameters.collectAsState()
     val currentFlashcardOpacity by viewModel.flashcardOpacity.collectAsState()
     val swipeToRateEnabled by viewModel.swipeToRateEnabled.collectAsState()
     val currentQuestionFontSize by viewModel.questionFontSize.collectAsState()
@@ -399,6 +416,20 @@ fun AppSettingsScreen(
                         subtitle = stringResource(R.string.review_import_subtitle),
                         icon = Icons.Default.FileUpload,
                         onClick = { reviewImportLauncher.launch(reviewImportMimeTypes) }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    FsrsParametersSettingItem(
+                        params = currentFsrsParameters,
+                        isCustom = hasFsrsCustomParameters,
+                        onPasteParams = { weights, retention ->
+                            viewModel.applyFsrsParametersText(weights, retention)
+                        },
+                        onImportFromFile = {
+                            fsrsParamImportLauncher.launch(fsrsParamImportMimeTypes)
+                        },
+                        onReset = { viewModel.resetFsrsParameters() }
                     )
                 }
             }
@@ -1434,4 +1465,224 @@ private fun SwipeToRateSettingItem(
             onCheckedChange = onToggle
         )
     }
+}
+
+// ── FSRS parameter import UI ─────────────────────────────────────────────────
+
+/**
+ * Setting row for displaying and editing custom FSRS weight parameters.
+ *
+ * Shows the active weight array (first five values as a monospace preview) with
+ * a "Default"/"Custom" status chip, and three action controls:
+ * - **Paste…** — opens [FsrsParametersPasteDialog] for direct text entry.
+ * - **Import from file** — triggers a SAF file picker via [onImportFromFile].
+ * - **Reset to defaults** — reverts to the built-in FSRS-6 weights (only shown
+ *   when [isCustom] is true).
+ */
+@Composable
+private fun FsrsParametersSettingItem(
+    params: List<Double>,
+    isCustom: Boolean,
+    onPasteParams: (weightsText: String, retentionText: String?) -> Unit,
+    onImportFromFile: () -> Unit,
+    onReset: () -> Unit
+) {
+    var showPasteDialog by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.settings_fsrs_params_title),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = if (isCustom) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Text(
+                    text = if (isCustom) stringResource(R.string.settings_fsrs_params_status_custom)
+                           else stringResource(R.string.settings_fsrs_params_status_default),
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (isCustom) MaterialTheme.colorScheme.onPrimaryContainer
+                            else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        Text(
+            text = stringResource(R.string.settings_fsrs_params_description),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)
+        )
+        // First-5-values preview so the user can see what's active at a glance.
+        Text(
+            text = params.take(5).joinToString(", ") { it.toString() } + ", …",
+            style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(
+                onClick = { showPasteDialog = true },
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = stringResource(R.string.settings_fsrs_params_paste),
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
+            OutlinedButton(
+                onClick = onImportFromFile,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.FileUpload,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = stringResource(R.string.settings_fsrs_params_import_file),
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
+            if (isCustom) {
+                OutlinedButton(
+                    onClick = onReset,
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = stringResource(R.string.settings_fsrs_params_reset),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+            }
+        }
+    }
+
+    if (showPasteDialog) {
+        FsrsParametersPasteDialog(
+            currentParams = params,
+            onConfirm = { weightsText, retentionText ->
+                onPasteParams(weightsText, retentionText)
+                showPasteDialog = false
+            },
+            onDismiss = { showPasteDialog = false }
+        )
+    }
+}
+
+/**
+ * Dialog for pasting FSRS weight parameters from the external optimizer.
+ *
+ * Pre-fills the weights field with the current parameter string (in canonical
+ * comma-separated form) so the user can see and edit what is active.
+ * Validates inline before confirming: an unparseable weights string or an
+ * out-of-range retention value shows an error message without dismissing.
+ */
+@Composable
+private fun FsrsParametersPasteDialog(
+    currentParams: List<Double>,
+    onConfirm: (weightsText: String, retentionText: String?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var weightsText by remember { mutableStateOf(FsrsParameterParser.format(currentParams)) }
+    var retentionText by remember { mutableStateOf("") }
+    var weightsError by remember { mutableStateOf<String?>(null) }
+    var retentionError by remember { mutableStateOf<String?>(null) }
+    val retentionRangeError = stringResource(R.string.settings_fsrs_params_paste_retention_error)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(R.string.settings_fsrs_params_paste_title),
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        text = {
+            Column {
+                Text(
+                    text = stringResource(R.string.settings_fsrs_params_paste_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                OutlinedTextField(
+                    value = weightsText,
+                    onValueChange = {
+                        weightsText = it
+                        weightsError = null
+                    },
+                    label = { Text(stringResource(R.string.settings_fsrs_params_paste_weights_label)) },
+                    placeholder = { Text(stringResource(R.string.settings_fsrs_params_paste_weights_hint)) },
+                    isError = weightsError != null,
+                    supportingText = weightsError?.let { err -> { Text(err) } },
+                    minLines = 3,
+                    maxLines = 5,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = retentionText,
+                    onValueChange = {
+                        retentionText = it
+                        retentionError = null
+                    },
+                    label = { Text(stringResource(R.string.settings_fsrs_params_paste_retention_label)) },
+                    placeholder = { Text(stringResource(R.string.settings_fsrs_params_paste_retention_hint)) },
+                    isError = retentionError != null,
+                    supportingText = retentionError?.let { err -> { Text(err) } },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val parseResult = FsrsParameterParser.parse(weightsText)
+                    if (parseResult.isFailure) {
+                        weightsError = parseResult.exceptionOrNull()?.message
+                        return@TextButton
+                    }
+                    val retText = retentionText.trim().takeIf { it.isNotEmpty() }
+                    if (retText != null) {
+                        val retDouble = retText.toDoubleOrNull()
+                        if (retDouble == null || retDouble < 0.80 || retDouble > 0.95) {
+                            retentionError = retentionRangeError
+                            return@TextButton
+                        }
+                    }
+                    onConfirm(weightsText, retText)
+                }
+            ) {
+                Text(stringResource(R.string.settings_fsrs_params_paste_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(android.R.string.cancel))
+            }
+        }
+    )
 }

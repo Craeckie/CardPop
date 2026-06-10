@@ -520,6 +520,28 @@
     <string name="review_import_success">%1$d Wiederholungen importiert</string>
     <string name="review_import_failed">Import fehlgeschlagen: %1$s</string>
 
+    <!-- FSRS-Parameter-Import - German -->
+    <string name="settings_fsrs_params_title">FSRS-Parameter</string>
+    <string name="settings_fsrs_params_description">Personalisierte Gewichtungen für den Lernalgorithmus. Füge das Ergebnis des FSRS-Optimierers ein, um die Planung basierend auf deinem Wiederholungsverlauf zu verbessern.</string>
+    <string name="settings_fsrs_params_status_default">Standard</string>
+    <string name="settings_fsrs_params_status_custom">Angepasst</string>
+    <string name="settings_fsrs_params_paste">Einfügen…</string>
+    <string name="settings_fsrs_params_import_file">Aus Datei importieren</string>
+    <string name="settings_fsrs_params_reset">Auf Standard zurücksetzen</string>
+    <string name="settings_fsrs_params_paste_title">FSRS-Parameter einfügen</string>
+    <string name="settings_fsrs_params_paste_body">Füge das 21-Werte-Array des FSRS-Optimierers ein. Unterstützte Formate: einfache Zahlen, [eckige Klammern] oder w: [Array].</string>
+    <string name="settings_fsrs_params_paste_weights_label">Gewichtungen (21 Werte)</string>
+    <string name="settings_fsrs_params_paste_weights_hint">0.212, 1.293, 2.307, …</string>
+    <string name="settings_fsrs_params_paste_retention_label">Ziel-Behaltensrate (optional)</string>
+    <string name="settings_fsrs_params_paste_retention_hint">0,80 – 0,95</string>
+    <string name="settings_fsrs_params_paste_retention_error">Gib eine Zahl zwischen 0,80 und 0,95 ein</string>
+    <string name="settings_fsrs_params_paste_confirm">Anwenden</string>
+    <string name="settings_fsrs_params_apply_success">FSRS-Parameter angewendet</string>
+    <string name="settings_fsrs_params_apply_failed">Ungültige Parameter: %1$s</string>
+    <string name="settings_fsrs_params_import_success">FSRS-Parameter aus Datei geladen</string>
+    <string name="settings_fsrs_params_import_failed">Parameter konnten nicht gelesen werden: %1$s</string>
+    <string name="settings_fsrs_params_reset_done">Auf Standard-FSRS-Parameter zurückgesetzt</string>
+
     <!-- Snooze feature - German -->
     <string name="settings_snooze_duration_title">Schlummerdauer</string>
     <string name="settings_snooze_duration_description">Wie lange Lernkarten pausiert werden, wenn du den Schlummer-Button auf einer Karte tippst</string>

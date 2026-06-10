@@ -26,6 +26,8 @@ import com.cardpop.app.data.model.Language
 import com.cardpop.app.data.source.FlashcardUiPreferences
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import com.cardpop.app.domain.fsrs.FsrsParameterParser
+import com.cardpop.app.domain.fsrs.FsrsParameters
 import com.cardpop.app.util.IntervalConstants
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -86,6 +88,11 @@ class SettingsRepository @Inject constructor(
     // FSRS target retention — observed by the settings slider
     private val _targetRetention = MutableStateFlow(getTargetRetention())
     val targetRetention: StateFlow<Double> = _targetRetention.asStateFlow()
+
+    // FSRS weight parameters — custom 21-value array from the optimizer.
+    // Stored as a canonical comma-separated string; absent/empty ⇒ use defaults.
+    private val _fsrsParameters = MutableStateFlow(getFsrsParameters())
+    val fsrsParameters: StateFlow<List<Double>> = _fsrsParameters.asStateFlow()
 
     // App blocklist — overlay is suppressed while any of these packages is foreground
     private val _blocklist = MutableStateFlow(getBlocklist())
@@ -153,6 +160,7 @@ class SettingsRepository @Inject constructor(
         private const val DEFAULT_NEW_CARD_LIMIT = 10
         private const val DEFAULT_NEW_CARD_CUTOFF_ENABLED = true
         private const val DEFAULT_NEW_CARD_CUTOFF_HOUR = 18
+        private const val KEY_FSRS_PARAMETERS = "fsrs_parameters"
     }
 
     fun getTargetRetention(): Double =
@@ -166,6 +174,33 @@ class SettingsRepository @Inject constructor(
             .putFloat(KEY_TARGET_RETENTION, clamped)
             .apply()
         _targetRetention.value = clamped.toDouble()
+    }
+
+    /**
+     * Returns the active FSRS weight array. Falls back to [FsrsParameters.DEFAULT]
+     * when no custom parameters have been saved or the stored string is invalid.
+     */
+    fun getFsrsParameters(): List<Double> {
+        val stored = prefs.getString(KEY_FSRS_PARAMETERS, null)
+        if (stored.isNullOrBlank()) return FsrsParameters.DEFAULT
+        return FsrsParameterParser.parse(stored).getOrDefault(FsrsParameters.DEFAULT)
+    }
+
+    /** Returns true when the user has saved custom FSRS weights (not using defaults). */
+    fun hasCustomFsrsParameters(): Boolean =
+        !prefs.getString(KEY_FSRS_PARAMETERS, null).isNullOrBlank()
+
+    /** Persists [params] as the active FSRS weight array and updates the observable. */
+    fun setFsrsParameters(params: List<Double>) {
+        val canonical = FsrsParameterParser.format(params)
+        prefs.edit().putString(KEY_FSRS_PARAMETERS, canonical).apply()
+        _fsrsParameters.value = params
+    }
+
+    /** Clears any custom FSRS weights, reverting to [FsrsParameters.DEFAULT]. */
+    fun resetFsrsParameters() {
+        prefs.edit().remove(KEY_FSRS_PARAMETERS).apply()
+        _fsrsParameters.value = FsrsParameters.DEFAULT
     }
 
     fun getIntervalMinutes(): Int {

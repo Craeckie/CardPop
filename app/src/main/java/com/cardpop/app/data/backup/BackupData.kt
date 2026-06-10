@@ -30,10 +30,11 @@ data class BackupData(
      * v1: SM-2 fields (easinessFactor, reviewCount, cooldownUntil).
      * v2: FSRS fields (stability, difficulty, scheduledDays, reps, lapses, state, dueAt).
      * v3: app settings, flashcard overlay UI prefs, daily review history.
+     * v4: custom FSRS weight parameters in SettingsBackup.
      * v1 backups are restored by mapping legacy fields to FSRS-New defaults.
-     * v1/v2 backups deserialize cleanly because every v3 field is nullable.
+     * v1/v2/v3 backups deserialize cleanly because new fields are nullable with defaults.
      */
-    val version: Int = 3,
+    val version: Int = 4,
     val backupId: String = UUID.randomUUID().toString(),
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
@@ -121,6 +122,8 @@ data class SettingsBackup(
     val customFontName: String? = null,
     val questionFontSize: Float = 17f,
     val answerFontSize: Float = 17f,
+    // v4+: custom FSRS weight parameters. null = use built-in defaults.
+    val fsrsParameters: List<Double>? = null,
 )
 
 /**
