@@ -62,17 +62,23 @@ class ImportCsvUseCase @Inject constructor(
      * it avoids re-reading the InputStream.
      *
      * @param parseResult The result from a previous [parseForPreview] call
-     * @param fallbackCategoryId Default category for cards without an explicit category name
+     * @param fallbackCategoryId Default category for cards without an explicit category name.
+     *   Ignored when [newCategoryName] is provided.
      * @param skipDuplicates Whether to skip cards that already exist (matched by question+answer)
      * @param resolveCategories Whether to resolve category names from the CSV into category IDs.
      *   When true, cards with a category field will be placed in a matching category (created if
      *   needed). When false, all cards go into [fallbackCategoryId].
+     * @param newCategoryName When non-null/non-blank, a new category with this name is created
+     *   (or an existing one with the same name is reused) and used as the effective fallback.
+     *   The category is only written to the DB when cards are actually imported — a no-op import
+     *   (all duplicates, zero valid cards) does not persist it.
      */
     suspend fun importFromParsed(
         parseResult: CsvParseResult,
         fallbackCategoryId: Long,
         skipDuplicates: Boolean = true,
-        resolveCategories: Boolean = false
+        resolveCategories: Boolean = false,
+        newCategoryName: String? = null
     ): Result<CsvImportResult> = withContext(Dispatchers.IO) {
         try {
             if (parseResult.validCards.isEmpty()) {
@@ -96,6 +102,14 @@ class ImportCsvUseCase @Inject constructor(
                 )
             }
 
+            // Resolve effective fallback: create-or-get the new category only when cards will
+            // actually be imported (after the duplicate guard above).
+            val effectiveFallbackId = if (!newCategoryName.isNullOrBlank()) {
+                getOrCreateCategory(newCategoryName.trim())
+            } else {
+                fallbackCategoryId
+            }
+
             // Build category name → ID map (existing categories)
             val categoryCache = if (resolveCategories) {
                 categoryDao.getAllCategoriesForBackup()
@@ -108,7 +122,7 @@ class ImportCsvUseCase @Inject constructor(
             val entities = newCards.map { csvCard ->
                 val categoryId = resolveCategoryId(
                     csvCard = csvCard,
-                    fallbackCategoryId = fallbackCategoryId,
+                    fallbackCategoryId = effectiveFallbackId,
                     resolveCategories = resolveCategories,
                     categoryCache = categoryCache
                 )
@@ -270,6 +284,16 @@ class ImportCsvUseCase @Inject constructor(
         val newId = categoryDao.insertCategory(newCategory)
         categoryCache[categoryName] = newId
         return newId
+    }
+
+    /**
+     * Finds an existing category by name (case-insensitive) or creates a new one.
+     * Used to lazily materialise a user-typed name only when cards are actually imported.
+     */
+    private suspend fun getOrCreateCategory(name: String): Long {
+        val existingId = categoryDao.getCategoryIdByName(name)
+        if (existingId != null) return existingId
+        return categoryDao.insertCategory(CategoryEntity(name = name))
     }
 
     private fun createEntity(csvCard: CsvFlashcard, categoryId: Long): FlashcardEntity {

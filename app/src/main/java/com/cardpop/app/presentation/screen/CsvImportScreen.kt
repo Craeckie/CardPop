@@ -70,10 +70,12 @@ fun CsvImportScreen(
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
     var selectedFileName by remember { mutableStateOf<String?>(null) }
     var selectedCategoryId by remember { mutableStateOf<Long?>(null) }
+    var pendingNewCategoryName by remember { mutableStateOf<String?>(null) }
+    var showAddCategoryDialog by remember { mutableStateOf(false) }
 
-    // Auto-select first category when loaded
+    // Auto-select first category when loaded (only when no pending new-category is typed)
     LaunchedEffect(categoryUiState.categories) {
-        if (selectedCategoryId == null && categoryUiState.categories.isNotEmpty()) {
+        if (selectedCategoryId == null && pendingNewCategoryName == null && categoryUiState.categories.isNotEmpty()) {
             selectedCategoryId = categoryUiState.categories.first().id
         }
     }
@@ -126,25 +128,27 @@ fun CsvImportScreen(
                 ImportStep.PARSING -> LoadingStep()
                 ImportStep.PREVIEW_READY -> {
                     uiState.parseResult?.let { result ->
-                        val selectedCatId = selectedCategoryId
-                        if (selectedCatId != null) {
-                            PreviewStep(
-                                validCards = result.validCards,
-                                errorCount = result.errors.size,
-                                skipDuplicates = skipDuplicates,
-                                onSkipDuplicatesChanged = { skipDuplicates = it },
-                                selectedCategoryId = selectedCatId,
-                                categories = categoryUiState.categories,
-                                onCategoryChanged = { selectedCategoryId = it },
-                                onImport = {
-                                    viewModel.executeImport(selectedCatId, skipDuplicates)
-                                },
-                                onPickAnotherFile = {
-                                    filePickerLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/xml", "application/xml", "text/*", "application/octet-stream", "application/zip"))
-                                },
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
-                        }
+                        PreviewStep(
+                            validCards = result.validCards,
+                            errorCount = result.errors.size,
+                            skipDuplicates = skipDuplicates,
+                            onSkipDuplicatesChanged = { skipDuplicates = it },
+                            selectedCategoryId = selectedCategoryId,
+                            categories = categoryUiState.categories,
+                            onCategoryChanged = {
+                                selectedCategoryId = it
+                                pendingNewCategoryName = null
+                            },
+                            pendingNewCategoryName = pendingNewCategoryName,
+                            onCreateCategoryClick = { showAddCategoryDialog = true },
+                            onImport = {
+                                viewModel.executeImport(selectedCategoryId, pendingNewCategoryName, skipDuplicates)
+                            },
+                            onPickAnotherFile = {
+                                filePickerLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/xml", "application/xml", "text/*", "application/octet-stream", "application/zip"))
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
                     }
                 }
                 ImportStep.NO_VALID_CARDS -> {
@@ -176,6 +180,17 @@ fun CsvImportScreen(
                 }
             }
         }
+    }
+
+    if (showAddCategoryDialog) {
+        AddCategoryDialog(
+            onConfirm = { name ->
+                pendingNewCategoryName = name.trim()
+                selectedCategoryId = null
+                showAddCategoryDialog = false
+            },
+            onDismiss = { showAddCategoryDialog = false }
+        )
     }
 }
 
@@ -294,9 +309,11 @@ private fun PreviewStep(
     errorCount: Int,
     skipDuplicates: Boolean,
     onSkipDuplicatesChanged: (Boolean) -> Unit,
-    selectedCategoryId: Long,
+    selectedCategoryId: Long?,
     categories: List<com.cardpop.app.data.entity.CategoryEntity>,
     onCategoryChanged: (Long) -> Unit,
+    pendingNewCategoryName: String?,
+    onCreateCategoryClick: () -> Unit,
     onImport: () -> Unit,
     onPickAnotherFile: () -> Unit,
     modifier: Modifier = Modifier
@@ -379,6 +396,22 @@ private fun PreviewStep(
                         } else null
                     )
                 }
+                // "New category" chip: shows typed name (selected) or an add button
+                if (pendingNewCategoryName != null) {
+                    FilterChip(
+                        selected = true,
+                        onClick = onCreateCategoryClick,
+                        label = { Text(pendingNewCategoryName, maxLines = 1) },
+                        leadingIcon = { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                    )
+                } else {
+                    FilterChip(
+                        selected = false,
+                        onClick = onCreateCategoryClick,
+                        label = { Text(stringResource(R.string.csv_import_new_category), maxLines = 1) },
+                        leadingIcon = { Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                    )
+                }
             }
 
             // Preview table
@@ -452,9 +485,10 @@ private fun PreviewStep(
             color = MaterialTheme.colorScheme.background
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                // Import button
+                // Import button — disabled until a category (existing or new) is selected
                 Button(
                     onClick = onImport,
+                    enabled = selectedCategoryId != null || pendingNewCategoryName != null,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 ) {

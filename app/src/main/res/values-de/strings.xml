@@ -470,6 +470,7 @@
     <string name="csv_import_and_more">…und %1$d weitere</string>
     <string name="csv_import_pick_another">Andere Datei wählen</string>
     <string name="csv_import_select_category">Kategorie auswählen</string>
+    <string name="csv_import_new_category">Neue Kategorie</string>
 
     <!-- CSV Export - German -->
     <string name="csv_export_title">Als CSV exportieren</string>

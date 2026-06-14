@@ -155,11 +155,24 @@ class CsvImportViewModel @Inject constructor(
     /**
      * Executes the import using the cached parse result.
      * This avoids re-reading the file from the URI.
+     *
+     * Exactly one of [categoryId] or [newCategoryName] must be provided.
+     * When [newCategoryName] is non-blank, the category is created (or reused if a category
+     * with that name already exists) inside the use-case — only when cards are actually
+     * written to the DB, so cancelling before this call leaves no orphan category.
      */
     fun executeImport(
-        categoryId: Long,
+        categoryId: Long?,
+        newCategoryName: String?,
         skipDuplicates: Boolean
     ) {
+        if (categoryId == null && newCategoryName.isNullOrBlank()) {
+            _uiState.value = _uiState.value.copy(
+                error = "Please select or create a category before importing."
+            )
+            return
+        }
+
         val parseResult = cachedParseResult ?: run {
             _uiState.value = _uiState.value.copy(
                 error = "No parsed data available. Please preview the file first."
@@ -176,9 +189,10 @@ class CsvImportViewModel @Inject constructor(
             try {
                 val result = importCsvUseCase.importFromParsed(
                     parseResult = parseResult,
-                    fallbackCategoryId = categoryId,
+                    fallbackCategoryId = categoryId ?: 0L,
                     skipDuplicates = skipDuplicates,
-                    resolveCategories = false
+                    resolveCategories = false,
+                    newCategoryName = newCategoryName
                 )
 
                 result.fold(

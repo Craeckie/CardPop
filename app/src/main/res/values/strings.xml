@@ -524,6 +524,7 @@
     <string name="csv_import_and_more">…and %1$d more</string>
     <string name="csv_import_pick_another">Pick a different file</string>
     <string name="csv_import_select_category">Select category</string>
+    <string name="csv_import_new_category">New category</string>
 
     <!-- CSV Export -->
     <string name="csv_export_title">Export as CSV</string>
