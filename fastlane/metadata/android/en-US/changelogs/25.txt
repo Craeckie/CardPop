@@ -1,0 +1,10 @@
+## ✨ New Features
+- ✨ Create a new category directly in the import preview — tap "+ New category", type a name, and cards land in it on import (the category is only saved when cards are actually imported, so cancelling leaves nothing behind)
+- ✨ Import FSRS parameters exported from the optimizer for more accurate scheduling
+
+## 📊 Statistics
+- 🎨 Per-card statistics now show maturity state and key FSRS metrics instead of response chips
+- 🎨 Statistics card rows redesigned as a labeled metric list
+- 👁️ Inactive cards are now hidden from the statistics card list
+
+**Full Changelog**: https://github.com/Craeckie/CardPop/compare/v2.8.0...v2.9.0
