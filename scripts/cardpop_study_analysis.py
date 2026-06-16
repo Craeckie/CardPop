@@ -79,17 +79,19 @@ def analyze_deck(backup):
     active = [c for c in cards if c.get("isEnabled", True) and cat_enabled(c)]
     active_total = len(active)
 
-    new_cards   = [c for c in active if c["state"] == 0]
-    mature      = [c for c in active if c["stability"] >= MATURE_STABILITY_DAYS and c["reps"] >= MATURE_MIN_REPS]
+    new_cards   = [c for c in active if c.get("state", 0) == 0]
+    mature      = [c for c in active if c.get("stability", 0) >= MATURE_STABILITY_DAYS and c.get("reps", 0) >= MATURE_MIN_REPS]
     mature_ids  = {id(c) for c in mature}
-    young       = [c for c in active if c["state"] in (1, 3)
-                   or (c["state"] == 2 and id(c) not in mature_ids and c["state"] != 0)]
-    review_cards = [c for c in active if c["state"] == 2]
-    low_stab    = [c for c in review_cards if c["stability"] < LOW_STABILITY_DAYS]
-    hard_diff   = [c for c in review_cards if c["difficulty"] > HARD_DIFF_THRESHOLD]
-    due_now     = [c for c in active if c["dueAt"] <= now]
-    # 'lapses' is omitted from the JSON when it's 0 (kotlinx.serialization default),
-    # so a missing key means 0 — NOT unknown. Default to 0 to match the app exactly.
+    young       = [c for c in active if c.get("state", 0) in (1, 3)
+                   or (c.get("state", 0) == 2 and id(c) not in mature_ids and c.get("state", 0) != 0)]
+    review_cards = [c for c in active if c.get("state", 0) == 2]
+    low_stab    = [c for c in review_cards if c.get("stability", 0) < LOW_STABILITY_DAYS]
+    hard_diff   = [c for c in review_cards if c.get("difficulty", 0) > HARD_DIFF_THRESHOLD]
+    due_now     = [c for c in active if c.get("dueAt", 0) <= now]
+    # Any FSRS field equal to its entity default (0) is omitted from the JSON by
+    # kotlinx.serialization — e.g. New cards carry no state/stability/difficulty/
+    # reps/dueAt/lapses keys. A missing key means 0, NOT unknown, so always read
+    # these with .get(key, 0) to match the app's defaults exactly.
     leeches     = [c for c in active if c.get("lapses", 0) >= LEECH_LAPSES]
     added_7d    = [c for c in active if now - c.get("createdAt", now) <= 7 * DAY_MS]
 
@@ -107,7 +109,7 @@ def analyze_deck(backup):
         [("overdue/now", 0), ("<1d", 0), ("1-2d", 0), ("2-7d", 0), ("7-30d", 0), (">30d", 0)]
     )
     for c in active:
-        d = (c["dueAt"] - now) / DAY_MS
+        d = (c.get("dueAt", 0) - now) / DAY_MS
         if d <= 0: buckets["overdue/now"] += 1
         elif d < 1: buckets["<1d"] += 1
         elif d < 2: buckets["1-2d"] += 1
