@@ -114,11 +114,73 @@ class Confuser:
         return shared_leaves >= 2 and shared_leaves >= diff_leaves
 
 
+def render_markdown(ranked, struggle, common_comp, distinguishing,
+                    worstcard, words_of, gloss, g, n_chars, n_links):
+    def esc(s):
+        return s.replace("|", "/")
+
+    def strug(ch):
+        return struggle(ch) >= 1.3
+
+    def nstrug(m):
+        return sum(strug(c) for c in m)
+
+    pri = [m for m in ranked if nstrug(m) >= 2]
+    watch = [m for m in ranked if nstrug(m) == 1]
+    clean = [m for m in ranked if nstrug(m) == 0]
+    o = []
+    o += ["# CardPop — Confusable Characters", "",
+          f"_{n_chars} Han characters · {n_links} confusable links · {len(ranked)} clusters_", "",
+          "`*` marks a card you are currently struggling with. Each cluster shares a main "
+          "component and differs only in a small part — the **Differs** column is what to lean "
+          "on when telling them apart.", "",
+          f"- 🔴 **Priority** (2+ struggling): {len(pri)}",
+          f"- 🟡 **Watch** (1 struggling): {len(watch)}",
+          f"- ⚪ **Clean** (look-alikes, no lapses yet): {len(clean)}", ""]
+
+    o += ["## 🔴 Priority — fix these first", ""]
+    for m in pri:
+        members = sorted(m, key=struggle, reverse=True)
+        common = common_comp(members)
+        title = " · ".join(f"{c}{'*' if strug(c) else ''}" for c in members)
+        o += [f"### {title}" + (f" — shared **{''.join(common)}**" if common else ""), "",
+              "| Char | Differs | Words | Diff | Lapses | Stab | Meaning |",
+              "|---|---|---|--:|--:|--:|---|"]
+        for ch in members:
+            w = worstcard(ch)
+            o.append(f"| {ch} | {''.join(distinguishing(ch, common)) or '—'} | {esc(' '.join(words_of(ch)))} "
+                     f"| {g(w,'difficulty'):.0f} | {g(w,'lapses')} | {g(w,'stability'):.0f}d | {esc(gloss(w))} |")
+        o.append("")
+
+    o += ["## 🟡 Watch — one side already lapsing", "",
+          "| Cluster | Shared | Struggling card | Diff | Lapses | Stab |",
+          "|---|:--:|---|--:|--:|--:|"]
+    for m in watch:
+        members = sorted(m, key=struggle, reverse=True)
+        common = common_comp(members)
+        s = members[0]
+        w = worstcard(s)
+        cl = " ".join(f"{c}{'*' if strug(c) else ''}" for c in members)
+        o.append(f"| {cl} | {''.join(common) or '—'} | {s} {esc('/'.join(words_of(s)))} "
+                 f"| {g(w,'difficulty'):.0f} | {g(w,'lapses')} | {g(w,'stability'):.0f}d |")
+    o.append("")
+
+    o += ["## ⚪ Clean look-alikes — no lapses yet", ""]
+    for m in clean:
+        members = sorted(m)
+        common = common_comp(members)
+        words = " · ".join("/".join(words_of(ch)) for ch in members)
+        o.append(f"- **{' '.join(members)}**" + (f" _(shared {''.join(common)})_" if common else "")
+                 + f" — {esc(words)}")
+    return "\n".join(o)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("backup", help="CardPop backup JSON")
     ap.add_argument("--ids-file", help="path to a local cjkvi ids.txt (skips download)")
     ap.add_argument("--compact", action="store_true", help="one line per cluster")
+    ap.add_argument("--markdown", action="store_true", help="render a formatted Markdown report")
     ap.add_argument("--min-struggle", type=float, default=0.0,
                     help="only show clusters with a member at/above this struggle score")
     args = ap.parse_args()
@@ -173,11 +235,27 @@ def main():
     def worstcard(ch):
         return max(char_cards[ch], key=lambda x: g(x, "difficulty") / 10 + min(g(x, "lapses"), 5))
 
-    def gloss(c):
-        return c.get("answer", "").replace("\n", " ")[:30]
+    def gloss(c, n=48):
+        return " ".join(c.get("answer", "").split())[:n]
+
+    def words_of(ch):
+        return sorted({x.get("question", "") for x in char_cards[ch]})
+
+    def common_comp(members):
+        sets = [set(cf.comps1(ch)) for ch in members]
+        return [c for c in cf.comps1(members[0]) if all(c in s for s in sets)]
+
+    def distinguishing(ch, common):
+        return [c for c in cf.comps1(ch) if c not in common]
 
     ranked = sorted(clusters.values(), key=lambda m: max(struggle(c) for c in m), reverse=True)
     ranked = [m for m in ranked if max(struggle(c) for c in m) >= args.min_struggle]
+
+    if args.markdown:
+        print(render_markdown(ranked, struggle, common_comp, distinguishing,
+                              worstcard, words_of, gloss, g, len(deck), len(edges)))
+        return
+
     print(f"# {len(deck)} Han chars | {len(edges)} confusable links | {len(ranked)} clusters shown\n")
     for m in ranked:
         members = sorted(m, key=struggle, reverse=True)
