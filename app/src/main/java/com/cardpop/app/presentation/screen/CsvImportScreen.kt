@@ -382,9 +382,10 @@ private fun PreviewStep(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Category chips for selection
-            Row(
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 categories.forEach { category ->
                     FilterChip(
