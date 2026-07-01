@@ -385,7 +385,7 @@ private fun PreviewStep(
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 categories.forEach { category ->
                     FilterChip(
