@@ -460,6 +460,8 @@
     <string name="csv_import_done_button">Fertig</string>
     <string name="csv_import_error_title">Import-Fehler</string>
     <string name="csv_import_error_close">Schließen</string>
+    <string name="csv_import_error_not_pleco_xml">Diese XML-Datei ist kein Pleco-Karteikarten-Export. Exportiere deine Karten in Pleco über Flashcards → Import/Export → Export Cards.</string>
+    <string name="csv_import_error_unsupported">Dateiformat nicht erkannt. Unterstützt werden CSV/TSV, Pleco-XML und Anki-Decks (.apkg).</string>
     <string name="csv_import_parsing_errors_detail">%1$d Zeilen hatten Fehler und wurden übersprungen</string>
     <string name="csv_import_supported_formats">Unterstützt: CSV, TSV mit Kopfzeilen wie Frage/Antwort, Vorderseite/Rückseite, Begriff/Definition; Anki-Decks (.apkg); sowie Pleco-Karteikarten-Exporte (.xml)</string>
     <string name="csv_import_parsing_file">Datei wird analysiert…</string>

@@ -21,8 +21,10 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cardpop.app.data.anki.AnkiParser
-import com.cardpop.app.data.pleco.PlecoXmlParser
+import com.cardpop.app.R
+import com.cardpop.app.data.importer.ImportFileParser
+import com.cardpop.app.data.importer.ImportFormat
+import com.cardpop.app.data.importer.ImportParseOutcome
 import com.cardpop.app.data.csv.CsvImportResult
 import com.cardpop.app.data.csv.CsvParseResult
 import com.cardpop.app.domain.usecase.csv.ImportCsvUseCase
@@ -45,8 +47,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CsvImportViewModel @Inject constructor(
     private val importCsvUseCase: ImportCsvUseCase,
-    private val ankiParser: AnkiParser,
-    private val plecoXmlParser: PlecoXmlParser,
+    private val importFileParser: ImportFileParser,
     private val application: Application
 ) : ViewModel() {
 
@@ -83,19 +84,16 @@ class CsvImportViewModel @Inject constructor(
 
     /**
      * Parses the file for preview.
-     * Detects file type by extension: .apkg → Anki deck, .xml → Pleco XML,
-     * all other files are parsed as CSV.
-     * Caches the result for later use in [executeImport].
+     *
+     * The format is detected from the file's leading bytes by [ImportFileParser]; the
+     * file name is not consulted, because the SAF picker often hands us an opaque
+     * document id rather than a name. Caches the result for [executeImport].
      */
     fun parseForPreview(contentResolver: android.content.ContentResolver) {
         val uri = pendingUri ?: run {
             _uiState.value = _uiState.value.copy(error = "No file selected")
             return
         }
-
-        val name = pendingFileName?.lowercase().orEmpty()
-        val isAnkiFile = name.endsWith(".apkg")
-        val isPlecoFile = name.endsWith(".xml")
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
@@ -105,31 +103,46 @@ class CsvImportViewModel @Inject constructor(
 
             try {
                 contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val result = when {
-                        isAnkiFile -> withContext(Dispatchers.IO) {
-                            ankiParser.parse(inputStream, application.cacheDir)
-                        }
-                        isPlecoFile -> withContext(Dispatchers.IO) {
-                            plecoXmlParser.parse(inputStream)
-                        }
-                        else -> importCsvUseCase.parseForPreview(inputStream)
+                    val outcome = withContext(Dispatchers.IO) {
+                        importFileParser.parse(inputStream, application.cacheDir)
                     }
-                    cachedParseResult = result
 
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        parseResult = result,
-                        step = if (result.validCards.isEmpty()) {
-                            ImportStep.NO_VALID_CARDS
-                        } else {
-                            ImportStep.PREVIEW_READY
-                        },
-                        error = if (result.validCards.isEmpty()) {
-                            "No valid flashcards found"
-                        } else {
-                            null
+                    when (outcome) {
+                        is ImportParseOutcome.Unsupported -> {
+                            cachedParseResult = null
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false,
+                                parseResult = null,
+                                error = application.getString(
+                                    when (outcome.format) {
+                                        ImportFormat.UNSUPPORTED_XML -> R.string.csv_import_error_not_pleco_xml
+                                        else -> R.string.csv_import_error_unsupported
+                                    }
+                                ),
+                                step = ImportStep.ERROR
+                            )
                         }
-                    )
+
+                        is ImportParseOutcome.Parsed -> {
+                            val result = outcome.result
+                            cachedParseResult = result
+
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false,
+                                parseResult = result,
+                                step = if (result.validCards.isEmpty()) {
+                                    ImportStep.NO_VALID_CARDS
+                                } else {
+                                    ImportStep.PREVIEW_READY
+                                },
+                                error = if (result.validCards.isEmpty()) {
+                                    "No valid flashcards found"
+                                } else {
+                                    null
+                                }
+                            )
+                        }
+                    }
                 } ?: run {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -138,14 +151,9 @@ class CsvImportViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                val fileType = when {
-                    isAnkiFile -> "Anki deck"
-                    isPlecoFile -> "Pleco XML"
-                    else -> "CSV"
-                }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Failed to parse $fileType: ${e.message}",
+                    error = "Failed to parse file: ${e.message}",
                     step = ImportStep.ERROR
                 )
             }

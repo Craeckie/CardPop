@@ -561,6 +561,8 @@
     <string name="csv_import_done_button">Gotowe</string>
     <string name="csv_import_error_title">Błąd importu</string>
     <string name="csv_import_error_close">Zamknij</string>
+    <string name="csv_import_error_not_pleco_xml">Ten plik XML nie jest eksportem fiszek z Pleco. Wyeksportuj karty w Pleco przez Flashcards → Import/Export → Export Cards.</string>
+    <string name="csv_import_error_unsupported">Nierozpoznany format pliku. Obsługiwane formaty to CSV/TSV, Pleco XML i talie Anki (.apkg).</string>
     <string name="morning_reminder_channel_name">Poranne przypomnienie</string>
     <string name="morning_reminder_channel_description">Codzienne przypomnienie o rozpoczęciu sesji nauki</string>
     <string name="morning_reminder_title_study">Czas na naukę!</string>
