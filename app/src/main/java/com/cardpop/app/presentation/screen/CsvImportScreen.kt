@@ -52,6 +52,7 @@ import com.cardpop.app.presentation.viewmodel.CategoryViewModel
 import com.cardpop.app.presentation.viewmodel.CsvImportViewModel
 import com.cardpop.app.presentation.viewmodel.CsvImportUiState
 import com.cardpop.app.presentation.viewmodel.ImportStep
+import com.cardpop.app.util.resolveDisplayName
 
 /**
  * CSV Import screen with file picker, preview, category selection, and import execution.
@@ -86,7 +87,7 @@ fun CsvImportScreen(
     ) { uri ->
         uri?.let {
             selectedFileUri = it
-            selectedFileName = uri.lastPathSegment?.substringAfterLast('/') ?: "selected_file.csv"
+            selectedFileName = resolveDisplayName(context.contentResolver, it)
             viewModel.setFile(it, selectedFileName!!, context.contentResolver)
             viewModel.parseForPreview(context.contentResolver)
         }
