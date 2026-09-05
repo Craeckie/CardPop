@@ -15,8 +15,8 @@ android {
         applicationId = "com.cardpop.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 25
-        versionName = (project.findProperty("versionName") as String?) ?: "2.9.0"
+        versionCode = 26
+        versionName = (project.findProperty("versionName") as String?) ?: "2.10.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

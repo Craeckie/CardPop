@@ -1,0 +1,13 @@
+## ✨ New Features
+
+- 📥 Imports now detect the file format from its **content** instead of the file name — a Pleco export saved as `.txt`, an Anki deck with an odd extension, or a renamed CSV all import correctly
+- 🎚️ The daily new-card limit now steps through 0/1/2/5/10/20/50/∞ for finer control at the low end
+
+## 🐛 Fixes
+
+- 🐛 Pleco definitions with several senses now keep **every** sense instead of being cut off at the first Chinese character
+- 🐛 Imported files now show their real name in the import screen instead of an internal identifier
+- 📐 Category chips in the import preview wrap onto multiple lines, with tighter spacing between rows
+- ⚡ The import file is parsed once instead of twice when you pick it
+
+**Full Changelog**: https://github.com/Craeckie/CardPop/compare/v2.9.0...v2.10.0
