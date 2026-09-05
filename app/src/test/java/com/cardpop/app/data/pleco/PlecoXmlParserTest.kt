@@ -162,4 +162,92 @@ class PlecoXmlParserTest {
         val result = parse(card(sc = "发炎", pron = "fa1//yan2", defn = "inflame"))
         assertEquals("fāyán", result.validCards[0].answer.lines()[0])
     }
+
+    // ── Multi-sense definitions ───────────────────────────────────────────────
+
+    @Test
+    fun `second sense after an example sentence is kept`() {
+        val result = parse(card(
+            sc = "允许", tc = "允許", pron = "yun3xu3",
+            defn = "noun permission 得到家长的允许 dédào jiāzhǎng deyǔnxǔ gain permission " +
+                "from one’s parents verb permit; allow 不允许破坏纪律 bù yǔnxǔ pòhuài jìlǜ " +
+                "permit no breach of discipline"
+        ))
+        assertEquals(
+            listOf("yǔnxǔ", "noun permission", "verb permit; allow"),
+            result.validCards[0].answer.lines()
+        )
+    }
+
+    @Test
+    fun `sense appearing after several examples is kept`() {
+        val result = parse(card(
+            sc = "辛苦", pron = "xin1ku3",
+            defn = "verb work hard 路上辛苦了。 Lùshang xīnkǔ le. You must have had a tiring " +
+                "journey. 同志们辛苦了。 Tóngzhì men xīnkǔ le. You comrades have been working " +
+                "hard. adjective hard; strenuous 犁地这活儿很辛苦。 Lí dì zhè huór hěn xīnkǔ. " +
+                "Ploughing is hard work."
+        ))
+        assertEquals(
+            listOf("xīnkǔ", "verb work hard", "adjective hard; strenuous"),
+            result.validCards[0].answer.lines()
+        )
+    }
+
+    @Test
+    fun `example translations without a part of speech marker are dropped`() {
+        val result = parse(card(
+            sc = "崇拜", pron = "chong2bai4",
+            defn = "verb worship; adore 偶像崇拜 Ǒuxiàng chóngbài worship of idols; idolatry " +
+                "她很崇拜她父亲。 Tā hěn chóngbài tā fùqin. She worships her father."
+        ))
+        assertEquals(
+            listOf("chóngbài", "verb worship; adore"),
+            result.validCards[0].answer.lines()
+        )
+    }
+
+    @Test
+    fun `capitalised part of speech word in example text does not start a sense`() {
+        val result = parse(card(
+            sc = "名词", pron = "ming2ci2",
+            defn = "noun noun (grammar) 这是名词。 Zhè shì míngcí. Noun is a word class."
+        ))
+        assertEquals(
+            listOf("míngcí", "noun noun (grammar)"),
+            result.validCards[0].answer.lines()
+        )
+    }
+
+    @Test
+    fun `multi-line definition keeps its line breaks`() {
+        val result = parse(card(
+            sc = "邮箱", pron = "you2xiang1",
+            defn = "• Briefkasten (m) (S)\n• Mailbox (S) (EDV/Informatik)\n• E-Mail- Adresse (S)"
+        ))
+        assertEquals(
+            listOf(
+                "yóuxiāng",
+                "• Briefkasten (m) (S)",
+                "• Mailbox (S) (EDV/Informatik)",
+                "• E-Mail- Adresse (S)"
+            ),
+            result.validCards[0].answer.lines()
+        )
+    }
+
+    @Test
+    fun `blank lines inside a definition are dropped`() {
+        val result = parse(card(sc = "邮箱", pron = "you2xiang1", defn = "• Briefkasten\n\n• Mailbox"))
+        assertEquals(
+            listOf("yóuxiāng", "• Briefkasten", "• Mailbox"),
+            result.validCards[0].answer.lines()
+        )
+    }
+
+    @Test
+    fun `definition starting with hanzi is kept whole`() {
+        val result = parse(card(sc = "崇拜", pron = "chong2bai4", defn = "偶像崇拜 worship of idols"))
+        assertEquals("偶像崇拜 worship of idols", result.validCards[0].answer.lines().last())
+    }
 }

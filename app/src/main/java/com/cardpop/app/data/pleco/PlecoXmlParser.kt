@@ -32,8 +32,9 @@ import javax.xml.parsers.DocumentBuilderFactory
  * Field mapping:
  * - front (`question`)  = simplified headword (`<headword charset="sc">`),
  *                         falling back to traditional if no simplified present.
- * - back  (`answer`)    = pinyin converted to tone marks + trimmed definition,
- *                         joined by a newline. Either part may be absent.
+ * - back  (`answer`)    = pinyin converted to tone marks + every sense of the
+ *                         definition (examples dropped), joined by newlines.
+ *                         Either part may be absent.
  * - category            = null (user picks a target category in the preview UI,
  *                         matching the current Anki import behaviour).
  *
@@ -42,8 +43,22 @@ import javax.xml.parsers.DocumentBuilderFactory
  */
 class PlecoXmlParser {
 
-    /** Regex matching the start of CJK Unified Ideographs (Basic + Extension A). */
-    private val CJK_PATTERN = Regex("[㐀-鿿]")
+    /**
+     * Runs of CJK ideographs and CJK/fullwidth punctuation. Inside a Pleco definition
+     * these are always embedded example sentences, never part of the gloss.
+     */
+    private val CJK_RUN = Regex("[\\u3000-\\u303F\\u3400-\\u4DBF\\u4E00-\\u9FFF\\uFF00-\\uFFEF]+")
+
+    /**
+     * Lowercase part-of-speech labels Pleco uses to introduce a new sense. Matched
+     * case-sensitively so a capitalised "Noun" inside an example translation does not
+     * masquerade as a sense. Multi-word labels come first so they win the alternation.
+     */
+    private val POS_MARKER = Regex(
+        "\\b(?:proper noun|measure word|auxiliary verb|place name|abbreviation|" +
+            "onomatopoeia|interjection|conjunction|preposition|adjective|adverb|" +
+            "pronoun|numeral|particle|surname|prefix|suffix|phrase|idiom|noun|verb)\\b"
+    )
 
     /**
      * Parse a Pleco XML export from [inputStream].
@@ -81,7 +96,7 @@ class PlecoXmlParser {
 
             val defn = entry?.firstChildElement("defn")
                 ?.textContent
-                ?.let { trimDefinition(normalize(it)) }
+                ?.let { parseDefinition(it) }
                 .orEmpty()
 
             val answer = listOf(pinyin, defn).filter { it.isNotBlank() }.joinToString("\n")
@@ -142,24 +157,57 @@ class PlecoXmlParser {
     private fun normalize(s: String): String = s.replace(Regex("\\s+"), " ").trim()
 
     /**
-     * Trim a Pleco definition to its core meaning by cutting at the first CJK
-     * character (which marks the start of an embedded example sentence).
+     * Turn a raw `<defn>` into the card's definition text.
      *
-     * If the definition contains no CJK characters (e.g. a single-line English
-     * gloss or a German/numbered entry), the full normalized text is kept.
-     * If the text before the first CJK character is blank (rare — definition
-     * starts directly with Hanzi), the full text is also kept.
-     *
-     * After the cut, trailing separator characters and dangling cross-reference
-     * IDs (bare digit strings) are stripped.
+     * Each source line is normalised and reduced to its senses; the senses of all lines
+     * are joined with newlines. Line breaks Pleco put in the definition (typical of the
+     * bulleted German dictionaries) therefore survive, while the whitespace inside a
+     * line is collapsed.
      */
-    private fun trimDefinition(raw: String): String {
-        val match = CJK_PATTERN.find(raw) ?: return raw   // no Hanzi → keep all
-        val head = raw.substring(0, match.range.first)
-            .trim()
+    private fun parseDefinition(raw: String): String =
+        raw.lineSequence()
+            .map { normalize(it) }
+            .filter { it.isNotBlank() }
+            .flatMap { extractSenses(it).asSequence() }
+            .joinToString("\n")
+
+    /**
+     * Split one line into its senses.
+     *
+     * Pleco interleaves senses and examples: `noun permission 得到家长的允许 dédào …
+     * gain permission from one’s parents verb permit; allow 不允许… `. Splitting on CJK
+     * runs leaves the first sense as the leading segment, and every later segment as
+     * `<example pinyin> <example translation>` optionally followed by the next sense —
+     * which always begins at a part-of-speech label. So the last [POS_MARKER] match in
+     * a later segment marks where that segment's sense starts; segments with no match
+     * are pure example text and are dropped.
+     *
+     * If nothing survives — a definition that opens with Hanzi — the whole line is kept.
+     */
+    private fun extractSenses(line: String): List<String> {
+        val segments = line.split(CJK_RUN)
+        val senses = mutableListOf<String>()
+
+        cleanSense(segments.first())?.let { senses.add(it) }
+
+        for (segment in segments.drop(1)) {
+            val marker = POS_MARKER.findAll(segment).lastOrNull() ?: continue
+            if (segment.substring(marker.range.last + 1).isBlank()) continue
+            cleanSense(segment.substring(marker.range.first))?.let { senses.add(it) }
+        }
+
+        return senses.ifEmpty { listOf(line) }
+    }
+
+    /**
+     * Strip the separator characters and dangling cross-reference ids left behind when
+     * a sense is cut out of a longer definition. Returns null if nothing is left.
+     */
+    private fun cleanSense(raw: String): String? {
+        val cleaned = raw.trim()
             .trimEnd('∼', ';', ',', '(', '·', '•', '-', ' ')
-            .replace(Regex("\\s+\\d+$"), "")              // drop trailing cross-ref id
+            .replace(Regex("\\s+\\d+$"), "")
             .trim()
-        return head.ifBlank { raw }                        // started with Hanzi → keep all
+        return cleaned.ifBlank { null }
     }
 }
