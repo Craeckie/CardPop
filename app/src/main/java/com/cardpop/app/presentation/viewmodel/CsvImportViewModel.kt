@@ -61,7 +61,6 @@ class CsvImportViewModel @Inject constructor(
     private var cachedParseResult: CsvParseResult? = null
 
     private var pendingUri: Uri? = null
-    private var pendingFileName: String? = null
 
     /**
      * Sets the file to be imported (from SAF picker result).
@@ -69,7 +68,6 @@ class CsvImportViewModel @Inject constructor(
      */
     fun setFile(uri: Uri, fileName: String, contentResolver: android.content.ContentResolver) {
         pendingUri = uri
-        pendingFileName = fileName
         _uiState.value = _uiState.value.copy(
             fileName = fileName,
             parseResult = null,
@@ -235,7 +233,6 @@ class CsvImportViewModel @Inject constructor(
      */
     fun reset() {
         pendingUri = null
-        pendingFileName = null
         cachedParseResult = null
         _uiState.value = CsvImportUiState()
     }

@@ -48,20 +48,12 @@ class ImportCsvUseCase @Inject constructor(
 ) {
 
     /**
-     * Parses a CSV file and returns the parse result for preview.
-     * Does not modify the database.
-     */
-    fun parseForPreview(inputStream: InputStream): CsvParseResult {
-        return csvParser.parse(inputStream)
-    }
-
-    /**
      * Imports pre-parsed flashcards into the database.
      *
      * This is the preferred method when the user has already previewed the file —
      * it avoids re-reading the InputStream.
      *
-     * @param parseResult The result from a previous [parseForPreview] call
+     * @param parseResult The result from a previous preview parse
      * @param fallbackCategoryId Default category for cards without an explicit category name.
      *   Ignored when [newCategoryName] is provided.
      * @param skipDuplicates Whether to skip cards that already exist (matched by question+answer)

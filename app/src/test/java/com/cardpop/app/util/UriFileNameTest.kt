@@ -20,7 +20,7 @@ class NamingProvider : ContentProvider() {
         uri: Uri, projection: Array<out String>?, selection: String?,
         selectionArgs: Array<out String>?, sortOrder: String?
     ): Cursor = MatrixCursor(arrayOf(OpenableColumns.DISPLAY_NAME)).apply {
-        addRow(arrayOf<Any>("flash2609051105.xml"))
+        addRow(arrayOf<Any>("pleco-export.xml"))
     }
     override fun getType(uri: Uri): String? = null
     override fun insert(uri: Uri, values: ContentValues?): Uri? = null
@@ -51,7 +51,7 @@ class UriFileNameTest {
         ShadowContentResolver.registerProviderInternal("naming.docs", NamingProvider())
         val uri = Uri.parse("content://naming.docs/document/msf%3A1000012345")
 
-        assertEquals("flash2609051105.xml", resolveDisplayName(resolver, uri))
+        assertEquals("pleco-export.xml", resolveDisplayName(resolver, uri))
     }
 
     @Test
