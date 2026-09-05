@@ -1266,7 +1266,7 @@ private fun NewCardLimitSettingItem(
     limit: Int,
     onLimitChange: (Int) -> Unit
 ) {
-    val options = listOf(0, 5, 10, 15, 20, 30, 50, SettingsRepository.NEW_CARD_LIMIT_UNLIMITED)
+    val options = listOf(0, 1, 2, 5, 10, 20, 50, SettingsRepository.NEW_CARD_LIMIT_UNLIMITED)
     val currentIndex = options.indexOf(limit).let { if (it >= 0) it else options.indexOf(10) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
