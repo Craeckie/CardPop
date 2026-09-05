@@ -89,7 +89,6 @@ fun CsvImportScreen(
             selectedFileUri = it
             selectedFileName = resolveDisplayName(context.contentResolver, it)
             viewModel.setFile(it, selectedFileName!!, context.contentResolver)
-            viewModel.parseForPreview(context.contentResolver)
         }
     }
 
